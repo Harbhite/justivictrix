@@ -2,23 +2,9 @@
 import { motion } from "framer-motion";
 import { Image, Upload, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { toast } from "sonner";
-
-// Initialize Supabase client with error handling
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Supabase URL and Anon Key are required");
-  toast.error("Missing Supabase configuration");
-}
-
-const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-);
+import { supabase } from "@/integrations/supabase/client";
 
 interface GalleryImage {
   id: number;
@@ -35,10 +21,6 @@ const Gallery = () => {
   const { data: images, isLoading, error } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error("Supabase configuration is missing");
-      }
-
       const { data, error } = await supabase
         .from('gallery')
         .select('*')
@@ -59,11 +41,6 @@ const Gallery = () => {
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      toast.error("Supabase configuration is missing");
-      return;
-    }
 
     try {
       setIsUploading(true);
