@@ -6,10 +6,18 @@ import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { toast } from "sonner";
 
-// Initialize Supabase client
+// Initialize Supabase client with error handling
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Supabase URL and Anon Key are required");
+  toast.error("Missing Supabase configuration");
+}
+
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  supabaseUrl || '',
+  supabaseAnonKey || ''
 );
 
 interface GalleryImage {
@@ -24,9 +32,13 @@ const Gallery = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   // Fetch gallery images
-  const { data: images, isLoading } = useQuery({
+  const { data: images, isLoading, error } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error("Supabase configuration is missing");
+      }
+
       const { data, error } = await supabase
         .from('gallery')
         .select('*')
@@ -37,10 +49,21 @@ const Gallery = () => {
     }
   });
 
+  // If there's an error, show it to the user
+  if (error) {
+    console.error('Gallery error:', error);
+    toast.error('Failed to load gallery images');
+  }
+
   // Handle image upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      toast.error("Supabase configuration is missing");
+      return;
+    }
 
     try {
       setIsUploading(true);
