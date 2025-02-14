@@ -6,7 +6,7 @@ const Gallery = () => {
   // This would be replaced with actual image data
   const images = Array(6).fill({
     url: "https://placehold.co/600x400",
-    title: "Law Class Event",
+    title: "LLB28 Class Event",
     date: "2024",
   });
 
@@ -18,8 +18,15 @@ const Gallery = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
-          Gallery
+          LLB28 Gallery
         </h1>
+        
+        <div className="mb-8 p-6 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <p className="text-lg">
+            Welcome to the gallery of LLB28 class, University of Ibadan Faculty of Law. 
+            Here we showcase our memorable moments and class activities.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {images.map((image, index) => (
