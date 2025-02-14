@@ -1,14 +1,85 @@
 
 import { motion } from "framer-motion";
-import { Image } from "lucide-react";
+import { Image, Upload, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@supabase/supabase-js";
+import { useState } from "react";
+import { toast } from "sonner";
+
+// Initialize Supabase client
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
+interface GalleryImage {
+  id: number;
+  title: string;
+  image_url: string;
+  date: string;
+  created_at: string;
+}
 
 const Gallery = () => {
-  // This would be replaced with actual image data
-  const images = Array(6).fill({
-    url: "https://placehold.co/600x400",
-    title: "LLB28 Class Event",
-    date: "2024",
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Fetch gallery images
+  const { data: images, isLoading } = useQuery({
+    queryKey: ['gallery-images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as GalleryImage[];
+    }
   });
+
+  // Handle image upload
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      
+      // Upload image to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const { error: uploadError, data } = await supabase.storage
+        .from('gallery-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery-images')
+        .getPublicUrl(fileName);
+
+      // Insert record into gallery table
+      const { error: insertError } = await supabase
+        .from('gallery')
+        .insert([
+          {
+            title: file.name.split('.')[0],
+            image_url: publicUrl,
+            date: new Date().toISOString().split('T')[0]
+          }
+        ]);
+
+      if (insertError) throw insertError;
+      
+      toast.success('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -22,29 +93,61 @@ const Gallery = () => {
         </h1>
         
         <div className="mb-8 p-6 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <p className="text-lg">
+          <p className="text-lg mb-4">
             Welcome to the gallery of LLB28 class, University of Ibadan Faculty of Law. 
             Here we showcase our memorable moments and class activities.
           </p>
+          
+          <label className="flex items-center justify-center p-4 bg-white border-4 border-black cursor-pointer hover:bg-gray-50 transition-colors">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={isUploading}
+              className="hidden"
+            />
+            {isUploading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <>
+                <Upload className="w-6 h-6 mr-2" />
+                Upload New Image
+              </>
+            )}
+          </label>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {images.map((image, index) => (
-            <motion.div
-              key={index}
-              className="group relative border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all overflow-hidden"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                <Image className="w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-black p-4">
-                <h3 className="font-bold text-lg">{image.title}</h3>
-                <p className="text-law-neutral">{image.date}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {(images || []).map((image) => (
+              <motion.div
+                key={image.id}
+                className="group relative border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all overflow-hidden"
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  {image.image_url ? (
+                    <img
+                      src={image.image_url}
+                      alt={image.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image className="w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400" />
+                  )}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-black p-4">
+                  <h3 className="font-bold text-lg">{image.title}</h3>
+                  <p className="text-law-neutral">{image.date}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.div>
     </div>
   );
