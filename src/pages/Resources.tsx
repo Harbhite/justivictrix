@@ -1,11 +1,14 @@
 
 import { motion } from "framer-motion";
 import { FileText, Download, Book, Video } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const Resources = () => {
+  const queryClient = useQueryClient();
+
   const { data: resources, isLoading } = useQuery({
     queryKey: ["resources"],
     queryFn: async () => {
@@ -22,6 +25,31 @@ const Resources = () => {
       return data || [];
     },
   });
+
+  useEffect(() => {
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'resources'
+        },
+        (payload) => {
+          // Invalidate and refetch resources query when data changes
+          queryClient.invalidateQueries({ queryKey: ["resources"] });
+          toast.success("Resources list updated");
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const getIconForType = (type: string) => {
     switch (type.toLowerCase()) {
