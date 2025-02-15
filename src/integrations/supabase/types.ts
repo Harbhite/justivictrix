@@ -33,6 +33,72 @@ export type Database = {
         }
         Relationships: []
       }
+      members: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          concentration: string
+          created_at: string
+          id: number
+          matric_number: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          concentration: string
+          created_at?: string
+          id?: number
+          matric_number: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          concentration?: string
+          created_at?: string
+          id?: number
+          matric_number?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          file_url: string
+          id: number
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          file_url: string
+          id?: number
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_url?: string
+          id?: number
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
