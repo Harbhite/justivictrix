@@ -41,6 +41,7 @@ export type Database = {
           id: number
           matric_number: string
           name: string
+          post_held: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -49,6 +50,7 @@ export type Database = {
           id?: number
           matric_number: string
           name: string
+          post_held?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -57,6 +59,7 @@ export type Database = {
           id?: number
           matric_number?: string
           name?: string
+          post_held?: string | null
         }
         Relationships: []
       }
