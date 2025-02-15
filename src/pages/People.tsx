@@ -1,13 +1,14 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: members, isLoading } = useQuery({
     queryKey: ["members"],
@@ -25,6 +26,31 @@ const People = () => {
       return data || [];
     },
   });
+
+  useEffect(() => {
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          // Invalidate and refetch members query when data changes
+          queryClient.invalidateQueries({ queryKey: ["members"] });
+          toast.success("Member list updated");
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   return (
     <div className="container mx-auto px-4 py-16">
