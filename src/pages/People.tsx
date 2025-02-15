@@ -2,26 +2,29 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
 
-  // This would be replaced with actual member data
-  const members = [
-    {
-      name: "John Doe",
-      matricNumber: "LAW/2024/001",
-      concentration: "Constitutional Law",
-      bio: "Specializing in constitutional law with a focus on human rights.",
+  const { data: members, isLoading } = useQuery({
+    queryKey: ["members"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .order("name", { ascending: true });
+
+      if (error) {
+        toast.error("Failed to load members");
+        throw error;
+      }
+
+      return data || [];
     },
-    {
-      name: "Jane Smith",
-      matricNumber: "LAW/2024/002",
-      concentration: "Criminal Law",
-      bio: "Passionate about criminal justice reform and advocacy.",
-    },
-    // Add more members as needed
-  ];
+  });
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -34,26 +37,53 @@ const People = () => {
           Our People
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {members.map((member, index) => (
-            <motion.div
-              key={index}
-              className="p-6 bg-pink-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-              onClick={() => setSelectedMember(index)}
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="w-24 h-24 mx-auto bg-white border-4 border-black rounded-full flex items-center justify-center mb-4">
-                <User size={40} />
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="p-6 bg-pink-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse"
+              >
+                <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
               </div>
-              <h3 className="text-xl font-bold text-center mb-2">{member.name}</h3>
-              <p className="text-center text-law-neutral mb-2">{member.matricNumber}</p>
-              <p className="text-center font-medium">{member.concentration}</p>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {members?.map((member) => (
+              <motion.div
+                key={member.id}
+                className="p-6 bg-pink-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
+                onClick={() => setSelectedMember(member.id)}
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="w-24 h-24 mx-auto bg-white border-4 border-black rounded-full flex items-center justify-center mb-4">
+                  {member.avatar_url ? (
+                    <img
+                      src={member.avatar_url}
+                      alt={member.name}
+                      className="w-20 h-20 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User size={40} />
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-center mb-2">
+                  {member.name}
+                </h3>
+                <p className="text-center text-law-neutral mb-2">
+                  {member.matric_number}
+                </p>
+                <p className="text-center font-medium">{member.concentration}</p>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <AnimatePresence>
-          {selectedMember !== null && (
+          {selectedMember !== null && members && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -74,31 +104,35 @@ const People = () => {
                 >
                   <X size={24} />
                 </button>
-                <h2 className="text-2xl font-bold mb-4">
-                  {members[selectedMember].name}
-                </h2>
-                <div className="space-y-4">
-                  <p>
-                    <strong>Matric Number:</strong>{" "}
-                    {members[selectedMember].matricNumber}
-                  </p>
-                  <p>
-                    <strong>Concentration:</strong>{" "}
-                    {members[selectedMember].concentration}
-                  </p>
-                  <p>
-                    <strong>Bio:</strong> {members[selectedMember].bio}
-                  </p>
-                  <button
-                    className="w-full px-4 py-2 bg-blue-400 border-2 border-black hover:bg-blue-500 transition-colors mt-4"
-                    onClick={() => {
-                      // Implement download functionality
-                      console.log("Downloading bio...");
-                    }}
-                  >
-                    Download Bio
-                  </button>
-                </div>
+                {members && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-4">
+                      {members.find((m) => m.id === selectedMember)?.name}
+                    </h2>
+                    <div className="space-y-4">
+                      <p>
+                        <strong>Matric Number:</strong>{" "}
+                        {
+                          members.find((m) => m.id === selectedMember)
+                            ?.matric_number
+                        }
+                      </p>
+                      <p>
+                        <strong>Concentration:</strong>{" "}
+                        {
+                          members.find((m) => m.id === selectedMember)
+                            ?.concentration
+                        }
+                      </p>
+                      {members.find((m) => m.id === selectedMember)?.bio && (
+                        <p>
+                          <strong>Bio:</strong>{" "}
+                          {members.find((m) => m.id === selectedMember)?.bio}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
               </motion.div>
             </motion.div>
           )}
