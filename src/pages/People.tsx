@@ -102,7 +102,7 @@ const People = () => {
                 <p className="text-center text-law-neutral mb-2">
                   {member.matric_number}
                 </p>
-                <p className="text-center font-medium">{member.concentration}</p>
+                <p className="text-center font-medium">{member.gender}</p>
               </motion.div>
             ))}
           </div>
@@ -144,11 +144,8 @@ const People = () => {
                         }
                       </p>
                       <p>
-                        <strong>Concentration:</strong>{" "}
-                        {
-                          members.find((m) => m.id === selectedMember)
-                            ?.concentration
-                        }
+                        <strong>Gender:</strong>{" "}
+                        {members.find((m) => m.id === selectedMember)?.gender}
                       </p>
                       {members.find((m) => m.id === selectedMember)?.bio && (
                         <p>
