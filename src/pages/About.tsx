@@ -1,28 +1,48 @@
 
 import { motion } from "framer-motion";
-import { BookOpen, Users, Trophy, Scale } from "lucide-react";
+import { BookOpen, Users, Trophy, Scale, Brain, Gavel, Building2, GraduationCap } from "lucide-react";
 
 const About = () => {
   const features = [
     {
       icon: BookOpen,
       title: "Academic Excellence",
-      description: "Committed to the highest standards of legal education",
+      description: "LLB 28 maintains the highest standards of legal education, preparing students for the complexities of modern law practice.",
     },
     {
       icon: Users,
       title: "Collaborative Learning",
-      description: "Foster peer-to-peer learning and knowledge sharing",
+      description: "Our cohort emphasizes peer-to-peer learning and knowledge sharing, creating a supportive community of future lawyers.",
     },
     {
       icon: Trophy,
       title: "Professional Development",
-      description: "Prepare for successful legal careers",
+      description: "Through internships, moot courts, and practical workshops, we prepare our students for successful legal careers.",
     },
     {
       icon: Scale,
       title: "Legal Ethics",
-      description: "Emphasis on ethical practice and integrity",
+      description: "Strong emphasis on ethical practice and integrity, core values that define LLB 28's approach to legal education.",
+    },
+    {
+      icon: Brain,
+      title: "Critical Thinking",
+      description: "Develop advanced analytical and problem-solving skills essential for legal practice.",
+    },
+    {
+      icon: Gavel,
+      title: "Practical Experience",
+      description: "Gain real-world experience through law clinics and court visits.",
+    },
+    {
+      icon: Building2,
+      title: "Industry Connections",
+      description: "Network with leading law firms and legal professionals.",
+    },
+    {
+      icon: GraduationCap,
+      title: "Career Support",
+      description: "Comprehensive career guidance and placement assistance for LLB 28 students.",
     },
   ];
 
@@ -35,21 +55,43 @@ const About = () => {
         className="max-w-4xl mx-auto"
       >
         <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
-          About Our Law Class
+          About LLB 28
         </h1>
 
         <div className="prose prose-lg text-law-neutral mb-12">
           <div className="p-8 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <p className="mb-6 text-xl">
-              Welcome to our vibrant community of aspiring legal professionals. Our class
-              is dedicated to fostering excellence in legal education and preparing the
-              next generation of legal practitioners.
+              Welcome to LLB 28, a distinguished cohort of aspiring legal professionals. 
+              Our batch represents the future of legal practice, combining traditional legal 
+              education with modern approaches to law and justice.
             </p>
-            <p className="text-xl">
-              Through rigorous academic work, practical experience, and collaborative
-              learning, we aim to develop well-rounded legal minds capable of tackling
+            <p className="mb-6 text-xl">
+              Through rigorous academic work, practical experience, and collaborative 
+              learning, we aim to develop well-rounded legal minds capable of tackling 
               the complex challenges of tomorrow's legal landscape.
             </p>
+            <p className="text-xl">
+              LLB 28 stands out for its commitment to excellence, ethical practice, 
+              and innovative approaches to legal education. Our students are trained 
+              not just in legal theory, but in practical applications that prepare 
+              them for successful careers in law.
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">Our Mission</h2>
+          <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <p className="text-lg mb-4">
+              LLB 28's mission is to nurture legal professionals who will:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-lg">
+              <li>Champion justice and ethical legal practice</li>
+              <li>Excel in both traditional and emerging areas of law</li>
+              <li>Lead innovation in legal services and technology</li>
+              <li>Contribute to the development of legal scholarship</li>
+              <li>Serve society through pro bono work and legal advocacy</li>
+            </ul>
           </div>
         </div>
 
