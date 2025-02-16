@@ -6,43 +6,43 @@ const About = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Academic Excellence",
-      description: "LLB 28 maintains the highest standards of legal education, preparing students for the complexities of modern law practice.",
+      title: "Our Studies",
+      description: "We're currently focusing on core legal subjects including Constitutional Law, Criminal Law, and Legal Methods.",
     },
     {
       icon: Users,
-      title: "Collaborative Learning",
-      description: "Our cohort emphasizes peer-to-peer learning and knowledge sharing, creating a supportive community of future lawyers.",
+      title: "Our Community",
+      description: "LLB 28 consists of dedicated law students who support each other through group studies and shared resources.",
     },
     {
       icon: Trophy,
-      title: "Professional Development",
-      description: "Through internships, moot courts, and practical workshops, we prepare our students for successful legal careers.",
+      title: "Class Activities",
+      description: "We participate in moot courts, legal writing workshops, and various law school competitions as a class.",
     },
     {
       icon: Scale,
-      title: "Legal Ethics",
-      description: "Strong emphasis on ethical practice and integrity, core values that define LLB 28's approach to legal education.",
+      title: "Study Groups",
+      description: "Our class organizes regular study groups and discussion sessions to help each other understand complex legal concepts.",
     },
     {
       icon: Brain,
-      title: "Critical Thinking",
-      description: "Develop advanced analytical and problem-solving skills essential for legal practice.",
+      title: "Class Projects",
+      description: "We work on collaborative legal research projects and case studies throughout the semester.",
     },
     {
       icon: Gavel,
-      title: "Practical Experience",
-      description: "Gain real-world experience through law clinics and court visits.",
+      title: "Court Visits",
+      description: "Our class regularly attends court sessions to observe real legal proceedings and learn from practicing lawyers.",
     },
     {
       icon: Building2,
-      title: "Industry Connections",
-      description: "Network with leading law firms and legal professionals.",
+      title: "Class Schedule",
+      description: "We meet for lectures, tutorials, and practical sessions throughout the week, following the law school curriculum.",
     },
     {
       icon: GraduationCap,
-      title: "Career Support",
-      description: "Comprehensive career guidance and placement assistance for LLB 28 students.",
+      title: "Academic Support",
+      description: "Our class representatives coordinate with faculty to ensure we have access to necessary study materials and guidance.",
     },
   ];
 
@@ -55,42 +55,41 @@ const About = () => {
         className="max-w-4xl mx-auto"
       >
         <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
-          About LLB 28
+          About Our Class
         </h1>
 
         <div className="prose prose-lg text-law-neutral mb-12">
           <div className="p-8 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <p className="mb-6 text-xl">
-              Welcome to LLB 28, a distinguished cohort of aspiring legal professionals. 
-              Our batch represents the future of legal practice, combining traditional legal 
-              education with modern approaches to law and justice.
+              We are LLB 28, a class of law students in our journey through legal education. 
+              Our class website serves as a central hub for sharing resources, coordinating 
+              activities, and supporting each other throughout our studies.
             </p>
             <p className="mb-6 text-xl">
-              Through rigorous academic work, practical experience, and collaborative 
-              learning, we aim to develop well-rounded legal minds capable of tackling 
-              the complex challenges of tomorrow's legal landscape.
+              Together, we navigate through various law subjects, from Constitutional Law 
+              to Criminal Law, Civil Procedure, and more. We believe in collaborative 
+              learning and helping each other succeed in our legal education journey.
             </p>
             <p className="text-xl">
-              LLB 28 stands out for its commitment to excellence, ethical practice, 
-              and innovative approaches to legal education. Our students are trained 
-              not just in legal theory, but in practical applications that prepare 
-              them for successful careers in law.
+              This platform helps us stay connected, share study materials, and keep track 
+              of our class activities. Whether it's organizing study groups, sharing notes, 
+              or coordinating for moot court competitions, this is our digital classroom.
             </p>
           </div>
         </div>
 
         <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Our Mission</h2>
+          <h2 className="text-3xl font-bold mb-8 text-center">Class Activities</h2>
           <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <p className="text-lg mb-4">
-              LLB 28's mission is to nurture legal professionals who will:
+              As a class, we regularly engage in:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-lg">
-              <li>Champion justice and ethical legal practice</li>
-              <li>Excel in both traditional and emerging areas of law</li>
-              <li>Lead innovation in legal services and technology</li>
-              <li>Contribute to the development of legal scholarship</li>
-              <li>Serve society through pro bono work and legal advocacy</li>
+              <li>Weekly study group sessions for different subjects</li>
+              <li>Mock trials and moot court practice</li>
+              <li>Group discussions on recent legal cases</li>
+              <li>Collaborative note-taking and resource sharing</li>
+              <li>Court visits and legal procedure observations</li>
             </ul>
           </div>
         </div>
