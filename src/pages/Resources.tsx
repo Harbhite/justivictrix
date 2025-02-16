@@ -1,13 +1,14 @@
 
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video } from "lucide-react";
+import { FileText, Download, Book, Video, Upload, Loader2, File } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Resources = () => {
   const queryClient = useQueryClient();
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: resources, isLoading } = useQuery({
     queryKey: ["resources"],
@@ -33,23 +34,76 @@ const Resources = () => {
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'resources'
         },
         (payload) => {
-          // Invalidate and refetch resources query when data changes
           queryClient.invalidateQueries({ queryKey: ["resources"] });
           toast.success("Resources list updated");
         }
       )
       .subscribe();
 
-    // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+      const fileName = `${Math.random()}.${fileExt}`;
+      
+      const { error: uploadError, data } = await supabase.storage
+        .from('resources')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('resources')
+        .getPublicUrl(fileName);
+
+      // Determine resource type based on file extension
+      let type = 'document';
+      if (['pdf'].includes(fileExt)) type = 'pdf';
+      else if (['ppt', 'pptx'].includes(fileExt)) type = 'ppt';
+      else if (['mp4', 'mov', 'avi'].includes(fileExt)) type = 'video';
+      else if (['doc', 'docx'].includes(fileExt)) type = 'document';
+      else if (['epub'].includes(fileExt)) type = 'ebook';
+
+      // Insert record into resources table
+      const { error: insertError } = await supabase
+        .from('resources')
+        .insert([
+          {
+            title: file.name.split('.')[0],
+            file_url: publicUrl,
+            type,
+            category: 'Uploaded Materials',
+            file_type: fileExt,
+            description: `Uploaded ${file.name}`
+          }
+        ]);
+
+      if (insertError) throw insertError;
+      
+      toast.success('Resource uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload resource. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const getIconForType = (type: string) => {
     switch (type.toLowerCase()) {
@@ -59,9 +113,37 @@ const Resources = () => {
         return FileText;
       case "video":
         return Video;
-      default:
+      case "ebook":
         return Book;
+      default:
+        return File;
     }
+  };
+
+  const getPreviewComponent = (resource: any) => {
+    const fileType = resource.file_type?.toLowerCase();
+    
+    if (fileType === 'pdf') {
+      return (
+        <iframe
+          src={`${resource.file_url}#toolbar=0`}
+          className="w-full h-48 border-2 border-black mb-4"
+          title={resource.title}
+        />
+      );
+    }
+    
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+      return (
+        <img
+          src={resource.file_url}
+          alt={resource.title}
+          className="w-full h-48 object-cover border-2 border-black mb-4"
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -74,6 +156,26 @@ const Resources = () => {
         <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
           Resources
         </h1>
+
+        <div className="mb-8">
+          <label className="flex items-center justify-center p-4 bg-white border-4 border-black cursor-pointer hover:bg-gray-50 transition-colors">
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.epub,video/*"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+              className="hidden"
+            />
+            {isUploading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <>
+                <Upload className="w-6 h-6 mr-2" />
+                Upload New Resource
+              </>
+            )}
+          </label>
+        </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -90,6 +192,8 @@ const Resources = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {resources?.map((resource) => {
               const Icon = getIconForType(resource.type);
+              const preview = getPreviewComponent(resource);
+              
               return (
                 <motion.div
                   key={resource.id}
@@ -102,6 +206,9 @@ const Resources = () => {
                       {resource.type}
                     </span>
                   </div>
+                  
+                  {preview}
+
                   <h3 className="text-xl font-bold mt-4 mb-2">
                     {resource.title}
                   </h3>
@@ -116,9 +223,10 @@ const Resources = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
+                    download
                   >
                     <Download size={20} />
-                    Download
+                    Download {resource.file_type ? `.${resource.file_type}` : ''}
                   </a>
                 </motion.div>
               );
