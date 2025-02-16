@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Resources from "./pages/Resources";
 import Gallery from "./pages/Gallery";
+import Events from "./pages/Events";
 import People from "./pages/People";
 import Tools from "./pages/Tools";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/gallery" element={<Gallery />} />
+              <Route path="/events" element={<Events />} />
               <Route path="/people" element={<People />} />
               <Route path="/tools" element={<Tools />} />
               <Route path="*" element={<NotFound />} />

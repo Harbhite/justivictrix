@@ -12,6 +12,7 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Resources", path: "/resources" },
     { name: "Gallery", path: "/gallery" },
+    { name: "Events", path: "/events" },
     { name: "Our People", path: "/people" },
     { name: "Tools", path: "/tools" },
   ];
@@ -38,7 +39,7 @@ const Navbar = () => {
             to="/"
             className="text-law-dark font-semibold text-xl tracking-tight hover:text-law-primary transition-colors"
           >
-            Law Class
+            LLB28
           </Link>
 
           {/* Desktop Navigation */}

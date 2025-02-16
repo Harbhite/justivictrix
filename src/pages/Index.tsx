@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Users, GraduationCap, Scale } from "lucide-react";
+import { ArrowRight, Book, Users, GraduationCap, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -18,25 +18,25 @@ const Index = () => {
               Welcome to LLB 28
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-law-dark mb-6">
-              Your Gateway to Legal Excellence
+              Faculty of Law, University of Ibadan
             </h1>
             <p className="text-lg sm:text-xl text-law-neutral mb-8 max-w-2xl mx-auto">
-              Join the prestigious LLB 28 cohort at our law school, where future legal 
-              professionals are shaped through rigorous academic excellence and practical experience.
+              Discover our journey through law school, access course materials, view our class gallery, 
+              and stay updated with our events and activities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/about"
+                to="/gallery"
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-law-primary hover:bg-law-primary/90 transition-colors duration-200"
               >
-                Learn More
+                View Gallery
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
                 to="/resources"
                 className="inline-flex items-center justify-center px-6 py-3 border border-law-primary text-base font-medium rounded-lg text-law-primary bg-transparent hover:bg-law-primary/5 transition-colors duration-200"
               >
-                View Resources
+                Access Resources
               </Link>
             </div>
           </motion.div>
@@ -52,34 +52,33 @@ const Index = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-law-dark mb-4">Why LLB 28?</h2>
+            <h2 className="text-3xl font-bold text-law-dark mb-4">Class Highlights</h2>
             <p className="text-lg text-law-neutral max-w-2xl mx-auto">
-              Our program is designed to create well-rounded legal professionals ready 
-              to tackle the challenges of tomorrow's legal landscape.
+              Experience the vibrant community of LLB28 through our various activities and resources.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
-                icon: BookOpen,
-                title: "Comprehensive Curriculum",
-                description: "Carefully curated courses covering both traditional and emerging areas of law"
+                icon: Book,
+                title: "Course Materials",
+                description: "Access lecture notes, past questions, and study resources"
               },
               {
                 icon: Users,
-                title: "Collaborative Learning",
-                description: "Work alongside talented peers in an environment that fosters growth"
+                title: "Class Community",
+                description: "Connect with classmates and participate in study groups"
               },
               {
                 icon: GraduationCap,
-                title: "Expert Faculty",
-                description: "Learn from experienced professors and practicing lawyers"
+                title: "Academic Excellence",
+                description: "Track our progress and academic achievements"
               },
               {
                 icon: Scale,
-                title: "Practical Experience",
-                description: "Gain hands-on experience through moot courts and legal clinics"
+                title: "Moot Court",
+                description: "Participate in mock trials and legal competitions"
               }
             ].map((feature, index) => (
               <motion.div
@@ -106,16 +105,16 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h2 className="text-3xl font-bold mb-6">Join LLB 28's Journey</h2>
+            <h2 className="text-3xl font-bold mb-6">Stay Connected</h2>
             <p className="text-lg text-law-neutral mb-8">
-              Be part of a community that's shaping the future of legal practice. 
-              Access resources, connect with peers, and excel in your legal studies.
+              Keep up with class activities, access study materials, and participate in our events.
+              Together, we're building a strong legal foundation.
             </p>
             <Link
-              to="/resources"
+              to="/events"
               className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-medium rounded-lg text-white bg-law-primary hover:bg-law-primary/90 transition-colors duration-200"
             >
-              Access Resources
+              View Upcoming Events
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </motion.div>
