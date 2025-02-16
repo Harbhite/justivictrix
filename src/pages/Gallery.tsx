@@ -18,7 +18,7 @@ const Gallery = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   // Fetch gallery images
-  const { data: images, isLoading, error } = useQuery({
+  const { data: images, isLoading } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -26,31 +26,48 @@ const Gallery = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        toast.error('Failed to load gallery images');
+        throw error;
+      }
       return data as GalleryImage[];
     }
   });
-
-  // If there's an error, show it to the user
-  if (error) {
-    console.error('Gallery error:', error);
-    toast.error('Failed to load gallery images');
-  }
 
   // Handle image upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload only image files (JPEG, PNG, GIF)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
     try {
       setIsUploading(true);
       
-      // Upload image to Supabase Storage
+      // Generate a unique filename
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError, data } = await supabase.storage
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
         .from('gallery-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          contentType: file.type,
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 
