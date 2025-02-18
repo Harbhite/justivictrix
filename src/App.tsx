@@ -12,6 +12,7 @@ import Gallery from "./pages/Gallery";
 import Events from "./pages/Events";
 import People from "./pages/People";
 import Tools from "./pages/Tools";
+import Timetable from "./pages/Timetable";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/events" element={<Events />} />
               <Route path="/people" element={<People />} />
               <Route path="/tools" element={<Tools />} />
+              <Route path="/timetable" element={<Timetable />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
