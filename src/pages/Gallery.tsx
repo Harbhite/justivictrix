@@ -9,8 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface GalleryItem {
   id: number;
   title: string;
-  file_url: string;
-  file_type: string;
+  image_url: string;
   date: string;
   created_at: string;
 }
@@ -86,8 +85,7 @@ const Gallery = () => {
         .insert([
           {
             title: file.name.split('.')[0],
-            file_url: publicUrl,
-            file_type: file.type,
+            image_url: publicUrl,
             date: new Date().toISOString().split('T')[0]
           }
         ]);
@@ -104,27 +102,24 @@ const Gallery = () => {
   };
 
   const renderMedia = (item: GalleryItem) => {
-    if (item.file_type.startsWith('image/')) {
-      return (
-        <img
-          src={item.file_url}
-          alt={item.title}
-          className="w-full h-full object-cover"
-        />
-      );
-    } else if (item.file_type.startsWith('video/')) {
+    // Check if the URL ends with a video extension
+    const isVideo = /\.(mp4|mov|quicktime)$/i.test(item.image_url);
+    
+    if (isVideo) {
       return (
         <video
-          src={item.file_url}
+          src={item.image_url}
           controls
           className="w-full h-full object-cover"
         />
       );
     }
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gray-100">
-        <Image className="w-20 h-20 text-gray-400" />
-      </div>
+      <img
+        src={item.image_url}
+        alt={item.title}
+        className="w-full h-full object-cover"
+      />
     );
   };
 
