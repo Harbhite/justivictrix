@@ -78,51 +78,51 @@ const Timetable = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-4xl mx-auto"
+        className="max-w-7xl mx-auto"
       >
-        <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
+        <h1 className="text-4xl md:text-5xl font-black text-law-dark mb-8 md:mb-12 border-4 border-black p-4 inline-block bg-white">
           Class Timetable
         </h1>
 
-        <div className="p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex justify-end gap-4 mb-6">
+        <div className="p-4 md:p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex flex-col sm:flex-row justify-end gap-4 mb-6">
             <button
               onClick={downloadAsCsv}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full sm:w-auto"
             >
               <Download className="w-5 h-5" />
               Download CSV
             </button>
             <button
               onClick={downloadAsImage}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto"
             >
               <ImageIcon className="w-5 h-5" />
               Download Image
             </button>
           </div>
           
-          <div ref={tableRef} className="bg-white p-6 rounded-lg">
-            <table className="w-full border-collapse">
+          <div ref={tableRef} className="bg-white p-4 md:p-6 rounded-lg overflow-x-auto">
+            <table className="w-full border-collapse min-w-[800px]">
               <thead>
                 <tr>
-                  <th className="border-2 border-black bg-white p-2">Time</th>
-                  <th className="border-2 border-black bg-white p-2">Monday</th>
-                  <th className="border-2 border-black bg-white p-2">Tuesday</th>
-                  <th className="border-2 border-black bg-white p-2">Wednesday</th>
-                  <th className="border-2 border-black bg-white p-2">Thursday</th>
-                  <th className="border-2 border-black bg-white p-2">Friday</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Time</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Monday</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Tuesday</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Wednesday</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Thursday</th>
+                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Friday</th>
                 </tr>
               </thead>
               <tbody>
                 {timetable.map((row, index) => (
                   <tr key={index}>
-                    <td className="border-2 border-black bg-white p-2">{row.time}</td>
-                    <td className="border-2 border-black bg-white p-2">{row.monday}</td>
-                    <td className="border-2 border-black bg-white p-2">{row.tuesday}</td>
-                    <td className="border-2 border-black bg-white p-2">{row.wednesday}</td>
-                    <td className="border-2 border-black bg-white p-2">{row.thursday}</td>
-                    <td className="border-2 border-black bg-white p-2">{row.friday}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.time}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.monday}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.tuesday}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.wednesday}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.thursday}</td>
+                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.friday}</td>
                   </tr>
                 ))}
               </tbody>
