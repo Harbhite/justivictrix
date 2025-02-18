@@ -1,11 +1,38 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Minus, ArrowRight } from "lucide-react";
+import { Plus, Minus, ArrowRight, Download } from "lucide-react";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
   const [iracOpen, setIracOpen] = useState(false);
+
+  const timetable = [
+    {
+      time: "8:00 AM - 10:00 AM",
+      monday: "Constitutional Law",
+      tuesday: "Criminal Law",
+      wednesday: "Contract Law",
+      thursday: "Property Law",
+      friday: "Jurisprudence"
+    },
+    {
+      time: "10:00 AM - 12:00 PM",
+      monday: "Legal Methods",
+      tuesday: "Nigerian Legal System",
+      wednesday: "Administrative Law",
+      thursday: "Law of Torts",
+      friday: "Legal Research"
+    },
+    {
+      time: "1:00 PM - 3:00 PM",
+      monday: "Commercial Law",
+      tuesday: "Company Law",
+      wednesday: "Evidence",
+      thursday: "Civil Procedure",
+      friday: "Moot Court"
+    }
+  ];
 
   const addCourse = () => {
     setCourses([...courses, { grade: "", units: "" }]);
@@ -43,6 +70,23 @@ const Tools = () => {
     return gradePoints[grade.toUpperCase()] || 0;
   };
 
+  const downloadTimetable = () => {
+    let csvContent = "Time,Monday,Tuesday,Wednesday,Thursday,Friday\n";
+    timetable.forEach(row => {
+      csvContent += `${row.time},${row.monday},${row.tuesday},${row.wednesday},${row.thursday},${row.friday}\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'LLB28_Timetable.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -55,8 +99,48 @@ const Tools = () => {
           Legal Tools
         </h1>
 
+        {/* Class Timetable */}
+        <div className="p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Class Timetable</h2>
+            <button
+              onClick={downloadTimetable}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <Download className="w-5 h-5" />
+              Download
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border-2 border-black bg-white p-2">Time</th>
+                  <th className="border-2 border-black bg-white p-2">Monday</th>
+                  <th className="border-2 border-black bg-white p-2">Tuesday</th>
+                  <th className="border-2 border-black bg-white p-2">Wednesday</th>
+                  <th className="border-2 border-black bg-white p-2">Thursday</th>
+                  <th className="border-2 border-black bg-white p-2">Friday</th>
+                </tr>
+              </thead>
+              <tbody>
+                {timetable.map((row, index) => (
+                  <tr key={index}>
+                    <td className="border-2 border-black bg-white p-2">{row.time}</td>
+                    <td className="border-2 border-black bg-white p-2">{row.monday}</td>
+                    <td className="border-2 border-black bg-white p-2">{row.tuesday}</td>
+                    <td className="border-2 border-black bg-white p-2">{row.wednesday}</td>
+                    <td className="border-2 border-black bg-white p-2">{row.thursday}</td>
+                    <td className="border-2 border-black bg-white p-2">{row.friday}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* CGPA Calculator */}
-        <div className="p-8 bg-yellow-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+        <div className="p-8 bg-yellow-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-3xl font-bold mb-6">CGPA Calculator</h2>
           
           <div className="space-y-4">
@@ -105,12 +189,12 @@ const Tools = () => {
         </div>
 
         {/* IRAC Method Guide */}
-        <div className="p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+        <div className="p-8 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-3xl font-bold mb-6 flex items-center justify-between">
             IRAC Method Guide
             <button
               onClick={() => setIracOpen(!iracOpen)}
-              className="text-xl border-2 border-black px-4 py-2 hover:bg-blue-200"
+              className="text-xl border-2 border-black px-4 py-2 hover:bg-purple-200"
             >
               {iracOpen ? "Close" : "Open"} Guide
             </button>

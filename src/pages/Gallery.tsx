@@ -1,8 +1,7 @@
 
 import { motion } from "framer-motion";
-import { Image, Upload, Loader2, Video } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,8 +14,6 @@ interface GalleryItem {
 }
 
 const Gallery = () => {
-  const [isUploading, setIsUploading] = useState(false);
-
   // Fetch gallery items
   const { data: items, isLoading } = useQuery({
     queryKey: ['gallery-items'],
@@ -34,75 +31,7 @@ const Gallery = () => {
     }
   });
 
-  // Handle file upload
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/gif',
-      'video/mp4', 'video/quicktime'
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Please upload only images or videos (JPEG, PNG, GIF, MP4, MOV)');
-      return;
-    }
-
-    // Validate file size (max 400MB)
-    const maxSize = 400 * 1024 * 1024; // 400MB in bytes
-    if (file.size > maxSize) {
-      toast.error('File size must be less than 400MB');
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      
-      // Generate a unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('gallery-images')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          contentType: file.type,
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('gallery-images')
-        .getPublicUrl(fileName);
-
-      // Insert record into gallery table
-      const { error: insertError } = await supabase
-        .from('gallery')
-        .insert([
-          {
-            title: file.name.split('.')[0],
-            image_url: publicUrl,
-            date: new Date().toISOString().split('T')[0]
-          }
-        ]);
-
-      if (insertError) throw insertError;
-      
-      toast.success('File uploaded successfully!');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload file. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const renderMedia = (item: GalleryItem) => {
-    // Check if the URL ends with a video extension
     const isVideo = /\.(mp4|mov|quicktime)$/i.test(item.image_url);
     
     if (isVideo) {
@@ -137,26 +66,8 @@ const Gallery = () => {
         <div className="mb-8 p-6 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <p className="text-lg mb-4">
             Welcome to the gallery of LLB28 class, University of Ibadan Faculty of Law. 
-            Share your memories and class activities through photos and videos.
+            Here you can view our memories and class activities through photos and videos.
           </p>
-          
-          <label className="flex items-center justify-center p-4 bg-white border-4 border-black cursor-pointer hover:bg-gray-50 transition-colors">
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleFileUpload}
-              disabled={isUploading}
-              className="hidden"
-            />
-            {isUploading ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
-            ) : (
-              <>
-                <Upload className="w-6 h-6 mr-2" />
-                Upload Photo/Video
-              </>
-            )}
-          </label>
         </div>
 
         {isLoading ? (
