@@ -68,7 +68,7 @@ const Timetable = () => {
         logging: true,
         backgroundColor: '#ffffff',
         onclone: (clonedDoc) => {
-          const element = clonedDoc.querySelector('[ref="tableRef"]');
+          const element = clonedDoc.querySelector('[ref="tableRef"]') as HTMLElement;
           if (element) {
             element.style.padding = '20px';
             element.style.width = 'fit-content';
