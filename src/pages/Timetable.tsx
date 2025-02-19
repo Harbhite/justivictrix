@@ -57,7 +57,15 @@ const Timetable = () => {
     if (!tableRef.current) return;
     
     try {
-      const canvas = await html2canvas(tableRef.current);
+      const canvas = await html2canvas(tableRef.current, {
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight,
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: true
+      });
       const url = canvas.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = url;

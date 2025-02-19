@@ -1,11 +1,12 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, BookTemplate } from "lucide-react";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
   const [iracOpen, setIracOpen] = useState(false);
+  const [referenceOpen, setReferenceOpen] = useState(false);
 
   const addCourse = () => {
     setCourses([...courses, { grade: "", units: "" }]);
@@ -38,7 +39,7 @@ const Tools = () => {
 
   const getGradePoints = (grade: string) => {
     const gradePoints: { [key: string]: number } = {
-      "A": 5.0, "B": 4.0, "C": 3.0, "D": 2.0, "F": 0.0
+      "A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "F": 0.0
     };
     return gradePoints[grade.toUpperCase()] || 0;
   };
@@ -57,7 +58,7 @@ const Tools = () => {
 
         {/* CGPA Calculator */}
         <div className="p-8 bg-yellow-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-bold mb-6">CGPA Calculator</h2>
+          <h2 className="text-3xl font-bold mb-6">CGPA Calculator (4.0 Scale)</h2>
           
           <div className="space-y-4">
             {courses.map((course, index) => (
@@ -68,11 +69,11 @@ const Tools = () => {
                   className="p-2 border-2 border-black"
                 >
                   <option value="">Grade</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="F">F</option>
+                  <option value="A">A (4.0)</option>
+                  <option value="B">B (3.0)</option>
+                  <option value="C">C (2.0)</option>
+                  <option value="D">D (1.0)</option>
+                  <option value="F">F (0.0)</option>
                 </select>
                 <input
                   type="number"
@@ -123,24 +124,92 @@ const Tools = () => {
               exit={{ opacity: 0, height: 0 }}
               className="space-y-6"
             >
-              <div className="p-4 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-2">Issue</h3>
-                <p>Identify the legal question to be resolved</p>
+              <div className="p-6 bg-white border-2 border-black">
+                <h3 className="text-xl font-bold mb-3">Issue (What's the legal question?)</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li>Identify the specific legal problem or question that needs to be resolved</li>
+                  <li>Focus on the key legal issues, not just factual disputes</li>
+                  <li>Frame the issue as a question that can be answered with legal analysis</li>
+                </ul>
               </div>
 
-              <div className="p-4 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-2">Rule</h3>
-                <p>State the relevant legal rules and authority</p>
+              <div className="p-6 bg-white border-2 border-black">
+                <h3 className="text-xl font-bold mb-3">Rule (What law applies?)</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li>State the relevant legal rules from statutes, cases, or regulations</li>
+                  <li>Include any tests or elements that courts use to apply the rule</li>
+                  <li>Cite specific legal authorities that establish the rule</li>
+                </ul>
               </div>
 
-              <div className="p-4 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-2">Analysis</h3>
-                <p>Apply the rules to the specific facts of your case</p>
+              <div className="p-6 bg-white border-2 border-black">
+                <h3 className="text-xl font-bold mb-3">Analysis (How does the law apply?)</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li>Apply the rule to the specific facts of your case</li>
+                  <li>Explain why the facts satisfy or fail to satisfy each element of the rule</li>
+                  <li>Compare and contrast with precedent cases</li>
+                  <li>Consider counter-arguments and address them</li>
+                </ul>
               </div>
 
-              <div className="p-4 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-2">Conclusion</h3>
-                <p>State your conclusion based on the analysis</p>
+              <div className="p-6 bg-white border-2 border-black">
+                <h3 className="text-xl font-bold mb-3">Conclusion (What's the outcome?)</h3>
+                <ul className="list-disc ml-6 space-y-2">
+                  <li>State your final conclusion based on the analysis</li>
+                  <li>Briefly summarize the key reasons supporting your conclusion</li>
+                  <li>Address any practical implications or next steps</li>
+                </ul>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Citation Reference Guide */}
+        <div className="p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <BookTemplate className="w-8 h-8" />
+              Citation Reference Guide
+            </span>
+            <button
+              onClick={() => setReferenceOpen(!referenceOpen)}
+              className="text-xl border-2 border-black px-4 py-2 hover:bg-blue-200"
+            >
+              {referenceOpen ? "Close" : "Open"} Guide
+            </button>
+          </h2>
+
+          {referenceOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-6"
+            >
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-4 bg-white border-2 border-black">
+                  <h3 className="text-lg font-bold mb-2">Case Citation</h3>
+                  <p className="mb-2">Format: [Year] Volume Law Report Page</p>
+                  <p className="text-sm text-gray-600">Example: [2015] 2 NWLR (Pt. 1443) 1</p>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-black">
+                  <h3 className="text-lg font-bold mb-2">Statute Citation</h3>
+                  <p className="mb-2">Format: Name of Act, Year, Section</p>
+                  <p className="text-sm text-gray-600">Example: Constitution of the Federal Republic of Nigeria, 1999, s.1</p>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-black">
+                  <h3 className="text-lg font-bold mb-2">Journal Articles</h3>
+                  <p className="mb-2">Format: Author, "Title" (Year) Volume Journal Page</p>
+                  <p className="text-sm text-gray-600">Example: Smith J, "Legal Theory" (2020) 15 LLR 45</p>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-black">
+                  <h3 className="text-lg font-bold mb-2">Books</h3>
+                  <p className="mb-2">Format: Author, Title (Edition, Publisher Year) Page</p>
+                  <p className="text-sm text-gray-600">Example: John Doe, Law of Contract (3rd edn, Sweet & Maxwell 2019) 156</p>
+                </div>
               </div>
             </motion.div>
           )}
