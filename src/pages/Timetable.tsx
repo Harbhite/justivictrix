@@ -1,8 +1,9 @@
 
 import { motion } from "framer-motion";
-import { Download, Image as ImageIcon } from "lucide-react";
+import { Download, Image as ImageIcon, FileType } from "lucide-react";
 import { useRef } from "react";
 import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { toast } from "sonner";
 
 const Timetable = () => {
@@ -62,10 +63,19 @@ const Timetable = () => {
         scrollY: -window.scrollY,
         windowWidth: document.documentElement.offsetWidth,
         windowHeight: document.documentElement.offsetHeight,
-        scale: 2, // Higher quality
+        scale: 2,
         useCORS: true,
-        logging: true
+        logging: true,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          const element = clonedDoc.querySelector('[ref="tableRef"]');
+          if (element) {
+            element.style.padding = '20px';
+            element.style.width = 'fit-content';
+          }
+        }
       });
+      
       const url = canvas.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = url;
@@ -77,6 +87,35 @@ const Timetable = () => {
     } catch (error) {
       toast.error('Failed to download image');
       console.error('Error generating image:', error);
+    }
+  };
+
+  const downloadAsPdf = async () => {
+    if (!tableRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+      });
+      
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('LLB28_Timetable.pdf');
+      
+      toast.success('Timetable downloaded as PDF');
+    } catch (error) {
+      toast.error('Failed to download PDF');
+      console.error('Error generating PDF:', error);
     }
   };
 
@@ -107,6 +146,13 @@ const Timetable = () => {
             >
               <ImageIcon className="w-5 h-5" />
               Download Image
+            </button>
+            <button
+              onClick={downloadAsPdf}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors w-full sm:w-auto"
+            >
+              <FileType className="w-5 h-5" />
+              Download PDF
             </button>
           </div>
           
