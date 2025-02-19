@@ -7,10 +7,15 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import People from './pages/People';
 import FullProfile from './pages/FullProfile';
+import Index from './pages/Index';
 
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Index />,
+  },
   {
     path: "/people",
     element: <People />,
