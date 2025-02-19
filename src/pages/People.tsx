@@ -1,14 +1,18 @@
 
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User } from "lucide-react";
+import { X, User, Download, FileType, ExternalLink } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import { useNavigate } from "react-router-dom";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const bioCardRef = useRef<HTMLDivElement>(null);
 
   const { data: members, isLoading } = useQuery({
     queryKey: ["members"],
@@ -27,30 +31,29 @@ const People = () => {
     },
   });
 
-  useEffect(() => {
-    // Subscribe to real-time changes
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          // Invalidate and refetch members query when data changes
-          queryClient.invalidateQueries({ queryKey: ["members"] });
-          toast.success("Member list updated");
-        }
-      )
-      .subscribe();
-
-    // Cleanup subscription on component unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
+  const downloadBioCard = async () => {
+    if (!bioCardRef.current || !selectedMember) return;
+    
+    try {
+      const canvas = await html2canvas(bioCardRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      });
+      
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      const member = members?.find(m => m.id === selectedMember);
+      a.download = `${member?.name.replace(/\s+/g, '_')}_bio_card.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success('Bio card downloaded as image');
+    } catch (error) {
+      toast.error('Failed to download bio card');
+      console.error('Error generating image:', error);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -81,7 +84,7 @@ const People = () => {
             {members?.map((member) => (
               <motion.div
                 key={member.id}
-                className="p-6 bg-pink-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
+                className="p-6 bg-gradient-to-br from-pink-100 to-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                 onClick={() => setSelectedMember(member.id)}
                 whileHover={{ scale: 1.02 }}
               >
@@ -96,12 +99,8 @@ const People = () => {
                     <User size={40} />
                   )}
                 </div>
-                <h3 className="text-xl font-bold text-center mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-center text-law-neutral mb-2">
-                  {member.matric_number}
-                </p>
+                <h3 className="text-xl font-bold text-center mb-2">{member.name}</h3>
+                <p className="text-center text-law-neutral mb-2">{member.matric_number}</p>
                 <p className="text-center font-medium">{member.gender}</p>
               </motion.div>
             ))}
@@ -118,10 +117,11 @@ const People = () => {
               onClick={() => setSelectedMember(null)}
             >
               <motion.div
+                ref={bioCardRef}
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full relative"
+                className="bg-gradient-to-br from-pink-100 to-purple-100 p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full relative"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
@@ -130,31 +130,54 @@ const People = () => {
                 >
                   <X size={24} />
                 </button>
+
                 {members && (
-                  <>
-                    <h2 className="text-2xl font-bold mb-4">
-                      {members.find((m) => m.id === selectedMember)?.name}
-                    </h2>
-                    <div className="space-y-4">
-                      <p>
-                        <strong>Matric Number:</strong>{" "}
-                        {
-                          members.find((m) => m.id === selectedMember)
-                            ?.matric_number
-                        }
-                      </p>
-                      <p>
-                        <strong>Gender:</strong>{" "}
-                        {members.find((m) => m.id === selectedMember)?.gender}
-                      </p>
-                      {members.find((m) => m.id === selectedMember)?.bio && (
-                        <p>
-                          <strong>Bio:</strong>{" "}
-                          {members.find((m) => m.id === selectedMember)?.bio}
-                        </p>
+                  <div className="space-y-6">
+                    <div className="w-32 h-32 mx-auto bg-white border-4 border-black rounded-full flex items-center justify-center">
+                      {members.find((m) => m.id === selectedMember)?.avatar_url ? (
+                        <img
+                          src={members.find((m) => m.id === selectedMember)?.avatar_url || ''}
+                          alt={members.find((m) => m.id === selectedMember)?.name}
+                          className="w-28 h-28 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User size={48} />
                       )}
                     </div>
-                  </>
+
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold mb-2">
+                        {members.find((m) => m.id === selectedMember)?.name}
+                      </h2>
+                      <p className="text-law-neutral mb-2">
+                        {members.find((m) => m.id === selectedMember)?.matric_number}
+                      </p>
+                      <p className="font-medium">
+                        {members.find((m) => m.id === selectedMember)?.gender}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 mt-6">
+                      <button
+                        onClick={() => {
+                          setSelectedMember(null);
+                          navigate(`/people/${selectedMember}`);
+                        }}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                        View Full Profile
+                      </button>
+                      
+                      <button
+                        onClick={downloadBioCard}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      >
+                        <Download className="w-5 h-5" />
+                        Download Bio Card
+                      </button>
+                    </div>
+                  </div>
                 )}
               </motion.div>
             </motion.div>
