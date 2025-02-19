@@ -16,10 +16,15 @@ const FullProfile = () => {
   const { data: member, isLoading } = useQuery({
     queryKey: ["member", id],
     queryFn: async () => {
+      if (!id) throw new Error("No ID provided");
+      
+      const numberId = parseInt(id);
+      if (isNaN(numberId)) throw new Error("Invalid ID format");
+
       const { data, error } = await supabase
         .from("members")
         .select("*")
-        .eq("id", id)
+        .eq("id", numberId)
         .single();
 
       if (error) {
