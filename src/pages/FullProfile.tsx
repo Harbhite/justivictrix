@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Download, User, FileType } from "lucide-react";
+import { ArrowLeft, Download, User, FileType, Mail, Phone, MapPin, Briefcase, GraduationCap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -59,9 +59,10 @@ const FullProfile = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-          <div className="h-64 bg-gray-200 rounded mb-8"></div>
+        <div className="animate-pulse space-y-8">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -90,44 +91,73 @@ const FullProfile = () => {
           Back to People
         </button>
 
-        <div className="max-w-4xl mx-auto bg-gradient-to-br from-pink-100 to-purple-100 p-8 rounded-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div className="w-32 h-32 mx-auto md:mx-0 bg-white border-4 border-black rounded-full flex items-center justify-center shrink-0">
-              {member.avatar_url ? (
-                <img
-                  src={member.avatar_url}
-                  alt={member.name}
-                  className="w-28 h-28 rounded-full object-cover"
-                />
-              ) : (
-                <User size={48} />
-              )}
-            </div>
-
-            <div className="flex-1">
-              <h1 className="text-4xl font-black text-law-dark mb-4">{member.name}</h1>
-              <div className="space-y-4">
-                <p className="text-xl"><strong>Matric Number:</strong> {member.matric_number}</p>
-                <p className="text-xl"><strong>Gender:</strong> {member.gender}</p>
-                {member.post_held && (
-                  <p className="text-xl"><strong>Post Held:</strong> {member.post_held}</p>
-                )}
-                {member.bio && (
-                  <div className="mt-6">
-                    <h2 className="text-2xl font-bold mb-2">Bio</h2>
-                    <p className="text-lg leading-relaxed">{member.bio}</p>
-                  </div>
+        <div className="max-w-4xl mx-auto">
+          {/* Header Section */}
+          <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-8 rounded-t-xl border-4 border-b-0 border-black">
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+              <div className="w-40 h-40 bg-white border-4 border-black rounded-full flex items-center justify-center shrink-0">
+                {member.avatar_url ? (
+                  <img
+                    src={member.avatar_url}
+                    alt={member.name}
+                    className="w-36 h-36 rounded-full object-cover"
+                  />
+                ) : (
+                  <User size={64} />
                 )}
               </div>
+              
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-4xl font-black text-law-dark mb-4">{member.name}</h1>
+                <p className="text-xl text-law-neutral mb-4">{member.post_held || "Student"}</p>
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <button
+                    onClick={downloadAsPdf}
+                    className="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                  >
+                    <FileType className="w-5 h-5" />
+                    Download Profile as PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div className="mt-8 flex flex-wrap gap-4">
-                <button
-                  onClick={downloadAsPdf}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                >
-                  <FileType className="w-5 h-5" />
-                  Download Profile as PDF
-                </button>
+          {/* Details Section */}
+          <div className="bg-white p-8 rounded-b-xl border-4 border-t-0 border-black">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <GraduationCap className="w-6 h-6" />
+                    Academic Information
+                  </h2>
+                  <p className="text-lg"><strong>Matric Number:</strong> {member.matric_number}</p>
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Briefcase className="w-6 h-6" />
+                    Position
+                  </h2>
+                  <p className="text-lg">{member.post_held || "Student"}</p>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">About Me</h2>
+                  <p className="text-lg leading-relaxed">
+                    {member.bio || "No bio available"}
+                  </p>
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
+                  <p className="text-lg"><strong>Gender:</strong> {member.gender}</p>
+                </div>
               </div>
             </div>
           </div>

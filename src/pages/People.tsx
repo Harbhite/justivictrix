@@ -1,8 +1,7 @@
-
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Download, FileType, ExternalLink } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { X, User, Download, FileType, ExternalLink, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -10,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
-  const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const bioCardRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +29,12 @@ const People = () => {
       return data || [];
     },
   });
+
+  const filteredMembers = members?.filter(member => 
+    member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.matric_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (member.post_held && member.post_held.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const downloadBioCard = async () => {
     if (!bioCardRef.current || !selectedMember) return;
@@ -66,6 +71,19 @@ const People = () => {
           Our People
         </h1>
 
+        <div className="mb-8 max-w-md mx-auto">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search by name, matric number, or position..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-12 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((index) => (
@@ -81,7 +99,7 @@ const People = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {members?.map((member) => (
+            {filteredMembers?.map((member) => (
               <motion.div
                 key={member.id}
                 className="p-6 bg-gradient-to-br from-pink-100 to-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
