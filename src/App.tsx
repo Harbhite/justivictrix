@@ -3,6 +3,7 @@ import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  Outlet
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import People from './pages/People';
@@ -15,50 +16,69 @@ import Resources from './pages/Resources';
 import Timetable from './pages/Timetable';
 import Tools from './pages/Tools';
 import NotFound from './pages/NotFound';
+import Navbar from './components/Navbar';
 
 const queryClient = new QueryClient();
+
+// Layout component that includes Navbar and Outlet for nested routes
+const Layout = () => {
+  return (
+    <>
+      <Navbar />
+      <div className="pt-16"> {/* Add padding to account for fixed navbar */}
+        <Outlet />
+      </div>
+    </>
+  );
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
+    element: <Layout />,
+    children: [
+      {
+        path: "",
+        element: <Index />,
+      },
+      {
+        path: "people",
+        element: <People />,
+      },
+      {
+        path: "people/:id",
+        element: <FullProfile />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "gallery",
+        element: <Gallery />,
+      },
+      {
+        path: "resources",
+        element: <Resources />,
+      },
+      {
+        path: "timetable",
+        element: <Timetable />,
+      },
+      {
+        path: "tools",
+        element: <Tools />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      }
+    ],
   },
-  {
-    path: "/people",
-    element: <People />,
-  },
-  {
-    path: "/people/:id",
-    element: <FullProfile />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
-  {
-    path: "/events",
-    element: <Events />,
-  },
-  {
-    path: "/gallery",
-    element: <Gallery />,
-  },
-  {
-    path: "/resources",
-    element: <Resources />,
-  },
-  {
-    path: "/timetable",
-    element: <Timetable />,
-  },
-  {
-    path: "/tools",
-    element: <Tools />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  }
 ]);
 
 function App() {
