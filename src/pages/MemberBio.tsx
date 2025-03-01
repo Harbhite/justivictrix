@@ -117,7 +117,8 @@ const MemberBio = () => {
               {/* Bio Info */}
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-2xl font-bold mb-1">{member.name}</h1>
-                <p className="text-gray-600 mb-4">Students' Bar Association, University of Ibadan</p>
+                <p className="text-gray-600 mb-1">Students' Bar Association, University of Ibadan</p>
+                <p className="text-gray-600 mb-4">Member, Law Students' Society</p>
                 
                 {/* Stats Row */}
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
