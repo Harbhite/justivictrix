@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Download, FileType, ExternalLink, Search } from "lucide-react";
@@ -185,6 +186,17 @@ const People = () => {
                       >
                         <ExternalLink className="w-5 h-5" />
                         View Full Profile
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setSelectedMember(null);
+                          navigate(`/member-bio/${selectedMember}`);
+                        }}
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                        View Modern Bio
                       </button>
                       
                       <button

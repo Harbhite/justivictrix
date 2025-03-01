@@ -8,6 +8,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import People from './pages/People';
 import FullProfile from './pages/FullProfile';
+import MemberBio from './pages/MemberBio';
 import Index from './pages/Index';
 import About from './pages/About';
 import Events from './pages/Events';
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: "people/:id",
         element: <FullProfile />,
+      },
+      {
+        path: "member-bio/:id",
+        element: <MemberBio />,
       },
       {
         path: "about",
