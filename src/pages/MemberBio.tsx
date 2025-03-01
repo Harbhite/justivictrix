@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, User, Star, Briefcase, Users, ExternalLink } from "lucide-react";
+import { ArrowLeft, User, Star, Briefcase, Users, ExternalLink, Book } from "lucide-react";
 import { toast } from "sonner";
 
 const MemberBio = () => {
@@ -41,10 +41,10 @@ const MemberBio = () => {
     followers: "45.8k"
   });
 
-  // Placeholder data for work experience
-  const [workExperience] = useState({
-    company: "Law Students Association",
-    role: member?.post_held || "Member",
+  // Updated: Changed from work experience to law courses
+  const [lawCourses] = useState({
+    courseTitle: "Criminal Law",
+    description: "Criminal law and procedure",
     period: "2023 - Present",
     website: "www.lawstudents.org"
   });
@@ -117,7 +117,7 @@ const MemberBio = () => {
               {/* Bio Info */}
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-2xl font-bold mb-1">{member.name}</h1>
-                <p className="text-gray-600 mb-4">{member.post_held || "Law Student"}</p>
+                <p className="text-gray-600 mb-4">Students' Bar Association, University of Ibadan</p>
                 
                 {/* Stats Row */}
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
@@ -147,7 +147,7 @@ const MemberBio = () => {
           </div>
         </motion.div>
 
-        {/* Work Experience Card */}
+        {/* Law Courses Card - Updated from Work Experience */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -155,17 +155,17 @@ const MemberBio = () => {
           className="bg-white rounded-3xl shadow-lg overflow-hidden mb-8"
         >
           <div className="p-8">
-            <h2 className="text-xl font-bold mb-6">Work Experience</h2>
+            <h2 className="text-xl font-bold mb-6">Law Courses Majoring in</h2>
             
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
-                <Briefcase size={28} className="text-gray-500" />
+                <Book size={28} className="text-gray-500" />
               </div>
               
               <div className="flex-1">
-                <h3 className="text-lg font-bold">{workExperience.company}</h3>
-                <p className="text-gray-600 mb-1">{workExperience.role} | {workExperience.period}</p>
-                <p className="text-gray-500">{workExperience.website}</p>
+                <h3 className="text-lg font-bold">{lawCourses.courseTitle}</h3>
+                <p className="text-gray-600 mb-1">{lawCourses.description} | {lawCourses.period}</p>
+                <p className="text-gray-500">{lawCourses.website}</p>
               </div>
               
               <button className="px-6 py-2 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 transition-colors">
