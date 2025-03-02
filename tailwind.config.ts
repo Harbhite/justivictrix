@@ -27,6 +27,12 @@ export default {
           light: "#F8F9FA",
           dark: "#1A1F2C",
         },
+        edtech: {
+          yellow: "#FCD980",
+          beige: "#f8f6f3",
+          dark: "#232536",
+          gray: "#6D6E76",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

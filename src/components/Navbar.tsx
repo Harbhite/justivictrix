@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,13 +9,12 @@ const Navbar = () => {
   const location = useLocation();
 
   const links = [
-    { name: "About", path: "/about" },
-    { name: "Resources", path: "/resources" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Events", path: "/events" },
-    { name: "Our People", path: "/people" },
-    { name: "Tools", path: "/tools" },
-    { name: "Timetable", path: "/timetable" },
+    { name: "Categories", path: "/categories" },
+    { name: "Courses", path: "/resources" },
+    { name: "About us", path: "/about" },
+    { name: "Mentors", path: "/people" },
+    { name: "Blog", path: "/events" },
+    { name: "Contact", path: "/contact" },
   ];
 
   useEffect(() => {
@@ -35,41 +34,59 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 backdrop-blur-lg shadow-lg"
-          : "bg-transparent"
+          ? "bg-white shadow-md"
+          : "bg-[#f8f6f3]"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link
-            to="/"
-            className="text-law-dark font-semibold text-xl tracking-tight hover:text-law-primary transition-colors"
-          >
-            LLB28
-          </Link>
+          <div className="flex items-center">
+            <Link
+              to="/"
+              className="text-gray-900 font-bold text-xl tracking-tight mr-8"
+            >
+              LLB28
+            </Link>
+
+            {/* Search Bar */}
+            <div className="hidden md:block relative">
+              <input
+                type="text"
+                placeholder="Search any course"
+                className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm w-64"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {links.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-law-primary ${
+                className={`text-sm font-medium transition-colors hover:text-gray-600 ${
                   location.pathname === link.path
-                    ? "text-law-primary"
-                    : "text-law-dark"
+                    ? "text-gray-900"
+                    : "text-gray-600"
                 }`}
               >
                 {link.name}
               </Link>
             ))}
+            <Link
+              to="/login"
+              className="bg-gray-900 text-white px-5 py-2 rounded-md text-sm font-medium"
+            >
+              Login
+            </Link>
           </div>
 
           {/* Mobile Navigation Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-law-dark hover:text-law-primary transition-colors"
+              className="text-gray-900 hover:text-gray-600 transition-colors"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -79,22 +96,41 @@ const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-lg shadow-lg animate-fadeIn">
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg animate-fadeIn">
             <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* Mobile Search */}
+              <div className="px-3 py-2">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search any course"
+                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm w-full"
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                </div>
+              </div>
+              
               {links.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === link.path
-                      ? "text-law-primary bg-law-primary/10"
-                      : "text-law-dark hover:text-law-primary hover:bg-law-primary/5"
+                      ? "text-gray-900 bg-gray-100"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}
                 </Link>
               ))}
+              <Link
+                to="/login"
+                className="block px-3 py-2 text-base font-medium text-white bg-gray-900 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login
+              </Link>
             </div>
           </div>
         )}
