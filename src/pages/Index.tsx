@@ -6,100 +6,100 @@ import { Link } from "react-router-dom";
 const Index = () => {
   // Stats data
   const stats = [
-    { value: "250+", label: "Law Graduates" },
-    { value: "5+", label: "Years of Excellence" },
-    { value: "20+", label: "Academic Awards" },
-    { value: "15+", label: "Partner Firms" },
+    { value: "120+", label: "Class Members" },
+    { value: "5", label: "Years of Study" },
+    { value: "15+", label: "Distinguished Alumni" },
+    { value: "10+", label: "Academic Awards" },
   ];
 
   // Popular courses data
   const courses = [
     {
       id: 1,
-      title: "Constitutional Law & Human Rights",
-      instructor: "Dr. Samantha Brown",
+      title: "Nigerian Constitutional Law",
+      instructor: "Prof. Ayo Adebowale",
       rating: 4.8,
-      reviews: 234,
-      originalPrice: "$39.99",
-      price: "$29.99",
+      reviews: 87,
+      originalPrice: "₦15,000",
+      price: "₦12,500",
       image: "https://images.unsplash.com/photo-1589391886645-d51941baf7fb?q=80&w=300&auto=format&fit=crop",
-      tag: "BEST SELLER"
+      tag: "REQUIRED"
     },
     {
       id: 2,
-      title: "Criminal Law: Theory & Practice",
-      instructor: "Prof. James Morgan",
-      rating: 4.6,
-      reviews: 178,
-      originalPrice: "$45.99",
-      price: "$35.33",
+      title: "Criminal Justice System",
+      instructor: "Dr. Ngozi Okoye",
+      rating: 4.7,
+      reviews: 64,
+      originalPrice: "₦12,000",
+      price: "₦10,000",
       image: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=300&auto=format&fit=crop",
-      tag: "POPULAR"
+      tag: "ELECTIVE"
     },
     {
       id: 3,
-      title: "Legal Writing & Research Methods",
-      instructor: "Maria Gonzalez",
+      title: "Law of Evidence & Procedure",
+      instructor: "Dr. Benjamin Akande",
       rating: 4.9,
-      reviews: 256,
-      originalPrice: "$49.99",
-      price: "$35.75",
+      reviews: 92,
+      originalPrice: "₦13,500",
+      price: "₦11,800",
       image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=300&auto=format&fit=crop",
-      tag: "HOT"
+      tag: "REQUIRED"
     },
     {
       id: 4,
-      title: "Foundations of Legal Ethics",
-      instructor: "Dr. Eric Knight",
-      rating: 4.7,
-      reviews: 195,
-      originalPrice: "$42.99",
-      price: "$36.88",
+      title: "Commercial Law Practice",
+      instructor: "Barrister Fatima Ibrahim",
+      rating: 4.6,
+      reviews: 75,
+      originalPrice: "₦14,500",
+      price: "₦12,900",
       image: "https://images.unsplash.com/photo-1505664063603-28e48c8ad148?q=80&w=300&auto=format&fit=crop",
-      tag: "BEST RATED"
+      tag: "ELECTIVE"
     }
   ];
 
   // Categories data
   const categories = [
-    { name: "Academic", count: 15 },
-    { name: "Technical", count: 8 },
-    { name: "Vocational", count: 7 },
-    { name: "Others", count: 5 }
+    { name: "Constitutional Law", count: 12 },
+    { name: "Criminal Law", count: 8 },
+    { name: "Civil Procedure", count: 7 },
+    { name: "Corporate Law", count: 5 }
   ];
 
   // Mentors data
   const mentors = [
     {
       id: 1,
-      name: "Ronald Richards",
+      name: "Prof. Oluwole Akintoye",
       specialty: "Constitutional Law",
       rating: 5.0,
-      reviews: "176,859",
+      reviews: "134",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=300&auto=format&fit=crop"
     },
     {
       id: 2,
-      name: "Theresa Webb",
-      specialty: "Business Law",
+      name: "Dr. Amina Bello",
+      specialty: "Commercial Law",
       rating: 4.9,
-      reviews: "175,835",
+      reviews: "112",
       image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=300&auto=format&fit=crop"
     },
     {
       id: 3,
-      name: "Leslie Alexander",
-      specialty: "International Law",
+      name: "Chief Tunde Bakare, SAN",
+      specialty: "Litigation Practice",
       rating: 4.9,
-      reviews: "175,835",
+      reviews: "128",
       image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop"
     },
     {
       id: 4,
-      name: "Darrell Steward",
+      name: "Barrister Emeka Okafor",
       specialty: "Criminal Law",
       rating: 5.0,
-      reviews: "176,835",
+      reviews: "142",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop"
     }
   ];
@@ -108,19 +108,19 @@ const Index = () => {
   const testimonials = [
     {
       id: 1,
-      name: "Winchester Robin",
-      title: "Law Student",
+      name: "Damilola Adeleke",
+      title: "LLB '23 Graduate",
       rating: 5,
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop",
-      text: "Learning in this way is outstanding! I couldn't have begun long ago. The concepts are nothing new because looking for more interactions."
+      text: "My experience in the LLB Class of 28 has been exceptional. The rigorous academic environment and supportive faculty have prepared me well for my career in law."
     },
     {
       id: 2,
-      name: "Henrieta Stan",
-      title: "Courts Reporter",
+      name: "Chioma Nwosu",
+      title: "Class Representative",
       rating: 5,
       image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300&auto=format&fit=crop",
-      text: "This course was very interesting & I would absolutely love it! Certainly recommend for any teacher that is now trying to work with their students."
+      text: "The collaborative atmosphere within our class has fostered deep learning and lasting professional relationships. The moot court competitions were particularly valuable."
     }
   ];
 
@@ -128,23 +128,23 @@ const Index = () => {
   const blogPosts = [
     {
       id: 1,
-      title: "10 Realities you really want to remember before start profession",
-      date: "06/10/2023",
-      author: "Philip Hall",
+      title: "Changes to the Nigerian Bar Association Examination Format",
+      date: "15/06/2023",
+      author: "Prof. Oluwadare Agbede",
       image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=300&auto=format&fit=crop"
     },
     {
       id: 2,
-      title: "20 facts you need to reconsider before you start career",
-      date: "12/09/2023",
-      author: "Martin Wolf",
+      title: "The Impact of Recent Supreme Court Decisions on Administrative Law",
+      date: "23/05/2023",
+      author: "Dr. Joy Okeke",
       image: "https://images.unsplash.com/photo-1497215842964-222b430dc094?q=80&w=300&auto=format&fit=crop"
     },
     {
       id: 3,
-      title: "Discover career that matches your skills & interests in job",
-      date: "11/08/2023",
-      author: "Alison Hyde",
+      title: "Preparing for Your First Internship at a Law Firm: Essential Tips",
+      date: "07/04/2023",
+      author: "Barrister Olusegun Ajayi",
       image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=300&auto=format&fit=crop"
     }
   ];
@@ -161,24 +161,24 @@ const Index = () => {
             className="text-left"
           >
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              Learning skills<br />for a better career
+              LLB Class of 28<br />University of Ibadan
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-lg">
-              LLB Class of 28 offers specialized courses to help you build the legal skills you need to know how to implement.
+              Welcome to the official platform of the Faculty of Law, Class of 2028. Access class resources, events, and connect with your fellow law students.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="relative flex">
                 <input 
                   type="email" 
-                  placeholder="Enter your email" 
+                  placeholder="Enter your email for updates" 
                   className="px-4 py-3 border border-gray-300 rounded-md w-full"
                 />
                 <button className="absolute right-0 top-0 h-full bg-gray-900 text-white px-4 rounded-r-md">
-                  14 Days Trial
+                  Subscribe
                 </button>
               </div>
             </div>
-            <p className="text-sm text-gray-500">© 2023 Terms and Conditions apply</p>
+            <p className="text-sm text-gray-500">© 2023 Faculty of Law, University of Ibadan</p>
           </motion.div>
           
           <motion.div
@@ -189,9 +189,9 @@ const Index = () => {
           >
             <div className="relative">
               <img
-                src="/lovable-uploads/b9841bb1-c885-44ef-aa04-590ac9d0b73e.png"
-                alt="Hero image"
-                className="w-full max-w-md mx-auto"
+                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop"
+                alt="Law students"
+                className="w-full max-w-md mx-auto rounded-lg shadow-lg"
               />
               <div className="absolute top-24 -left-4 bg-yellow-300 rounded-lg p-2 shadow-md">
                 <div className="flex items-center gap-2">
@@ -199,8 +199,8 @@ const Index = () => {
                     <Check size={16} className="text-yellow-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold">99.24%</p>
-                    <p className="text-xs">Our clients recommend</p>
+                    <p className="text-xs font-bold">98.5%</p>
+                    <p className="text-xs">Bar passage rate</p>
                   </div>
                 </div>
               </div>
@@ -210,8 +210,8 @@ const Index = () => {
                     <Check size={16} className="text-yellow-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold">99.24%</p>
-                    <p className="text-xs">Satisfaction rate</p>
+                    <p className="text-xs font-bold">Top 5</p>
+                    <p className="text-xs">Law faculty in Nigeria</p>
                   </div>
                 </div>
               </div>
@@ -240,12 +240,12 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Popular Courses Section */}
+      {/* Course Materials Section */}
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900">Popular Courses</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Course Materials</h2>
           <Link to="/resources" className="bg-gray-900 text-white px-6 py-2 rounded-full text-sm">
-            View All
+            View All Resources
           </Link>
         </div>
 
@@ -288,17 +288,17 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Stats Banner */}
+      {/* Department Features */}
       <div className="bg-gray-50 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-blue-50 rounded-lg p-4 flex items-center">
               <div className="bg-blue-100 rounded-full p-3 mr-4">
-                <span className="text-blue-600 font-bold">W</span>
+                <span className="text-blue-600 font-bold">M</span>
               </div>
               <div>
-                <h3 className="font-bold">World Best Instructors</h3>
-                <p className="text-sm text-gray-600">4,000+ Instructors</p>
+                <h3 className="font-bold">Moot Court Sessions</h3>
+                <p className="text-sm text-gray-600">Practical advocacy skills</p>
               </div>
             </div>
             <div className="bg-indigo-50 rounded-lg p-4 flex items-center">
@@ -306,17 +306,17 @@ const Index = () => {
                 <span className="text-indigo-600 font-bold">L</span>
               </div>
               <div>
-                <h3 className="font-bold">Live Class & Video Courses</h3>
-                <p className="text-sm text-gray-600">460,000+ Courses</p>
+                <h3 className="font-bold">Law Clinics</h3>
+                <p className="text-sm text-gray-600">Pro bono legal services</p>
               </div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4 flex items-center">
               <div className="bg-orange-100 rounded-full p-3 mr-4">
-                <span className="text-orange-600 font-bold">O</span>
+                <span className="text-orange-600 font-bold">I</span>
               </div>
               <div>
-                <h3 className="font-bold">Over Active Students</h3>
-                <p className="text-sm text-gray-600">500,000+ Students</p>
+                <h3 className="font-bold">International Law Society</h3>
+                <p className="text-sm text-gray-600">Global legal perspective</p>
               </div>
             </div>
           </div>
@@ -325,7 +325,7 @@ const Index = () => {
 
       {/* Categories Section */}
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Top Categories</h2>
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Major Areas of Study</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category, index) => (
             <div key={index} className={`
@@ -344,9 +344,9 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Mentors Section */}
+      {/* Faculty Section */}
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Meet Our Mentors</h2>
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Our Distinguished Faculty</h2>
         <div className="relative">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {mentors.map((mentor) => (
@@ -366,7 +366,7 @@ const Index = () => {
                   <span className="text-gray-900 font-semibold">{mentor.rating}</span>
                   <Star size={14} className="text-yellow-400" fill="currentColor" />
                 </div>
-                <p className="text-xs text-gray-500">({mentor.reviews})</p>
+                <p className="text-xs text-gray-500">({mentor.reviews} student reviews)</p>
               </motion.div>
             ))}
           </div>
@@ -383,7 +383,7 @@ const Index = () => {
 
       {/* Testimonials Section */}
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Testimonials</h2>
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Student Testimonials</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {testimonials.map((testimonial) => (
             <motion.div
@@ -426,7 +426,7 @@ const Index = () => {
           <button className="bg-gray-900 text-white rounded-full w-6 h-6 flex items-center justify-center">
             1
           </button>
-          <span className="text-gray-500 text-sm">2 of 125</span>
+          <span className="text-gray-500 text-sm">2 of 8</span>
           <button className="bg-gray-900 text-white rounded-full p-1">
             <ChevronRight size={16} />
           </button>
@@ -435,7 +435,7 @@ const Index = () => {
 
       {/* Blog Section */}
       <div className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Read Our Daily Blogs</h2>
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-10">Law School Insights</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {blogPosts.map((post) => (
             <motion.div
@@ -457,9 +457,9 @@ const Index = () => {
           ))}
         </div>
         <div className="flex justify-center">
-          <button className="bg-gray-900 text-white px-6 py-2 rounded-full text-sm">
-            Read More
-          </button>
+          <Link to="/blog" className="bg-gray-900 text-white px-6 py-2 rounded-full text-sm">
+            Read More Articles
+          </Link>
         </div>
       </div>
 
@@ -468,8 +468,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Subscribe to our Newsletter</h2>
-              <p className="text-gray-600">Stay updated with the latest legal education resources</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Subscribe to Class Updates</h2>
+              <p className="text-gray-600">Stay updated with class announcements, event schedules, and resources</p>
             </div>
             <div className="mt-6 md:mt-0 flex w-full md:w-auto">
               <input
@@ -492,10 +492,10 @@ const Index = () => {
             <div>
               <h2 className="text-xl font-bold text-law-dark mb-4">LLB28</h2>
               <div className="flex items-center mb-2">
-                <span className="text-gray-600 text-sm">+234 9734 5867</span>
+                <span className="text-gray-600 text-sm">+234 801 234 5678</span>
               </div>
               <div className="flex items-center mb-4">
-                <span className="text-gray-600 text-sm">llb28support@univibadan.com</span>
+                <span className="text-gray-600 text-sm">llbclass28@ui.edu.ng</span>
               </div>
               <div className="flex space-x-2">
                 <a href="#" className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
@@ -511,50 +511,50 @@ const Index = () => {
                   </svg>
                 </a>
                 <a href="#" className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className="sr-only">LinkedIn</span>
+                  <span className="sr-only">Instagram</span>
                   <svg width="20" height="20" fill="currentColor" className="text-gray-600" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                   </svg>
                 </a>
               </div>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 uppercase text-sm mb-4">Menu</h3>
+              <h3 className="font-bold text-gray-900 uppercase text-sm mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Categories</a>
+                  <Link to="/resources" className="text-gray-600 hover:text-gray-900 text-sm">Course Resources</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">All Resources</a>
+                  <Link to="/events" className="text-gray-600 hover:text-gray-900 text-sm">Class Events</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Events</a>
+                  <Link to="/gallery" className="text-gray-600 hover:text-gray-900 text-sm">Photo Gallery</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Gallery</a>
+                  <Link to="/timetable" className="text-gray-600 hover:text-gray-900 text-sm">Class Timetable</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Tools</a>
+                  <Link to="/tools" className="text-gray-600 hover:text-gray-900 text-sm">Study Tools</Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 uppercase text-sm mb-4">About</h3>
+              <h3 className="font-bold text-gray-900 uppercase text-sm mb-4">About Us</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">About Us</a>
+                  <Link to="/about" className="text-gray-600 hover:text-gray-900 text-sm">Class History</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Members</a>
+                  <Link to="/people" className="text-gray-600 hover:text-gray-900 text-sm">Class Members</Link>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Alumni</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Faculty Profile</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Mentors</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Class Executives</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Blog</a>
+                  <Link to="/blog" className="text-gray-600 hover:text-gray-900 text-sm">Class Blog</Link>
                 </li>
               </ul>
             </div>
@@ -562,19 +562,19 @@ const Index = () => {
               <h3 className="font-bold text-gray-900 uppercase text-sm mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Security</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">FAQ</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Terms & Conditions</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Privacy Policy</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Contact</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Contact Class Reps</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Comments</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Feedback Form</a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Community</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-900 text-sm">Technical Support</a>
                 </li>
               </ul>
             </div>
@@ -586,3 +586,4 @@ const Index = () => {
 };
 
 export default Index;
+
