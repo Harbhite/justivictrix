@@ -13,7 +13,7 @@ const Navbar = () => {
     { name: "Courses", path: "/resources" },
     { name: "About us", path: "/about" },
     { name: "Mentors", path: "/people" },
-    { name: "Blog", path: "/events" },
+    { name: "Blog", path: "/blog" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -29,6 +29,10 @@ const Navbar = () => {
     // Close mobile menu when route changes
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <nav
@@ -85,8 +89,8 @@ const Navbar = () => {
           {/* Mobile Navigation Button */}
           <div className="md:hidden">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-900 hover:text-gray-600 transition-colors"
+              onClick={toggleMenu}
+              className="text-gray-900 hover:text-gray-600 transition-colors p-2"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
