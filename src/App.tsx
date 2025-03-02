@@ -17,6 +17,7 @@ import Resources from './pages/Resources';
 import Timetable from './pages/Timetable';
 import Tools from './pages/Tools';
 import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: "blog",
         element: <Blog />,
+      },
+      {
+        path: "blog/:id",
+        element: <BlogPost />,
       },
       {
         path: "*",

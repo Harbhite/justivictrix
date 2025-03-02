@@ -9,12 +9,13 @@ const Navbar = () => {
   const location = useLocation();
 
   const links = [
-    { name: "Categories", path: "/categories" },
-    { name: "Courses", path: "/resources" },
+    { name: "Resources", path: "/resources" },
+    { name: "Tools", path: "/tools" },
+    { name: "Events", path: "/events" },
+    { name: "Timetable", path: "/timetable" },
     { name: "About us", path: "/about" },
     { name: "Mentors", path: "/people" },
     { name: "Blog", path: "/blog" },
-    { name: "Contact", path: "/contact" },
   ];
 
   useEffect(() => {
@@ -78,12 +79,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link
-              to="/login"
-              className="bg-gray-900 text-white px-5 py-2 rounded-md text-sm font-medium"
-            >
-              Login
-            </Link>
           </div>
 
           {/* Mobile Navigation Button */}
@@ -128,13 +123,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Link
-                to="/login"
-                className="block px-3 py-2 text-base font-medium text-white bg-gray-900 rounded-md"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </Link>
             </div>
           </div>
         )}

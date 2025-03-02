@@ -1,11 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight } from 'lucide-react';
 
 const Blog = () => {
+  const [category, setCategory] = useState('All');
+  
   // Blog categories
   const categories = [
+    { name: "All", count: 25 },
     { name: "Law Updates", count: 15 },
     { name: "Student Life", count: 12 },
     { name: "Case Studies", count: 8 },
@@ -82,6 +85,11 @@ const Blog = () => {
     }
   ];
 
+  // Filter posts by category
+  const filteredPosts = category === 'All' 
+    ? recentPosts 
+    : recentPosts.filter(post => post.category === category);
+
   return (
     <div className="min-h-screen bg-[#f8f6f3]">
       {/* Blog Header */}
@@ -150,9 +158,44 @@ const Blog = () => {
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Recent Articles</h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">Articles</h2>
+              
+              {/* Category Filter (Mobile Dropdown) */}
+              <div className="lg:hidden">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="border border-gray-300 rounded-md p-2"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.name} value={cat.name}>
+                      {cat.name} ({cat.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Category Filter (Desktop Pills) */}
+            <div className="hidden lg:flex mb-6 space-x-2 overflow-x-auto">
+              {categories.map((cat) => (
+                <button
+                  key={cat.name}
+                  onClick={() => setCategory(cat.name)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                    category === cat.name
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {cat.name} ({cat.count})
+                </button>
+              ))}
+            </div>
+            
             <div className="grid md:grid-cols-2 gap-8">
-              {recentPosts.map(post => (
+              {filteredPosts.map(post => (
                 <div 
                   key={post.id}
                   className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
@@ -200,17 +243,17 @@ const Blog = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Categories</h3>
               <ul className="space-y-2">
-                {categories.map((category, index) => (
+                {categories.filter(c => c.name !== 'All').map((category, index) => (
                   <li key={index}>
-                    <Link 
-                      to={`/blog/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors"
+                    <button 
+                      onClick={() => setCategory(category.name)}
+                      className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors w-full text-left"
                     >
                       <span className="text-gray-700">{category.name}</span>
                       <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-1 rounded-full">
                         {category.count}
                       </span>
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>
