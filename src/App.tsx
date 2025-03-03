@@ -14,6 +14,7 @@ import About from './pages/About';
 import Events from './pages/Events';
 import Gallery from './pages/Gallery';
 import Resources from './pages/Resources';
+import Courses from './pages/Courses';
 import Timetable from './pages/Timetable';
 import Tools from './pages/Tools';
 import Blog from './pages/Blog';
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
       {
         path: "resources",
         element: <Resources />,
+      },
+      {
+        path: "courses",
+        element: <Courses />,
       },
       {
         path: "timetable",

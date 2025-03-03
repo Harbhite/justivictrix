@@ -1,10 +1,11 @@
 
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video, Upload, Loader2, File, ExternalLink } from "lucide-react";
+import { FileText, Download, Book, Video, Upload, Loader2, File, ExternalLink, BookOpen, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const Resources = () => {
   const queryClient = useQueryClient();
@@ -168,6 +169,34 @@ const Resources = () => {
         <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
           Resources
         </h1>
+
+        {/* Course Catalog Card */}
+        <div className="mb-8">
+          <motion.div
+            className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex gap-4 items-center">
+                <BookOpen size={32} className="text-purple-600" />
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Course Catalog</h3>
+                  <p className="text-gray-600 mb-4">View all courses, units, lecturers, and course details</p>
+                  <Link 
+                    to="/courses" 
+                    className="px-4 py-2 bg-purple-100 border-2 border-black hover:bg-purple-200 transition-colors flex items-center gap-2 inline-block"
+                  >
+                    <List size={20} />
+                    View Course Catalog
+                  </Link>
+                </div>
+              </div>
+              <span className="px-2 py-1 bg-purple-200 border-2 border-black text-sm font-bold">
+                ACADEMIC
+              </span>
+            </div>
+          </motion.div>
+        </div>
 
         {/* Google Drive Link Card */}
         <div className="mb-8">
