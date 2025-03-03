@@ -1,3 +1,4 @@
+<lov-code>
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowDown, Scroll, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -12,7 +13,7 @@ const Index = () => {
   });
   
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.8], [1, 0.8, 0.6, 0.4, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.8], [1, 0.98, 0.96, 0.94, 0.92]);
+  const scale = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.4, 0.8], [1, 0.98, 0.96, 0.94, 0.92]);
   const y = useTransform(scrollYProgress, [0, 1], ["0vh", "40vh"]);
   
   // Interactive features
@@ -415,28 +416,33 @@ const Index = () => {
             {[
               { 
                 year: "Year 1", 
-                title: "Nigerian Legal Methods", 
-                description: "Nigerian legal methods and introduction to foundational law courses" 
+                title: "Foundations of Legal Thought", 
+                description: "Embarking on our legal journey with Nigerian Legal Methods, discovering the building blocks of legal reasoning and research. The first steps in a transformative professional path.",
+                highlight: "Nigerian legal methods and introduction to foundational law courses" 
               },
               { 
                 year: "Year 2", 
-                title: "Core Legal Fundamentals", 
-                description: "Nigerian legal system, contract, constitutional law, law and psychology" 
+                title: "Constitutional Frameworks & Psychological Dimensions", 
+                description: "Diving deeper into the Nigerian legal system and constitutional law while exploring the fascinating intersection of law and human psychology. Building critical analytical skills.",
+                highlight: "Nigerian legal system, contract, constitutional law, law and psychology" 
               },
               { 
                 year: "Year 3", 
-                title: "Advanced Principles", 
-                description: "Tort, commercial and criminal law" 
+                title: "Civil & Commercial Jurisprudence", 
+                description: "Mastering tort law, commercial regulations, and criminal justice principles. Developing the ability to navigate both civil wrongs and business transactions with legal precision.",
+                highlight: "Tort, commercial and criminal law" 
               },
               { 
                 year: "Year 4", 
-                title: "Specialized Practice", 
-                description: "Evidence, equity and trust, land law" 
+                title: "Procedural & Property Rights", 
+                description: "Unraveling the intricacies of evidence law, equity principles, and property rights. Learning to apply complex legal doctrines to real-world scenarios with confidence.",
+                highlight: "Evidence, equity and trust, land law" 
               },
               { 
                 year: "Year 5", 
-                title: "Professional Integration", 
-                description: "Final year project, legal drafting, and law school preparation" 
+                title: "Professional Integration & Transition", 
+                description: "Culminating our academic journey with capstone projects and practical legal drafting skills. Preparing for the transition to law school and the professional legal world ahead.",
+                highlight: "Final year project, legal drafting, and law school preparation" 
               }
             ].map((item, index) => (
               <motion.div
@@ -460,7 +466,8 @@ const Index = () => {
                     {item.year}
                   </span>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600">{item.description}</p>
+                  <p className="text-gray-600 mb-3">{item.description}</p>
+                  <p className="text-sm text-gray-500 italic">Key focus: {item.highlight}</p>
                 </motion.div>
               </motion.div>
             ))}
@@ -510,66 +517,4 @@ const Index = () => {
               </a>
               <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors">
                 <span className="sr-only">Instagram</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25C9.92893 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92893 15.75 12 15.75Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16.1313 2.76747C17.9654 2.76747 19.6792 3.45618 20.9325 4.70953C22.1859 5.96288 22.8746 7.67663 22.8746 9.51074V14.4894C22.8746 16.3235 22.1859 18.0372 20.9325 19.2906C19.6792 20.5439 17.9654 21.2326 16.1313 21.2326H7.86881C6.0347 21.2326 4.32095 20.5439 3.0676 19.2906C1.81425 18.0372 1.12555 16.3235 1.12555 14.4894V9.51074C1.12555 7.67663 1.81425 5.96288 3.0676 4.70953C4.32095 3.45618 6.0347 2.76747 7.86881 2.76747H16.1313Z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M17.6246 8.02504C18.1359 8.02504 18.5496 7.61135 18.5496 7.10004C18.5496 6.58873 18.1359 6.17505 17.6246 6.17505C17.1133 6.17505 16.6996 6.58873 16.6996 7.10004C16.6996 7.61135 17.1133 8.02504 17.6246 8.02504Z" fill="currentColor" />
-                </svg>
-              </a>
-            </div>
-            <p className="text-sm text-gray-500">&copy; 2023 University of Ibadan. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
-      {/* Fixed scroll to top button - appears after scrolling */}
-      <ScrollToTopButton />
-    </div>
-  );
-};
-
-// Scroll to top button component
-const ScrollToTopButton = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 500) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-    
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
-  
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
-  
-  return (
-    <motion.button
-      onClick={scrollToTop}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ 
-        opacity: isVisible ? 1 : 0,
-        scale: isVisible ? 1 : 0.8,
-        y: isVisible ? 0 : 20
-      }}
-      transition={{ duration: 0.3 }}
-      className="fixed bottom-8 right-8 p-3 bg-blue-600 text-white rounded-full shadow-lg z-50"
-      aria-label="Scroll to top"
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 19.5V4.5M12 4.5L5.25 11.25M12 4.5L18.75 11.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </motion.button>
-  );
-};
-
-export default Index;
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/200

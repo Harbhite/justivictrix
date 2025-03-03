@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, GalleryHorizontal } from "lucide-react";
+import { Menu, X, Search, GalleryHorizontal, UsersRound } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +14,7 @@ const Navbar = () => {
     { name: "Events", path: "/events" },
     { name: "Timetable", path: "/timetable" },
     { name: "Gallery", path: "/gallery" },
+    { name: "Study Groups", path: "/study-groups" },
     { name: "About us", path: "/about" },
     { name: "Mentors", path: "/people" },
     { name: "Blog", path: "/blog" },
