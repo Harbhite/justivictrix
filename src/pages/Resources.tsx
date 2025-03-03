@@ -4,11 +4,13 @@ import { FileText, Download, Book, Video, Upload, Loader2, File, ExternalLink } 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const Resources = () => {
   const queryClient = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const resourcesContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: resources, isLoading } = useQuery({
     queryKey: ["resources"],
@@ -26,6 +28,16 @@ const Resources = () => {
       return data || [];
     },
   });
+
+  // Auto-select the first PDF resource when resources are loaded
+  useEffect(() => {
+    if (resources && resources.length > 0) {
+      const firstPdf = resources.find(resource => resource.type === 'pdf');
+      if (firstPdf) {
+        setSelectedResource(firstPdf);
+      }
+    }
+  }, [resources]);
 
   useEffect(() => {
     // Subscribe to real-time changes
@@ -207,62 +219,121 @@ const Resources = () => {
           </label>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((index) => (
-              <div
-                key={index}
-                className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse"
-              >
-                <div className="h-24 bg-gray-200 rounded"></div>
+        {/* PDF Viewer for Selected Resource */}
+        {selectedResource && selectedResource.type === 'pdf' && (
+          <div className="mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+            >
+              <h2 className="text-2xl font-bold mb-4">{selectedResource.title}</h2>
+              <div className="w-full h-[600px] border-2 border-black mb-4">
+                <iframe
+                  src={`${selectedResource.file_url}#toolbar=1`}
+                  className="w-full h-full"
+                  title={selectedResource.title}
+                />
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {resources?.map((resource) => {
-              const Icon = getIconForType(resource.type);
-              const preview = getPreviewComponent(resource);
-              
-              return (
-                <motion.div
-                  key={resource.id}
-                  className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
-                  whileHover={{ scale: 1.02 }}
+              <div className="flex justify-end">
+                <a
+                  href={selectedResource.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
+                  download
                 >
-                  <div className="flex items-start justify-between">
-                    <Icon size={24} className="mt-1" />
-                    <span className="px-2 py-1 bg-yellow-200 border-2 border-black text-sm font-bold">
-                      {resource.type}
-                    </span>
-                  </div>
-                  
-                  {preview}
-
-                  <h3 className="text-xl font-bold mt-4 mb-2">
-                    {resource.title}
-                  </h3>
-                  <p className="text-law-neutral mb-4">{resource.category}</p>
-                  {resource.description && (
-                    <p className="text-sm text-gray-600 mb-4">
-                      {resource.description}
-                    </p>
-                  )}
-                  <a
-                    href={resource.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
-                    download
-                  >
-                    <Download size={20} />
-                    Download {resource.file_type ? `.${resource.file_type}` : ''}
-                  </a>
-                </motion.div>
-              );
-            })}
+                  <Download size={20} />
+                  Download PDF
+                </a>
+              </div>
+            </motion.div>
           </div>
         )}
+
+        {/* Resources Grid */}
+        <div ref={resourcesContainerRef}>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((index) => (
+                <div
+                  key={index}
+                  className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse"
+                >
+                  <div className="h-24 bg-gray-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {resources?.map((resource) => {
+                const Icon = getIconForType(resource.type);
+                const preview = getPreviewComponent(resource);
+                
+                return (
+                  <motion.div
+                    key={resource.id}
+                    className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => {
+                      if (resource.type === 'pdf') {
+                        setSelectedResource(resource);
+                        // Scroll to the top of the resources container
+                        resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <Icon size={24} className="mt-1" />
+                      <span className="px-2 py-1 bg-yellow-200 border-2 border-black text-sm font-bold">
+                        {resource.type}
+                      </span>
+                    </div>
+                    
+                    {preview}
+
+                    <h3 className="text-xl font-bold mt-4 mb-2">
+                      {resource.title}
+                    </h3>
+                    <p className="text-law-neutral mb-4">{resource.category}</p>
+                    {resource.description && (
+                      <p className="text-sm text-gray-600 mb-4">
+                        {resource.description}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      {resource.type === 'pdf' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedResource(resource);
+                            resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="px-4 py-2 bg-blue-400 border-2 border-black hover:bg-blue-500 transition-colors flex items-center gap-2 inline-block"
+                        >
+                          <FileText size={20} />
+                          View PDF
+                        </button>
+                      )}
+                      <a
+                        href={resource.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
+                        download
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download size={20} />
+                        Download {resource.file_type ? `.${resource.file_type}` : ''}
+                      </a>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </motion.div>
     </div>
   );
