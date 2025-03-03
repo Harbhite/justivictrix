@@ -9,15 +9,29 @@ const Events = () => {
       title: "Class Presentation",
       date: "March 15, 2024",
       time: "10:00 AM",
-      location: "Law Theatre 1",
+      location: "Law Lecture Theatre (LLT)",
       description: "Group presentations on Constitutional Law"
     },
     {
       title: "Moot Court Session",
       date: "March 20, 2024",
       time: "2:00 PM",
-      location: "Moot Court Room",
+      location: "Wole Olanipekun Lecture Theatre",
       description: "Practice session for upcoming competition"
+    },
+    {
+      title: "Study Group Meeting",
+      date: "March 25, 2024",
+      time: "4:00 PM",
+      location: "Law Lecture Room (LLR)",
+      description: "Review session for upcoming exams"
+    },
+    {
+      title: "Guest Lecture",
+      date: "April 5, 2024",
+      time: "11:00 AM",
+      location: "New Faculty of Law Complex",
+      description: "Special lecture by visiting professor on International Law"
     }
   ];
 

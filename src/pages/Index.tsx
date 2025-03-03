@@ -1,4 +1,3 @@
-
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowDown, Scroll, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -72,19 +71,19 @@ const Index = () => {
       title: "Constitutional Law Mid-Semester Test",
       date: "May 15, 2023",
       time: "10:00 AM",
-      location: "Faculty Hall 3"
+      location: "Law Lecture Theatre (LLT)"
     },
     {
       title: "Moot Court Competition",
       date: "May 22, 2023",
       time: "2:00 PM",
-      location: "Law Auditorium"
+      location: "Wole Olanipekun Lecture Theatre"
     },
     {
       title: "Criminal Law Group Study",
       date: "May 25, 2023",
       time: "4:00 PM",
-      location: "Law Library"
+      location: "New Faculty of Law Complex"
     }
   ];
   
@@ -145,7 +144,7 @@ const Index = () => {
           className="text-center max-w-3xl"
         >
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Welcome to LLB <span className="text-blue-600">Class of 28</span>
+            Welcome to University of Ibadan <span className="text-blue-600">Law Class of 2028</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
             Your central hub for class resources, events, and connecting with fellow law students at the University of Ibadan.
@@ -373,7 +372,7 @@ const Index = () => {
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center justify-center bg-white text-blue-600 px-6 py-3 rounded-lg font-medium cursor-pointer"
                 onClick={() => {
-                  window.open('https://chat.whatsapp.com/yourclassinvite', '_blank');
+                  window.open('https://wa.me/2349014412044', '_blank');
                 }}
               >
                 Join Class WhatsApp Group
@@ -416,28 +415,28 @@ const Index = () => {
             {[
               { 
                 year: "Year 1", 
-                title: "Foundation of Legal Studies", 
-                description: "Introduction to Nigerian legal system and constitutional law fundamentals" 
+                title: "Nigerian Legal Methods", 
+                description: "Nigerian legal methods and introduction to foundational law courses" 
               },
               { 
                 year: "Year 2", 
-                title: "Core Legal Principles", 
-                description: "Diving deeper into contract law, criminal law, and tort" 
+                title: "Core Legal Fundamentals", 
+                description: "Nigerian legal system, contract, constitutional law, law and psychology" 
               },
               { 
                 year: "Year 3", 
-                title: "Specialized Practice Areas", 
-                description: "Exploring commercial law, property law, and administrative law" 
+                title: "Advanced Principles", 
+                description: "Tort, commercial and criminal law" 
               },
               { 
                 year: "Year 4", 
-                title: "Advanced Legal Practice", 
-                description: "Focusing on evidence, civil procedure, and legal drafting" 
+                title: "Specialized Practice", 
+                description: "Evidence, equity and trust, land law" 
               },
               { 
                 year: "Year 5", 
                 title: "Professional Integration", 
-                description: "Final year projects, moot court competitions, and Law School preparation" 
+                description: "Final year project, legal drafting, and law school preparation" 
               }
             ].map((item, index) => (
               <motion.div
@@ -491,7 +490,7 @@ const Index = () => {
       <footer className="bg-white py-12 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">LLB Class of 28</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">LLB Class of 2028</h2>
             <p className="text-center text-gray-600 mb-6 max-w-md">
               Faculty of Law, University of Ibadan
             </p>
