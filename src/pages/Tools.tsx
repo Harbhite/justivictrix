@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, Minus, BookTemplate, FileText, Gavel, Scale, Clock, BookOpen, MessageSquare } from "lucide-react";
 
