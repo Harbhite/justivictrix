@@ -1,21 +1,10 @@
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ArrowDown, Scroll, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, ArrowDown, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const Index = () => {
-  // Scroll animation references
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
-  
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.8], [1, 0.8, 0.6, 0.4, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.4, 0.8], [1, 0.98, 0.96, 0.94, 0.92]);
-  const y = useTransform(scrollYProgress, [0, 1], ["0vh", "40vh"]);
-  
   // Interactive features
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
@@ -109,7 +98,6 @@ const Index = () => {
 
   return (
     <div 
-      ref={containerRef} 
       className="relative bg-[#f8f6f3] min-h-screen overflow-x-hidden"
       onMouseMove={handleMouseMove}
     >
@@ -135,7 +123,7 @@ const Index = () => {
 
       {/* Hero Section */}
       <motion.div 
-        style={{ opacity, scale, y }}
+        initial={{ opacity: 1, scale: 1, y: 0 }}
         className="relative max-w-7xl mx-auto px-4 pt-20 pb-40 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[90vh]"
       >
         <motion.div
