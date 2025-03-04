@@ -1,40 +1,49 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import AdminUploadForm from "@/components/AdminUploadForm";
+
+interface GalleryImage {
+  id: number;
+  title: string;
+  image_url: string;
+  date: string;
+  created_at: string;
+}
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const fetchGalleryImages = async () => {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('gallery')
-          .select('*')
-          .order('date', { ascending: false });
-          
-        if (error) {
-          throw error;
-        }
+  const fetchGalleryImages = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('date', { ascending: false });
         
-        setGalleryImages(data || []);
-      } catch (err: any) {
-        console.error('Error fetching gallery images:', err);
-        setError(err.message);
-        toast.error("Failed to load gallery images");
-      } finally {
-        setIsLoading(false);
+      if (error) {
+        throw error;
       }
-    };
-    
+      
+      setGalleryImages(data || []);
+    } catch (err: any) {
+      console.error('Error fetching gallery images:', err);
+      setError(err.message);
+      toast.error("Failed to load gallery images");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchGalleryImages();
   }, []);
   
@@ -67,14 +76,7 @@ const Gallery = () => {
             Class Gallery
           </h1>
           
-          <Button 
-            variant="outline" 
-            className="border-4 border-black p-4 flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
-            onClick={() => toast.info("Admin authentication required for uploads")}
-          >
-            <Upload size={20} />
-            <span>Upload Photos</span>
-          </Button>
+          <AdminUploadForm onUploadSuccess={fetchGalleryImages} />
         </div>
         
         {isLoading && (
