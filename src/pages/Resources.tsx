@@ -1,17 +1,39 @@
-
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video, Upload, Loader2, File, ExternalLink, BookOpen, List } from "lucide-react";
+import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ResourceUploadForm from "@/components/ResourceUploadForm";
 
 const Resources = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isUploading, setIsUploading] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const resourcesContainerRef = useRef<HTMLDivElement>(null);
+
+  // Check authentication status on load
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data.session?.user || null);
+    };
+    
+    getUser();
+
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
 
   const { data: resources, isLoading } = useQuery({
     queryKey: ["resources"],
@@ -63,59 +85,8 @@ const Resources = () => {
     };
   }, [queryClient]);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsUploading(true);
-      
-      // Upload file to Supabase Storage
-      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
-      const fileName = `${Math.random()}.${fileExt}`;
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('resources')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('resources')
-        .getPublicUrl(fileName);
-
-      // Determine resource type based on file extension
-      let type = 'document';
-      if (['pdf'].includes(fileExt)) type = 'pdf';
-      else if (['ppt', 'pptx'].includes(fileExt)) type = 'ppt';
-      else if (['mp4', 'mov', 'avi'].includes(fileExt)) type = 'video';
-      else if (['doc', 'docx'].includes(fileExt)) type = 'document';
-      else if (['epub'].includes(fileExt)) type = 'ebook';
-
-      // Insert record into resources table
-      const { error: insertError } = await supabase
-        .from('resources')
-        .insert([
-          {
-            title: file.name.split('.')[0],
-            file_url: publicUrl,
-            type,
-            category: 'Uploaded Materials',
-            file_type: fileExt,
-            description: `Uploaded ${file.name}`
-          }
-        ]);
-
-      if (insertError) throw insertError;
-      
-      toast.success('Resource uploaded successfully!');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload resource. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
+  const handleResourceUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["resources"] });
   };
 
   const getIconForType = (type: string) => {
@@ -228,24 +199,19 @@ const Resources = () => {
           </motion.div>
         </div>
 
+        {/* Authentication/Upload Section */}
         <div className="mb-8">
-          <label className="flex items-center justify-center p-4 bg-white border-4 border-black cursor-pointer hover:bg-gray-50 transition-colors">
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.epub,video/*"
-              onChange={handleFileUpload}
-              disabled={isUploading}
-              className="hidden"
-            />
-            {isUploading ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
-            ) : (
-              <>
-                <Upload className="w-6 h-6 mr-2" />
-                Upload New Resource
-              </>
-            )}
-          </label>
+          {user ? (
+            <ResourceUploadForm onUploadSuccess={handleResourceUploadSuccess} />
+          ) : (
+            <Link 
+              to="/auth" 
+              className="flex items-center justify-center p-4 bg-white border-4 border-black cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              <LogIn className="w-6 h-6 mr-2" />
+              Login to Upload Resources
+            </Link>
+          )}
         </div>
 
         {/* PDF Viewer for Selected Resource */}
@@ -366,6 +332,6 @@ const Resources = () => {
       </motion.div>
     </div>
   );
-};
+}
 
 export default Resources;
