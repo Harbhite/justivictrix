@@ -37,18 +37,28 @@ export default function AdminUploadForm({ onUploadSuccess }: { onUploadSuccess: 
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${fileName}`;
       
-      const { error: uploadError } = await supabase.storage
+      console.log("Uploading to bucket: gallery, file path:", filePath);
+      
+      const { data, error: uploadError } = await supabase.storage
         .from('gallery')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
         
       if (uploadError) {
+        console.error("Storage upload error:", uploadError);
         throw uploadError;
       }
+      
+      console.log("Upload successful:", data);
       
       // 2. Get the public URL for the uploaded image
       const { data: { publicUrl } } = supabase.storage
         .from('gallery')
         .getPublicUrl(filePath);
+      
+      console.log("Public URL:", publicUrl);
       
       // 3. Insert record into gallery table
       const { error: insertError } = await supabase
@@ -60,6 +70,7 @@ export default function AdminUploadForm({ onUploadSuccess }: { onUploadSuccess: 
         });
         
       if (insertError) {
+        console.error("Insert error:", insertError);
         throw insertError;
       }
       
