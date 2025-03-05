@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, Key, Mail, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -12,11 +12,23 @@ import { Label } from "@/components/ui/label";
 const Auth = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("swisssunny1@gmail.com");
+  const [password, setPassword] = useState("notllb28");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate("/resources");
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +89,9 @@ const Auth = () => {
               ? "Create an account to access all features" 
               : "Sign in to access your account"}
           </p>
+          <p className="mt-2 text-sm text-blue-600">
+            <strong>Credentials:</strong> swisssunny1@gmail.com / notllb28
+          </p>
         </div>
 
         <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
@@ -95,7 +110,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
-                  placeholder="your@email.com"
+                  placeholder="swisssunny1@gmail.com"
                   required
                 />
               </div>
@@ -115,7 +130,7 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
-                  placeholder="••••••••"
+                  placeholder="notllb28"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -149,7 +164,7 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10"
-                    placeholder="••••••••"
+                    placeholder="notllb28"
                     required
                   />
                 </div>
