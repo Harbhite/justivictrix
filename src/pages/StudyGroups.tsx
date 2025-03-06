@@ -1,143 +1,185 @@
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { UsersRound, Plus, Search, BookOpen, Calendar, MessageCircle, X } from "lucide-react";
-import { Link } from "react-router-dom";
-
-type StudyGroup = {
-  id: number;
-  name: string;
-  course: string;
-  schedule: string;
-  location: string;
-  description: string;
-  members: number;
-  tags: string[];
-}
+import { Users, Plus, Edit, Trash, UserPlus, Calendar } from "lucide-react";
+import { useState, useEffect, useContext } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AuthContext } from "@/App";
 
 const StudyGroups = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newGroup, setNewGroup] = useState({
-    name: "",
-    course: "",
-    schedule: "",
-    location: "",
-    description: "",
-    tags: ""
+  const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const isAdmin = user?.email === "swisssunny1@gmail.com";
+  
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    subject: '',
+    meeting_day: '',
+    meeting_time: '',
+    location: '',
+    max_members: 10
   });
-  
-  // Mock data for study groups
-  const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([
-    {
-      id: 1,
-      name: "Constitutional Law Champions",
-      course: "Constitutional Law",
-      schedule: "Tuesdays, 4-6 PM",
-      location: "Law Lecture Room (LLR)",
-      description: "Weekly discussions on constitutional principles and case studies. Focus on practical applications and exam preparation.",
-      members: 8,
-      tags: ["Constitutional", "Case Studies", "Exam Prep"]
+
+  // Fetch study groups from Supabase
+  const { data: studyGroups = [], isLoading } = useQuery({
+    queryKey: ["study-groups"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("study_groups")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        toast.error("Failed to load study groups");
+        throw error;
+      }
+
+      return data || [];
     },
-    {
-      id: 2,
-      name: "Contract Law Study Circle",
-      course: "Contract Law",
-      schedule: "Mondays & Wednesdays, 5-7 PM",
-      location: "New Faculty of Law Complex",
-      description: "In-depth analysis of contract law principles. Regular mock exercises and problem-solving sessions.",
-      members: 6,
-      tags: ["Contract", "Problem Solving", "Mock Tests"]
+  });
+
+  // Add group mutation
+  const addGroupMutation = useMutation({
+    mutationFn: async (groupData: any) => {
+      const { data, error } = await supabase
+        .from("study_groups")
+        .insert([groupData])
+        .select();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      id: 3,
-      name: "Criminal Law Discourse",
-      course: "Criminal Law",
-      schedule: "Fridays, 3-5 PM",
-      location: "Law Lecture Theatre (LLT)",
-      description: "Focused on critical analysis of criminal cases. Regular debates on controversial topics and legal reforms.",
-      members: 10,
-      tags: ["Criminal", "Debates", "Case Analysis"]
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["study-groups"] });
+      toast.success("Study group added successfully");
+      resetForm();
     },
-    {
-      id: 4, 
-      name: "Evidence Law Masterclass",
-      course: "Evidence Law",
-      schedule: "Thursdays, 4-6 PM",
-      location: "Wole Olanipekun Lecture Theatre",
-      description: "Expert-led sessions on rules of evidence. Practice court simulations and evidence analysis techniques.",
-      members: 7,
-      tags: ["Evidence", "Court Simulation", "Practice"]
+    onError: (error) => {
+      toast.error("Failed to add study group");
+      console.error(error);
     }
-  ]);
-  
-  // Available courses for filtering
-  const courses = [
-    "All Courses",
-    "Constitutional Law",
-    "Contract Law",
-    "Tort Law",
-    "Criminal Law",
-    "Evidence Law",
-    "Land Law",
-    "Legal Methods"
-  ];
-  
-  // Handle creating new study group
-  const handleCreateGroup = () => {
-    if (!newGroup.name || !newGroup.course || !newGroup.schedule) {
-      alert("Please fill in all required fields!");
-      return;
+  });
+
+  // Update group mutation
+  const updateGroupMutation = useMutation({
+    mutationFn: async ({ id, groupData }: { id: number, groupData: any }) => {
+      const { data, error } = await supabase
+        .from("study_groups")
+        .update(groupData)
+        .eq("id", id)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["study-groups"] });
+      toast.success("Study group updated successfully");
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to update study group");
+      console.error(error);
     }
-    
-    const newId = studyGroups.length > 0 ? Math.max(...studyGroups.map(g => g.id)) + 1 : 1;
-    
-    const createdGroup: StudyGroup = {
-      id: newId,
-      name: newGroup.name,
-      course: newGroup.course,
-      schedule: newGroup.schedule,
-      location: newGroup.location,
-      description: newGroup.description,
-      members: 1, // Starting with creator
-      tags: newGroup.tags.split(",").map(tag => tag.trim()).filter(tag => tag !== "")
+  });
+
+  // Delete group mutation
+  const deleteGroupMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from("study_groups")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["study-groups"] });
+      toast.success("Study group deleted successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete study group");
+      console.error(error);
+    }
+  });
+
+  // Subscribe to study_groups changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('study-groups-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_groups'
+        },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["study-groups"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    
-    setStudyGroups([...studyGroups, createdGroup]);
-    setShowCreateModal(false);
-    setNewGroup({
-      name: "",
-      course: "",
-      schedule: "",
-      location: "",
-      description: "",
-      tags: ""
-    });
+  }, [queryClient]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: name === 'max_members' ? parseInt(value) : value 
+    }));
   };
-  
-  // Filter groups based on search and course selection
-  const filteredGroups = studyGroups.filter(group => {
-    const matchesSearch = 
-      group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    const matchesCourse = selectedCourse === null || 
-                          selectedCourse === "All Courses" || 
-                          group.course === selectedCourse;
-    
-    return matchesSearch && matchesCourse;
-  });
-  
-  // Join a study group
-  const joinGroup = (id: number) => {
-    setStudyGroups(studyGroups.map(group => 
-      group.id === id ? {...group, members: group.members + 1} : group
-    ));
-    
-    // Show confirmation
-    alert(`You've successfully joined the study group!`);
+    if (editingGroup) {
+      updateGroupMutation.mutate({ id: editingGroup.id, groupData: formData });
+    } else {
+      addGroupMutation.mutate(formData);
+    }
+  };
+
+  const handleEditGroup = (group: any) => {
+    setEditingGroup(group);
+    setFormData({
+      name: group.name,
+      subject: group.subject,
+      meeting_day: group.meeting_day,
+      meeting_time: group.meeting_time,
+      location: group.location,
+      max_members: group.max_members
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDeleteGroup = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this study group?")) {
+      deleteGroupMutation.mutate(id);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      subject: '',
+      meeting_day: '',
+      meeting_time: '',
+      location: '',
+      max_members: 10
+    });
+    setEditingGroup(null);
+    setShowAddForm(false);
   };
 
   return (
@@ -147,241 +189,196 @@ const StudyGroups = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-12">
-          <div>
-            <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1 mb-4 md:mb-0">
-              Study Groups
-            </h1>
-          </div>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-blue-600 text-white border-4 border-black hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-          >
-            <Plus size={20} />
-            Create New Study Group
-          </motion.button>
-        </div>
-        
-        {/* Search and Filters */}
-        <div className="bg-yellow-100 border-4 border-black p-6 mb-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search by group name, description, or tags"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 border-2 border-black w-full"
-              />
-            </div>
-            
-            <div className="md:w-64">
-              <select 
-                value={selectedCourse || "All Courses"}
-                onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full py-3 px-4 border-2 border-black"
-              >
-                {courses.map(course => (
-                  <option key={course} value={course}>{course}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        {/* Study Groups List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredGroups.length > 0 ? (
-            filteredGroups.map((group) => (
-              <motion.div
-                key={group.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold">{group.name}</h3>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium">
-                    {group.course}
-                  </span>
-                </div>
-                
-                <p className="text-gray-700 mb-4">{group.description}</p>
-                
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar size={16} />
-                    <span>{group.schedule}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <UsersRound size={16} />
-                    <span>{group.members} members</span>
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>Location:</span>
-                    <span className="font-medium">{group.location}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {group.tags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => joinGroup(group.id)}
-                    className="flex-1 px-4 py-2 bg-green-600 text-white border-2 border-black hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <UsersRound size={16} />
-                    Join Group
-                  </button>
-                  
-                  <button
-                    className="px-4 py-2 bg-blue-100 text-blue-800 border-2 border-black hover:bg-blue-200 transition-colors flex items-center justify-center"
-                  >
-                    <MessageCircle size={16} />
-                  </button>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="col-span-2 py-12 text-center bg-gray-100 border-4 border-black">
-              <BookOpen size={64} className="mx-auto mb-4 text-gray-400" />
-              <h3 className="text-2xl font-bold mb-2">No study groups found</h3>
-              <p className="text-gray-600 mb-6">Try adjusting your search or create a new group</p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-6 py-3 bg-blue-600 text-white border-2 border-black hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
-              >
-                <Plus size={20} />
-                Create New Study Group
-              </button>
-            </div>
+        <div className="flex justify-between items-start mb-12">
+          <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1">
+            Study Groups
+          </h1>
+          {isAdmin && !showAddForm && (
+            <Button 
+              onClick={() => setShowAddForm(true)}
+              className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+            >
+              <Plus className="mr-2" /> Create Group
+            </Button>
           )}
         </div>
-        
-        {/* Create New Group Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Create New Study Group</h2>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <X size={24} />
-                </button>
+
+        {isAdmin && showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-8 p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <h2 className="text-2xl font-bold mb-4">{editingGroup ? 'Edit Study Group' : 'Create Study Group'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Group Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter group name"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    placeholder="Enter subject"
+                    required
+                  />
+                </div>
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Group Name *</label>
-                  <input
-                    type="text"
-                    value={newGroup.name}
-                    onChange={(e) => setNewGroup({...newGroup, name: e.target.value})}
-                    placeholder="E.g., Constitutional Law Study Group"
-                    className="w-full p-3 border-2 border-black"
+                  <Label htmlFor="meeting_day">Meeting Day</Label>
+                  <Input
+                    id="meeting_day"
+                    name="meeting_day"
+                    value={formData.meeting_day}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Monday"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Course *</label>
-                  <select
-                    value={newGroup.course}
-                    onChange={(e) => setNewGroup({...newGroup, course: e.target.value})}
-                    className="w-full p-3 border-2 border-black"
+                  <Label htmlFor="meeting_time">Meeting Time</Label>
+                  <Input
+                    id="meeting_time"
+                    name="meeting_time"
+                    value={formData.meeting_time}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 3:00 PM"
                     required
-                  >
-                    <option value="">Select a course</option>
-                    {courses.filter(course => course !== "All Courses").map(course => (
-                      <option key={course} value={course}>{course}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Schedule *</label>
-                    <input
-                      type="text"
-                      value={newGroup.schedule}
-                      onChange={(e) => setNewGroup({...newGroup, schedule: e.target.value})}
-                      placeholder="E.g., Mondays, 4-6 PM"
-                      className="w-full p-3 border-2 border-black"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Location</label>
-                    <input
-                      type="text"
-                      value={newGroup.location}
-                      onChange={(e) => setNewGroup({...newGroup, location: e.target.value})}
-                      placeholder="E.g., Law Lecture Room (LLR)"
-                      className="w-full p-3 border-2 border-black"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={newGroup.description}
-                    onChange={(e) => setNewGroup({...newGroup, description: e.target.value})}
-                    placeholder="Describe the focus and goals of your study group"
-                    className="w-full p-3 border-2 border-black h-32"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tags (comma separated)</label>
-                  <input
-                    type="text"
-                    value={newGroup.tags}
-                    onChange={(e) => setNewGroup({...newGroup, tags: e.target.value})}
-                    placeholder="E.g., Case Studies, Exam Prep, Discussion"
-                    className="w-full p-3 border-2 border-black"
+                  <Label htmlFor="max_members">Max Members</Label>
+                  <Input
+                    id="max_members"
+                    name="max_members"
+                    type="number"
+                    min="1"
+                    value={formData.max_members}
+                    onChange={handleInputChange}
+                    required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
-                </div>
-                
-                <div className="flex gap-4 mt-6">
-                  <button
-                    onClick={handleCreateGroup}
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white border-2 border-black hover:bg-blue-700 transition-colors"
-                  >
-                    Create Group
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-6 py-3 bg-gray-200 text-gray-800 border-2 border-black hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
                 </div>
               </div>
-            </motion.div>
+              
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter meeting location"
+                  required
+                />
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  type="submit"
+                  className="bg-green-400 border-2 border-black hover:bg-green-500"
+                >
+                  {editingGroup ? 'Update Group' : 'Create Group'}
+                </Button>
+                <Button 
+                  type="button"
+                  onClick={resetForm}
+                  className="bg-gray-200 border-2 border-black hover:bg-gray-300"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {isLoading ? (
+          <div className="animate-pulse bg-white border-4 border-black p-6">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-24 bg-gray-200 rounded mb-4"></div>
+          </div>
+        ) : studyGroups.length > 0 ? (
+          <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Group Name</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <TableHead>Schedule</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Members</TableHead>
+                  {isAdmin && <TableHead>Actions</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {studyGroups.map((group: any) => (
+                  <TableRow key={group.id}>
+                    <TableCell className="font-medium">{group.name}</TableCell>
+                    <TableCell>{group.subject}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {group.meeting_day}, {group.meeting_time}
+                      </div>
+                    </TableCell>
+                    <TableCell>{group.location}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Users className="mr-2 h-4 w-4" />
+                        <span className="font-bold">{group.current_members || 0}</span>/{group.max_members}
+                      </div>
+                    </TableCell>
+                    {isAdmin && (
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditGroup(group)}
+                            className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGroup(group.id)}
+                            className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                          >
+                            <Trash size={16} />
+                          </button>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="p-12 text-center bg-white border-4 border-black">
+            <Users className="mx-auto h-12 w-12 mb-4 text-gray-400" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No study groups yet</h3>
+            <p className="text-gray-500 mb-6">Get started by creating your first study group</p>
+            {isAdmin && (
+              <Button 
+                onClick={() => setShowAddForm(true)}
+                className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors"
+              >
+                <Plus className="mr-2" /> Create First Group
+              </Button>
+            )}
           </div>
         )}
       </motion.div>

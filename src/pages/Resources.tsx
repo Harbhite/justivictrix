@@ -1,40 +1,19 @@
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff } from "lucide-react";
+import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff, Edit, Trash } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ResourceUploadForm from "@/components/ResourceUploadForm";
+import { AuthContext } from "@/App";
 
 const Resources = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [user, setUser] = useState<any>(null);
+  const { user } = useContext(AuthContext);
   const [selectedResource, setSelectedResource] = useState<any>(null);
-  const [isPinMode, setIsPinMode] = useState(false);
   const resourcesContainerRef = useRef<HTMLDivElement>(null);
-
-  // Check authentication status on load
-  useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user || null);
-    };
-    
-    getUser();
-
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user || null);
-      }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
 
   // Check if user is admin (for pinning)
   const isAdmin = user?.email === "swisssunny1@gmail.com";
@@ -79,12 +58,39 @@ const Resources = () => {
     }
   });
 
+  // Delete resource
+  const deleteResourceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from("resources")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+      toast.success("Resource deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete resource");
+      console.error(error);
+    }
+  });
+
   // Toggle pin status
   const handleTogglePin = (resource: any) => {
     togglePinMutation.mutate({ 
       id: resource.id, 
       isPinned: !resource.is_pinned 
     });
+  };
+
+  // Delete resource
+  const handleDeleteResource = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this resource?")) {
+      deleteResourceMutation.mutate(id);
+    }
   };
 
   // Auto-select the first PDF resource when resources are loaded
@@ -165,12 +171,6 @@ const Resources = () => {
     return null;
   };
 
-  // Toggle pin mode
-  const togglePinMode = () => {
-    setIsPinMode(!isPinMode);
-    toast.info(isPinMode ? "Pin mode disabled" : "Pin mode enabled. Click on resources to pin/unpin them.");
-  };
-
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -184,15 +184,29 @@ const Resources = () => {
           </h1>
           
           {isAdmin && (
-            <button
-              onClick={togglePinMode}
-              className={`px-4 py-2 border-2 border-black flex items-center gap-2 ${
-                isPinMode ? "bg-amber-300 hover:bg-amber-400" : "bg-gray-100 hover:bg-gray-200"
-              } transition-colors`}
-            >
-              {isPinMode ? <PinOff size={20} /> : <Pin size={20} />}
-              {isPinMode ? "Exit Pin Mode" : "Enter Pin Mode"}
-            </button>
+            <div className="flex items-center gap-4">
+              <Link 
+                to="/events" 
+                className="px-4 py-2 border-2 border-black bg-purple-300 hover:bg-purple-400 transition-colors flex items-center gap-2"
+              >
+                <Edit size={20} />
+                Manage Events
+              </Link>
+              <Link 
+                to="/timetable" 
+                className="px-4 py-2 border-2 border-black bg-blue-300 hover:bg-blue-400 transition-colors flex items-center gap-2"
+              >
+                <Edit size={20} />
+                Manage Timetable
+              </Link>
+              <Link 
+                to="/study-groups" 
+                className="px-4 py-2 border-2 border-black bg-green-300 hover:bg-green-400 transition-colors flex items-center gap-2"
+              >
+                <Edit size={20} />
+                Manage Groups
+              </Link>
+            </div>
           )}
         </div>
 
@@ -329,9 +343,7 @@ const Resources = () => {
                     }`}
                     whileHover={{ scale: 1.02 }}
                     onClick={() => {
-                      if (isPinMode && isAdmin) {
-                        handleTogglePin(resource);
-                      } else if (resource.type === 'pdf') {
+                      if (resource.type === 'pdf') {
                         setSelectedResource(resource);
                         resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
                       }
@@ -362,7 +374,7 @@ const Resources = () => {
                         {resource.description}
                       </p>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {resource.type === 'pdf' && (
                         <button
                           onClick={(e) => {
@@ -387,6 +399,36 @@ const Resources = () => {
                         <Download size={20} />
                         Download {resource.file_type ? `.${resource.file_type}` : ''}
                       </a>
+                      
+                      {isAdmin && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTogglePin(resource);
+                            }}
+                            className={`px-4 py-2 border-2 border-black transition-colors flex items-center gap-2 inline-block ${
+                              resource.is_pinned 
+                                ? "bg-amber-400 hover:bg-amber-500" 
+                                : "bg-gray-200 hover:bg-gray-300"
+                            }`}
+                          >
+                            {resource.is_pinned ? <PinOff size={20} /> : <Pin size={20} />}
+                            {resource.is_pinned ? "Unpin" : "Pin"}
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteResource(resource.id);
+                            }}
+                            className="px-4 py-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors flex items-center gap-2 inline-block"
+                          >
+                            <Trash size={20} />
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 );

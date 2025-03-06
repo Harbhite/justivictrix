@@ -1,122 +1,196 @@
 
 import { motion } from "framer-motion";
-import { Download, Image as ImageIcon, FileType } from "lucide-react";
-import { useRef } from "react";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import { useState, useEffect, useContext } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthContext } from "@/App";
 
 const Timetable = () => {
-  const tableRef = useRef<HTMLDivElement>(null);
+  const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const isAdmin = user?.email === "swisssunny1@gmail.com";
   
-  const timetable = [
-    {
-      time: "8:00 AM - 10:00 AM",
-      monday: "Constitutional Law",
-      tuesday: "Criminal Law",
-      wednesday: "Contract Law",
-      thursday: "Property Law",
-      friday: "Jurisprudence"
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingClass, setEditingClass] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    course_code: '',
+    course_title: '',
+    day: '',
+    start_time: '',
+    end_time: '',
+    location: '',
+    lecturer: ''
+  });
+
+  // Get days of the week for grouping
+  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+  // Fetch timetable entries from Supabase
+  const { data: classes = [], isLoading } = useQuery({
+    queryKey: ["timetable"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("timetable")
+        .select("*")
+        .order("day", { ascending: true })
+        .order("start_time", { ascending: true });
+
+      if (error) {
+        toast.error("Failed to load timetable");
+        throw error;
+      }
+
+      return data || [];
     },
-    {
-      time: "10:00 AM - 12:00 PM",
-      monday: "Legal Methods",
-      tuesday: "Nigerian Legal System",
-      wednesday: "Administrative Law",
-      thursday: "Law of Torts",
-      friday: "Legal Research"
+  });
+
+  // Add class entry mutation
+  const addClassMutation = useMutation({
+    mutationFn: async (classData: any) => {
+      const { data, error } = await supabase
+        .from("timetable")
+        .insert([classData])
+        .select();
+      
+      if (error) throw error;
+      return data;
     },
-    {
-      time: "1:00 PM - 3:00 PM",
-      monday: "Commercial Law",
-      tuesday: "Company Law",
-      wednesday: "Evidence",
-      thursday: "Civil Procedure",
-      friday: "Moot Court"
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["timetable"] });
+      toast.success("Class added to timetable");
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to add class");
+      console.error(error);
     }
-  ];
+  });
 
-  const downloadAsCsv = () => {
-    let csvContent = "Time,Monday,Tuesday,Wednesday,Thursday,Friday\n";
-    timetable.forEach(row => {
-      csvContent += `${row.time},${row.monday},${row.tuesday},${row.wednesday},${row.thursday},${row.friday}\n`;
-    });
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'LLB28_Timetable.csv');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    toast.success('Timetable downloaded as CSV');
-  };
+  // Update class entry mutation
+  const updateClassMutation = useMutation({
+    mutationFn: async ({ id, classData }: { id: number, classData: any }) => {
+      const { data, error } = await supabase
+        .from("timetable")
+        .update(classData)
+        .eq("id", id)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["timetable"] });
+      toast.success("Timetable updated");
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error("Failed to update timetable");
+      console.error(error);
+    }
+  });
 
-  const downloadAsImage = async () => {
-    if (!tableRef.current) return;
-    
-    try {
-      const canvas = await html2canvas(tableRef.current, {
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight,
-        scale: 2,
-        useCORS: true,
-        logging: true,
-        backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          const element = clonedDoc.querySelector('[ref="tableRef"]') as HTMLElement;
-          if (element) {
-            element.style.padding = '20px';
-            element.style.width = 'fit-content';
-          }
+  // Delete class entry mutation
+  const deleteClassMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from("timetable")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["timetable"] });
+      toast.success("Class removed from timetable");
+    },
+    onError: (error) => {
+      toast.error("Failed to remove class");
+      console.error(error);
+    }
+  });
+
+  // Subscribe to timetable changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('timetable-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'timetable'
+        },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["timetable"] });
         }
-      });
-      
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'LLB28_Timetable.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast.success('Timetable downloaded as image');
-    } catch (error) {
-      toast.error('Failed to download image');
-      console.error('Error generating image:', error);
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  // Group classes by day
+  const classesByDay = daysOfWeek.map(day => {
+    return {
+      day,
+      classes: classes.filter((c: any) => c.day === day)
+    };
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingClass) {
+      updateClassMutation.mutate({ id: editingClass.id, classData: formData });
+    } else {
+      addClassMutation.mutate(formData);
     }
   };
 
-  const downloadAsPdf = async () => {
-    if (!tableRef.current) return;
-    
-    try {
-      const canvas = await html2canvas(tableRef.current, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-      });
-      
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('LLB28_Timetable.pdf');
-      
-      toast.success('Timetable downloaded as PDF');
-    } catch (error) {
-      toast.error('Failed to download PDF');
-      console.error('Error generating PDF:', error);
+  const handleEditClass = (classItem: any) => {
+    setEditingClass(classItem);
+    setFormData({
+      course_code: classItem.course_code,
+      course_title: classItem.course_title,
+      day: classItem.day,
+      start_time: classItem.start_time,
+      end_time: classItem.end_time,
+      location: classItem.location,
+      lecturer: classItem.lecturer
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDeleteClass = (id: number) => {
+    if (window.confirm("Are you sure you want to remove this class from the timetable?")) {
+      deleteClassMutation.mutate(id);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      course_code: '',
+      course_title: '',
+      day: '',
+      start_time: '',
+      end_time: '',
+      location: '',
+      lecturer: ''
+    });
+    setEditingClass(null);
+    setShowAddForm(false);
   };
 
   return (
@@ -125,64 +199,234 @@ const Timetable = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto"
       >
-        <h1 className="text-4xl md:text-5xl font-black text-law-dark mb-8 md:mb-12 border-4 border-black p-4 inline-block bg-white">
-          Class Timetable
-        </h1>
-
-        <div className="p-4 md:p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex flex-col sm:flex-row justify-end gap-4 mb-6">
-            <button
-              onClick={downloadAsCsv}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full sm:w-auto"
+        <div className="flex justify-between items-start mb-12">
+          <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1">
+            Class Timetable
+          </h1>
+          {isAdmin && !showAddForm && (
+            <Button 
+              onClick={() => setShowAddForm(true)}
+              className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
             >
-              <Download className="w-5 h-5" />
-              Download CSV
-            </button>
-            <button
-              onClick={downloadAsImage}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto"
-            >
-              <ImageIcon className="w-5 h-5" />
-              Download Image
-            </button>
-            <button
-              onClick={downloadAsPdf}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors w-full sm:w-auto"
-            >
-              <FileType className="w-5 h-5" />
-              Download PDF
-            </button>
-          </div>
-          
-          <div ref={tableRef} className="bg-white p-4 md:p-6 rounded-lg overflow-x-auto">
-            <table className="w-full border-collapse min-w-[800px]">
-              <thead>
-                <tr>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Time</th>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Monday</th>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Tuesday</th>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Wednesday</th>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Thursday</th>
-                  <th className="border-2 border-black bg-law-primary/10 p-2 md:p-3 text-sm md:text-base font-bold">Friday</th>
-                </tr>
-              </thead>
-              <tbody>
-                {timetable.map((row, index) => (
-                  <tr key={index}>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.time}</td>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.monday}</td>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.tuesday}</td>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.wednesday}</td>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.thursday}</td>
-                    <td className="border-2 border-black bg-white p-2 md:p-3 text-sm md:text-base">{row.friday}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              <Plus className="mr-2" /> Add Class
+            </Button>
+          )}
         </div>
+
+        {isAdmin && showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-8 p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <h2 className="text-2xl font-bold mb-4">{editingClass ? 'Edit Class Schedule' : 'Add Class to Timetable'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="course_code">Course Code</Label>
+                  <Input
+                    id="course_code"
+                    name="course_code"
+                    value={formData.course_code}
+                    onChange={handleInputChange}
+                    placeholder="e.g. LAW101"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="course_title">Course Title</Label>
+                  <Input
+                    id="course_title"
+                    name="course_title"
+                    value={formData.course_title}
+                    onChange={handleInputChange}
+                    placeholder="Enter course title"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="day">Day</Label>
+                  <select 
+                    id="day"
+                    name="day"
+                    value={formData.day}
+                    onChange={handleInputChange as any}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select day</option>
+                    {daysOfWeek.map(day => (
+                      <option key={day} value={day}>{day}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="start_time">Start Time</Label>
+                  <Input
+                    id="start_time"
+                    name="start_time"
+                    value={formData.start_time}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 9:00 AM"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="end_time">End Time</Label>
+                  <Input
+                    id="end_time"
+                    name="end_time"
+                    value={formData.end_time}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 11:00 AM"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="Enter class location"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="lecturer">Lecturer</Label>
+                  <Input
+                    id="lecturer"
+                    name="lecturer"
+                    value={formData.lecturer}
+                    onChange={handleInputChange}
+                    placeholder="Enter lecturer name"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  type="submit"
+                  className="bg-green-400 border-2 border-black hover:bg-green-500"
+                >
+                  {editingClass ? 'Update Class' : 'Add Class'}
+                </Button>
+                <Button 
+                  type="button"
+                  onClick={resetForm}
+                  className="bg-gray-200 border-2 border-black hover:bg-gray-300"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-6">
+            {[1, 2].map(day => (
+              <div key={day} className="animate-pulse">
+                <div className="h-8 bg-gray-200 w-1/4 mb-4 rounded"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {classesByDay.map(day => (
+              <div key={day.day}>
+                {day.classes.length > 0 && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-4 border-b-2 border-black pb-2">{day.day}</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                      {day.classes.map((classItem: any) => (
+                        <motion.div
+                          key={classItem.id}
+                          className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2 mb-3">
+                                <BookOpen className="text-blue-600" />
+                                <h3 className="text-xl font-bold">{classItem.course_title}</h3>
+                              </div>
+                              <p className="text-sm font-semibold text-gray-500 mb-3">{classItem.course_code}</p>
+                            </div>
+                            
+                            {isAdmin && (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleEditClass(classItem)}
+                                  className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
+                                >
+                                  <Edit size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteClass(classItem.id)}
+                                  className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                                >
+                                  <Trash size={16} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Clock className="w-5 h-5" />
+                              <span>{classItem.start_time} - {classItem.end_time}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <MapPin className="w-5 h-5" />
+                              <span>{classItem.location}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <span className="font-medium">Lecturer:</span>
+                              <span>{classItem.lecturer}</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+            
+            {classes.length === 0 && (
+              <div className="p-12 text-center bg-white border-4 border-black">
+                <Calendar className="mx-auto h-12 w-12 mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No classes scheduled yet</h3>
+                <p className="text-gray-500 mb-6">Get started by adding classes to your timetable</p>
+                {isAdmin && (
+                  <Button 
+                    onClick={() => setShowAddForm(true)}
+                    className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors"
+                  >
+                    <Plus className="mr-2" /> Add First Class
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </motion.div>
     </div>
   );
