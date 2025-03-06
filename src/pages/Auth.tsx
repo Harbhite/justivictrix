@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, Key, Mail, Eye, EyeOff } from "lucide-react";
@@ -14,8 +15,8 @@ const ADMIN_PASSWORD = "notllb28";
 const Auth = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState(ADMIN_EMAIL);
-  const [password, setPassword] = useState(ADMIN_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,9 +25,9 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      console.log("Session check:", data, error);
-      if (data.session) {
+      const { data: sessionData, error } = await supabase.auth.getSession();
+      console.log("Session check:", sessionData, error);
+      if (sessionData.session) {
         navigate("/resources");
       }
     };
@@ -48,9 +49,10 @@ const Auth = () => {
         const { data: userData, error: getUserError } = await supabase.auth.admin.listUsers();
         
         // Properly type the data to check for admin existence
-        const adminExists = userData && userData.users && userData.users.some(user => 
-          user.email === ADMIN_EMAIL
-        );
+        const adminExists = userData && 
+          userData.users && 
+          Array.isArray(userData.users) && 
+          userData.users.some((user: any) => user.email === ADMIN_EMAIL);
         
         // If admin doesn't exist, create the admin account
         if (!adminExists) {
@@ -125,7 +127,7 @@ const Auth = () => {
         toast.success("Registration successful! Please check your email to confirm your account.");
       } else {
         // Sign in existing user
-        console.log("Attempting sign in with:", email, password);
+        console.log("Attempting sign in with:", email);
         
         const { data: regularSignInData, error: regularSignInError } = await supabase.auth.signInWithPassword({
           email,

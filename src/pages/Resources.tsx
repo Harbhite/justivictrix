@@ -1,6 +1,7 @@
+
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff } from "lucide-react";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect, useState, useRef } from "react";
@@ -12,6 +13,7 @@ const Resources = () => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
   const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [isPinMode, setIsPinMode] = useState(false);
   const resourcesContainerRef = useRef<HTMLDivElement>(null);
 
   // Check authentication status on load
@@ -35,12 +37,16 @@ const Resources = () => {
     };
   }, []);
 
+  // Check if user is admin (for pinning)
+  const isAdmin = user?.email === "swisssunny1@gmail.com";
+
   const { data: resources, isLoading } = useQuery({
     queryKey: ["resources"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("resources")
         .select("*")
+        .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -51,6 +57,36 @@ const Resources = () => {
       return data || [];
     },
   });
+
+  // Update resource pin status
+  const togglePinMutation = useMutation({
+    mutationFn: async ({ id, isPinned }: { id: string, isPinned: boolean }) => {
+      const { data, error } = await supabase
+        .from("resources")
+        .update({ is_pinned: isPinned })
+        .eq("id", id)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+      toast.success("Resource updated");
+    },
+    onError: (error) => {
+      toast.error("Failed to update resource");
+      console.error(error);
+    }
+  });
+
+  // Toggle pin status
+  const handleTogglePin = (resource: any) => {
+    togglePinMutation.mutate({ 
+      id: resource.id, 
+      isPinned: !resource.is_pinned 
+    });
+  };
 
   // Auto-select the first PDF resource when resources are loaded
   useEffect(() => {
@@ -130,6 +166,12 @@ const Resources = () => {
     return null;
   };
 
+  // Toggle pin mode
+  const togglePinMode = () => {
+    setIsPinMode(!isPinMode);
+    toast.info(isPinMode ? "Pin mode disabled" : "Pin mode enabled. Click on resources to pin/unpin them.");
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -137,9 +179,23 @@ const Resources = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
-          Resources
-        </h1>
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1">
+            Resources
+          </h1>
+          
+          {isAdmin && (
+            <button
+              onClick={togglePinMode}
+              className={`px-4 py-2 border-2 border-black flex items-center gap-2 ${
+                isPinMode ? "bg-amber-300 hover:bg-amber-400" : "bg-gray-100 hover:bg-gray-200"
+              } transition-colors`}
+            >
+              {isPinMode ? <PinOff size={20} /> : <Pin size={20} />}
+              {isPinMode ? "Exit Pin Mode" : "Enter Pin Mode"}
+            </button>
+          )}
+        </div>
 
         {/* Course Catalog Card */}
         <div className="mb-8">
@@ -269,10 +325,14 @@ const Resources = () => {
                 return (
                   <motion.div
                     key={resource.id}
-                    className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                    className={`p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all ${
+                      resource.is_pinned ? "ring-4 ring-amber-400" : ""
+                    }`}
                     whileHover={{ scale: 1.02 }}
                     onClick={() => {
-                      if (resource.type === 'pdf') {
+                      if (isPinMode && isAdmin) {
+                        handleTogglePin(resource);
+                      } else if (resource.type === 'pdf') {
                         setSelectedResource(resource);
                         // Scroll to the top of the resources container
                         resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -281,9 +341,16 @@ const Resources = () => {
                   >
                     <div className="flex items-start justify-between">
                       <Icon size={24} className="mt-1" />
-                      <span className="px-2 py-1 bg-yellow-200 border-2 border-black text-sm font-bold">
-                        {resource.type}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {resource.is_pinned && (
+                          <span className="p-1 bg-amber-200 border-2 border-black">
+                            <Pin size={16} />
+                          </span>
+                        )}
+                        <span className="px-2 py-1 bg-yellow-200 border-2 border-black text-sm font-bold">
+                          {resource.type}
+                        </span>
+                      </div>
                     </div>
                     
                     {preview}
