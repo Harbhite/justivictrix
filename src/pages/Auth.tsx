@@ -17,11 +17,13 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is already logged in
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+      console.log("Session check:", data, error);
       if (data.session) {
         navigate("/resources");
       }
@@ -33,6 +35,7 @@ const Auth = () => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setAuthError(null);
 
     try {
       if (isSignUp) {
@@ -40,24 +43,31 @@ const Auth = () => {
         if (password !== confirmPassword) {
           toast.error("Passwords do not match");
           setIsLoading(false);
+          setAuthError("Passwords do not match");
           return;
         }
 
         // Sign up new user
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         });
+
+        console.log("Sign up response:", data, error);
 
         if (error) throw error;
         
         toast.success("Registration successful! Please check your email to confirm your account.");
       } else {
         // Sign in existing user
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log("Attempting sign in with:", email, password);
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+
+        console.log("Sign in response:", data, error);
 
         if (error) throw error;
         
@@ -66,6 +76,7 @@ const Auth = () => {
       }
     } catch (error: any) {
       console.error("Authentication error:", error);
+      setAuthError(error.message);
       toast.error(error.message || "Authentication failed");
     } finally {
       setIsLoading(false);
@@ -95,6 +106,12 @@ const Auth = () => {
         </div>
 
         <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
+          {authError && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded text-red-700">
+              <p><strong>Error:</strong> {authError}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleAuth} className="space-y-6">
             <div>
               <Label htmlFor="email" className="text-sm font-bold text-gray-700">
