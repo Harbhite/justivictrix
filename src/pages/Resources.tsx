@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -60,7 +59,7 @@ const Resources = () => {
 
   // Update resource pin status
   const togglePinMutation = useMutation({
-    mutationFn: async ({ id, isPinned }: { id: string, isPinned: boolean }) => {
+    mutationFn: async ({ id, isPinned }: { id: number, isPinned: boolean }) => {
       const { data, error } = await supabase
         .from("resources")
         .update({ is_pinned: isPinned })
@@ -334,7 +333,6 @@ const Resources = () => {
                         handleTogglePin(resource);
                       } else if (resource.type === 'pdf') {
                         setSelectedResource(resource);
-                        // Scroll to the top of the resources container
                         resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
                       }
                     }}
@@ -399,6 +397,6 @@ const Resources = () => {
       </motion.div>
     </div>
   );
-}
+};
 
 export default Resources;

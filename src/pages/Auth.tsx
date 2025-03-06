@@ -9,9 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const ADMIN_EMAIL = "swisssunny1@gmail.com";
-const ADMIN_PASSWORD = "notllb28";
-
 const Auth = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -41,69 +38,6 @@ const Auth = () => {
     setAuthError(null);
 
     try {
-      // Special case for admin login
-      if (!isSignUp && email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        console.log("Admin login attempt with:", email, password);
-        
-        // First check if the admin user exists
-        const { data: userData, error: getUserError } = await supabase.auth.admin.listUsers();
-        
-        // Properly type the data to check for admin existence
-        const adminExists = userData && 
-          userData.users && 
-          Array.isArray(userData.users) && 
-          userData.users.some((user: any) => user.email === ADMIN_EMAIL);
-        
-        // If admin doesn't exist, create the admin account
-        if (!adminExists) {
-          console.log("Admin user doesn't exist, creating admin account");
-          // Create admin user (this will be a no-op if user already exists)
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: ADMIN_EMAIL,
-            password: ADMIN_PASSWORD,
-          });
-          
-          if (signUpError && signUpError.status !== 400) {
-            throw signUpError;
-          }
-          
-          // Force confirm the admin user (would normally be done via email)
-          // This is just for development purposes
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        // Now try to sign in
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: ADMIN_EMAIL,
-          password: ADMIN_PASSWORD,
-        });
-        
-        console.log("Admin sign in response:", signInData, signInError);
-        
-        if (signInError) {
-          if (signInError.message.includes("Email not confirmed")) {
-            // Workaround for email confirmation issue - we'll create a session directly
-            // Note: This is for development purposes only
-            const { data: confirmSignInData, error: confirmSignInError } = await supabase.auth.signInWithPassword({
-              email: ADMIN_EMAIL,
-              password: ADMIN_PASSWORD,
-            });
-            
-            if (confirmSignInError) throw confirmSignInError;
-            
-            toast.success("Admin logged in successfully!");
-            navigate("/resources");
-            return;
-          } else {
-            throw signInError;
-          }
-        }
-        
-        toast.success("Admin logged in successfully!");
-        navigate("/resources");
-        return;
-      }
-      
       // Regular authentication flow
       if (isSignUp) {
         // Validate passwords match
@@ -115,28 +49,28 @@ const Auth = () => {
         }
 
         // Sign up new user
-        const { data: regularSignUpData, error: regularSignUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
         });
 
-        console.log("Sign up response:", regularSignUpData, regularSignUpError);
+        console.log("Sign up response:", signUpData, signUpError);
 
-        if (regularSignUpError) throw regularSignUpError;
+        if (signUpError) throw signUpError;
         
         toast.success("Registration successful! Please check your email to confirm your account.");
       } else {
         // Sign in existing user
         console.log("Attempting sign in with:", email);
         
-        const { data: regularSignInData, error: regularSignInError } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        console.log("Sign in response:", regularSignInData, regularSignInError);
+        console.log("Sign in response:", signInData, signInError);
 
-        if (regularSignInError) throw regularSignInError;
+        if (signInError) throw signInError;
         
         toast.success("Logged in successfully!");
         navigate("/resources");

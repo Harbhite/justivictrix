@@ -113,6 +113,7 @@ export type Database = {
           file_type: string | null
           file_url: string
           id: number
+          is_pinned: boolean | null
           title: string
           type: string
           updated_at: string
@@ -124,6 +125,7 @@ export type Database = {
           file_type?: string | null
           file_url: string
           id?: number
+          is_pinned?: boolean | null
           title: string
           type: string
           updated_at?: string
@@ -135,6 +137,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string
           id?: number
+          is_pinned?: boolean | null
           title?: string
           type?: string
           updated_at?: string
