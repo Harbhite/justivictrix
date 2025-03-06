@@ -45,22 +45,24 @@ const Auth = () => {
         console.log("Admin login attempt with:", email, password);
         
         // First check if the admin user exists
-        const { data, error: getUserError } = await supabase.auth.admin.listUsers();
+        const { data: userData, error: getUserError } = await supabase.auth.admin.listUsers();
         
         // Properly type the data to check for admin existence
-        const adminExists = data && data.users && data.users.some(user => user.email === ADMIN_EMAIL);
+        const adminExists = userData && userData.users && userData.users.some(user => 
+          user.email === ADMIN_EMAIL
+        );
         
         // If admin doesn't exist, create the admin account
         if (!adminExists) {
           console.log("Admin user doesn't exist, creating admin account");
           // Create admin user (this will be a no-op if user already exists)
-          const { data, error } = await supabase.auth.signUp({
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: ADMIN_EMAIL,
             password: ADMIN_PASSWORD,
           });
           
-          if (error && error.status !== 400) {
-            throw error;
+          if (signUpError && signUpError.status !== 400) {
+            throw signUpError;
           }
           
           // Force confirm the admin user (would normally be done via email)
@@ -69,29 +71,29 @@ const Auth = () => {
         }
         
         // Now try to sign in
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: ADMIN_EMAIL,
           password: ADMIN_PASSWORD,
         });
         
-        console.log("Admin sign in response:", data, error);
+        console.log("Admin sign in response:", signInData, signInError);
         
-        if (error) {
-          if (error.message.includes("Email not confirmed")) {
+        if (signInError) {
+          if (signInError.message.includes("Email not confirmed")) {
             // Workaround for email confirmation issue - we'll create a session directly
             // Note: This is for development purposes only
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            const { data: confirmSignInData, error: confirmSignInError } = await supabase.auth.signInWithPassword({
               email: ADMIN_EMAIL,
               password: ADMIN_PASSWORD,
             });
             
-            if (signInError) throw signInError;
+            if (confirmSignInError) throw confirmSignInError;
             
             toast.success("Admin logged in successfully!");
             navigate("/resources");
             return;
           } else {
-            throw error;
+            throw signInError;
           }
         }
         
@@ -111,28 +113,28 @@ const Auth = () => {
         }
 
         // Sign up new user
-        const { data, error } = await supabase.auth.signUp({
+        const { data: regularSignUpData, error: regularSignUpError } = await supabase.auth.signUp({
           email,
           password,
         });
 
-        console.log("Sign up response:", data, error);
+        console.log("Sign up response:", regularSignUpData, regularSignUpError);
 
-        if (error) throw error;
+        if (regularSignUpError) throw regularSignUpError;
         
         toast.success("Registration successful! Please check your email to confirm your account.");
       } else {
         // Sign in existing user
         console.log("Attempting sign in with:", email, password);
         
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data: regularSignInData, error: regularSignInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        console.log("Sign in response:", data, error);
+        console.log("Sign in response:", regularSignInData, regularSignInError);
 
-        if (error) throw error;
+        if (regularSignInError) throw regularSignInError;
         
         toast.success("Logged in successfully!");
         navigate("/resources");
