@@ -171,9 +171,6 @@ const Auth = () => {
               ? "Create an account to access all features" 
               : "Sign in to access your account"}
           </p>
-          <p className="mt-2 text-sm text-blue-600">
-            <strong>Admin Credentials:</strong> {ADMIN_EMAIL} / {ADMIN_PASSWORD}
-          </p>
         </div>
 
         <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
@@ -198,7 +195,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
-                  placeholder={ADMIN_EMAIL}
+                  placeholder="Enter your email"
                   required
                 />
               </div>
@@ -218,7 +215,7 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
-                  placeholder={ADMIN_PASSWORD}
+                  placeholder="Enter your password"
                   required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -252,7 +249,7 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10"
-                    placeholder={ADMIN_PASSWORD}
+                    placeholder="Confirm your password"
                     required
                   />
                 </div>
