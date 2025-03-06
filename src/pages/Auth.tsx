@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, Key, Mail, Eye, EyeOff } from "lucide-react";
@@ -46,8 +45,10 @@ const Auth = () => {
         console.log("Admin login attempt with:", email, password);
         
         // First check if the admin user exists
-        const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers();
-        const adminExists = users?.some(user => user.email === ADMIN_EMAIL);
+        const { data, error: getUserError } = await supabase.auth.admin.listUsers();
+        
+        // Properly type the data to check for admin existence
+        const adminExists = data && data.users && data.users.some(user => user.email === ADMIN_EMAIL);
         
         // If admin doesn't exist, create the admin account
         if (!adminExists) {
@@ -82,9 +83,6 @@ const Auth = () => {
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
               email: ADMIN_EMAIL,
               password: ADMIN_PASSWORD,
-              options: {
-                emailRedirectTo: window.location.origin,
-              }
             });
             
             if (signInError) throw signInError;
