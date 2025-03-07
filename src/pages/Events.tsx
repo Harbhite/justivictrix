@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, MapPin, Plus, Edit, Trash } from "lucide-react";
+import { Calendar, Clock, MapPin, Plus, Edit, Trash, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -189,7 +189,7 @@ const Events = () => {
           </h1>
           <div className="flex gap-4">
             <Link
-              to="/tools"
+              to="/timetable"
               className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
             >
               View Timetable
@@ -242,11 +242,11 @@ const Events = () => {
                 <div>
                   <Label htmlFor="time">Time</Label>
                   <Input
+                    type="time"
                     id="time"
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
-                    placeholder="e.g. 10:00 AM"
                     required
                   />
                 </div>
@@ -295,78 +295,83 @@ const Events = () => {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-8">
           {isLoading ? (
-            [1, 2, 3, 4].map((index) => (
-              <div 
-                key={index} 
-                className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse"
-              >
-                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+            <div className="animate-pulse">
+              <div className="h-10 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="space-y-3">
+                {[1, 2, 3].map(item => (
+                  <div key={item} className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
+                    <div className="h-8 bg-gray-200 rounded col-span-2"></div>
+                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
+                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
+                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
+                  </div>
+                ))}
               </div>
-            ))
-          ) : events.length > 0 ? (
-            events.map((event: any, index: number) => (
-              <motion.div
-                key={event.id}
-                className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-              >
-                <div className="flex justify-between">
-                  <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
-                  
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
+              {events.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b-2 border-black">
+                        <th className="text-left py-3 px-4">Event</th>
+                        <th className="text-left py-3 px-4">Date</th>
+                        <th className="text-left py-3 px-4">Time</th>
+                        <th className="text-left py-3 px-4">Location</th>
+                        <th className="text-left py-3 px-4">Description</th>
+                        {isAdmin && <th className="text-right py-3 px-4">Actions</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {events.map((event: any) => (
+                        <tr key={event.id} className="border-b border-gray-200 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium">{event.title}</td>
+                          <td className="py-3 px-4">{event.date}</td>
+                          <td className="py-3 px-4">{event.time}</td>
+                          <td className="py-3 px-4">{event.location}</td>
+                          <td className="py-3 px-4">{event.description}</td>
+                          {isAdmin && (
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleEditEvent(event)}
+                                  className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
+                                >
+                                  <Edit size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEvent(event.id)}
+                                  className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                                >
+                                  <Trash size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-lg text-gray-500">No events found.</p>
                   {isAdmin && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEditEvent(event)}
-                        className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteEvent(event.id)}
-                        className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                      >
-                        <Trash size={16} />
-                      </button>
-                    </div>
+                    <Button 
+                      onClick={() => setShowAddForm(true)}
+                      className="mt-4 px-4 py-2 bg-green-100 border-2 border-black hover:bg-green-200 transition-colors"
+                    >
+                      <Plus className="mr-2" /> Add First Event
+                    </Button>
                   )}
                 </div>
-                
-                <div className="space-y-2 text-law-neutral">
-                  <p className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    {event.date}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    {event.time}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    {event.location}
-                  </p>
-                </div>
-                <p className="mt-4 text-law-dark">{event.description}</p>
-              </motion.div>
-            ))
-          ) : (
-            <div className="col-span-2 p-6 text-center">
-              <p className="text-lg text-gray-500">No events found.</p>
-              {isAdmin && (
-                <Button 
-                  onClick={() => setShowAddForm(true)}
-                  className="mt-4 px-4 py-2 bg-green-100 border-2 border-black hover:bg-green-200 transition-colors"
-                >
-                  <Plus className="mr-2" /> Add First Event
-                </Button>
               )}
-            </div>
+            </>
           )}
         </div>
       </motion.div>

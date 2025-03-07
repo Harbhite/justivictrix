@@ -1,10 +1,12 @@
 
 import { motion } from "framer-motion";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +25,7 @@ const Timetable = () => {
   const { user } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const isAdmin = user?.email === "swisssunny1@gmail.com";
+  const timetableRef = useRef<HTMLDivElement>(null);
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
@@ -156,30 +159,9 @@ const Timetable = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTimeSlotToggle = (timeSlot: string) => {
-    if (formData.start_time === timeSlot) {
-      // If already selected as start time, unselect it
-      setFormData(prev => ({ ...prev, start_time: '' }));
-    } else if (formData.end_time === timeSlot) {
-      // If already selected as end time, unselect it
-      setFormData(prev => ({ ...prev, end_time: '' }));
-    } else if (!formData.start_time) {
-      // If start time is not set, set it
-      setFormData(prev => ({ ...prev, start_time: timeSlot }));
-    } else if (!formData.end_time) {
-      // If end time is not set, set it (only if it's after start time)
-      const startIndex = timeSlots.indexOf(formData.start_time);
-      const currentIndex = timeSlots.indexOf(timeSlot);
-      
-      if (currentIndex > startIndex) {
-        setFormData(prev => ({ ...prev, end_time: timeSlot }));
-      } else {
-        toast.error("End time must be after start time");
-      }
-    } else {
-      // If both are set, reset and set start time
-      setFormData(prev => ({ ...prev, start_time: timeSlot, end_time: '' }));
-    }
+  // Function to handle time slot selection in a more intuitive way
+  const handleTimeChange = (type: 'start_time' | 'end_time', value: string) => {
+    setFormData(prev => ({ ...prev, [type]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -242,6 +224,39 @@ const Timetable = () => {
     });
   };
 
+  // Function to download timetable as PDF
+  const downloadAsPDF = async () => {
+    if (!timetableRef.current) return;
+    
+    try {
+      toast.info("Preparing your timetable download...");
+      
+      const canvas = await html2canvas(timetableRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 280;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      pdf.save('class-timetable.pdf');
+      
+      toast.success("Timetable downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to download timetable");
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -253,14 +268,22 @@ const Timetable = () => {
           <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1">
             Class Timetable
           </h1>
-          {isAdmin && !showAddForm && (
-            <Button 
-              onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+          <div className="flex gap-2">
+            <Button
+              onClick={downloadAsPDF}
+              className="px-4 py-2 bg-blue-100 border-4 border-black hover:bg-blue-200 transition-colors"
             >
-              <Plus className="mr-2" /> Add Class
+              <Download className="mr-2" /> Download Timetable
             </Button>
-          )}
+            {isAdmin && !showAddForm && (
+              <Button 
+                onClick={() => setShowAddForm(true)}
+                className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+              >
+                <Plus className="mr-2" /> Add Class
+              </Button>
+            )}
+          </div>
         </div>
 
         {isAdmin && showAddForm && (
@@ -328,35 +351,52 @@ const Timetable = () => {
                 </div>
               </div>
               
-              <div>
-                <Label>Time Selection</Label>
-                <p className="text-sm text-gray-500 mb-2">Click to select start time, then click again to select end time</p>
-                <div className="grid grid-cols-5 gap-2 my-2">
-                  {timeSlots.map((time) => (
-                    <Button
-                      key={time}
-                      type="button"
-                      onClick={() => handleTimeSlotToggle(time)}
-                      className={`
-                        ${formData.start_time === time ? 'bg-green-500 border-green-700' : 
-                          formData.end_time === time ? 'bg-red-500 border-red-700' : 
-                          'bg-gray-100 hover:bg-gray-200 border-gray-300'}
-                        border-2 p-2 flex items-center justify-center
-                      `}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="start_time">Start Time</Label>
+                  <Input
+                    type="time"
+                    id="start_time"
+                    name="start_time"
+                    value={formData.start_time}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <div className="mt-2">
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      value={formData.start_time}
+                      onChange={(e) => handleTimeChange('start_time', e.target.value)}
                     >
-                      {time}
-                      {formData.start_time === time && <Check size={14} className="ml-1" />}
-                    </Button>
-                  ))}
-                </div>
-                <div className="flex space-x-4 mt-2">
-                  <div>
-                    <span className="text-sm font-medium">Start Time:</span> 
-                    <span className="ml-2">{formData.start_time || 'Not selected'}</span>
+                      <option value="">Select start time</option>
+                      {timeSlots.map(time => (
+                        <option key={`start-${time}`} value={time}>{time}</option>
+                      ))}
+                    </select>
                   </div>
-                  <div>
-                    <span className="text-sm font-medium">End Time:</span> 
-                    <span className="ml-2">{formData.end_time || 'Not selected'}</span>
+                </div>
+                
+                <div>
+                  <Label htmlFor="end_time">End Time</Label>
+                  <Input
+                    type="time"
+                    id="end_time"
+                    name="end_time"
+                    value={formData.end_time}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <div className="mt-2">
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      value={formData.end_time}
+                      onChange={(e) => handleTimeChange('end_time', e.target.value)}
+                    >
+                      <option value="">Select end time</option>
+                      {timeSlots.map(time => (
+                        <option key={`end-${time}`} value={time}>{time}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -398,7 +438,7 @@ const Timetable = () => {
             <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         ) : (
-          <div>
+          <div ref={timetableRef}>
             <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
               <Table>
                 <TableCaption>Your weekly class schedule</TableCaption>
