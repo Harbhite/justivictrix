@@ -51,6 +51,36 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          date: string
+          description: string
+          id: number
+          location: string
+          time: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description: string
+          id?: number
+          location: string
+          time: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string
+          id?: number
+          location?: string
+          time?: string
+          title?: string
+        }
+        Relationships: []
+      }
       gallery: {
         Row: {
           created_at: string
@@ -141,6 +171,78 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      study_groups: {
+        Row: {
+          created_at: string
+          current_members: number | null
+          id: number
+          location: string
+          max_members: number
+          meeting_day: string
+          meeting_time: string
+          name: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          current_members?: number | null
+          id?: number
+          location: string
+          max_members?: number
+          meeting_day: string
+          meeting_time: string
+          name: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          current_members?: number | null
+          id?: number
+          location?: string
+          max_members?: number
+          meeting_day?: string
+          meeting_time?: string
+          name?: string
+          subject?: string
+        }
+        Relationships: []
+      }
+      timetable: {
+        Row: {
+          course_code: string
+          course_title: string
+          created_at: string
+          day: string
+          end_time: string
+          id: number
+          lecturer: string
+          location: string
+          start_time: string
+        }
+        Insert: {
+          course_code: string
+          course_title: string
+          created_at?: string
+          day: string
+          end_time: string
+          id?: number
+          lecturer: string
+          location: string
+          start_time: string
+        }
+        Update: {
+          course_code?: string
+          course_title?: string
+          created_at?: string
+          day?: string
+          end_time?: string
+          id?: number
+          lecturer?: string
+          location?: string
+          start_time?: string
         }
         Relationships: []
       }
