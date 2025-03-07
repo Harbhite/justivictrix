@@ -4,11 +4,20 @@ import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash } from "lucide-react";
+import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthContext } from "@/App";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const Timetable = () => {
   const { user } = useContext(AuthContext);
@@ -26,6 +35,12 @@ const Timetable = () => {
     location: '',
     lecturer: ''
   });
+
+  // Define time slots for the timetable
+  const timeSlots = [
+    "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
+    "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
+  ];
 
   // Get days of the week for grouping
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -136,17 +151,35 @@ const Timetable = () => {
     };
   }, [queryClient]);
 
-  // Group classes by day
-  const classesByDay = daysOfWeek.map(day => {
-    return {
-      day,
-      classes: classes.filter((c: any) => c.day === day)
-    };
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleTimeSlotToggle = (timeSlot: string) => {
+    if (formData.start_time === timeSlot) {
+      // If already selected as start time, unselect it
+      setFormData(prev => ({ ...prev, start_time: '' }));
+    } else if (formData.end_time === timeSlot) {
+      // If already selected as end time, unselect it
+      setFormData(prev => ({ ...prev, end_time: '' }));
+    } else if (!formData.start_time) {
+      // If start time is not set, set it
+      setFormData(prev => ({ ...prev, start_time: timeSlot }));
+    } else if (!formData.end_time) {
+      // If end time is not set, set it (only if it's after start time)
+      const startIndex = timeSlots.indexOf(formData.start_time);
+      const currentIndex = timeSlots.indexOf(timeSlot);
+      
+      if (currentIndex > startIndex) {
+        setFormData(prev => ({ ...prev, end_time: timeSlot }));
+      } else {
+        toast.error("End time must be after start time");
+      }
+    } else {
+      // If both are set, reset and set start time
+      setFormData(prev => ({ ...prev, start_time: timeSlot, end_time: '' }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -191,6 +224,22 @@ const Timetable = () => {
     });
     setEditingClass(null);
     setShowAddForm(false);
+  };
+
+  // Function to find a class at a specific day and time
+  const getClassAtDayAndTime = (day: string, time: string) => {
+    return classes.find((classItem: any) => {
+      // Check if the class is on this day
+      if (classItem.day !== day) return false;
+      
+      // Convert times to comparable format (assuming format like "9:00 AM")
+      const classStartIndex = timeSlots.indexOf(classItem.start_time);
+      const classEndIndex = timeSlots.indexOf(classItem.end_time);
+      const currentTimeIndex = timeSlots.indexOf(time);
+      
+      // Check if the current time slot is within the class time range
+      return currentTimeIndex >= classStartIndex && currentTimeIndex < classEndIndex;
+    });
   };
 
   return (
@@ -248,14 +297,14 @@ const Timetable = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="day">Day</Label>
                   <select 
                     id="day"
                     name="day"
                     value={formData.day}
-                    onChange={handleInputChange as any}
+                    onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
@@ -267,32 +316,6 @@ const Timetable = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="start_time">Start Time</Label>
-                  <Input
-                    id="start_time"
-                    name="start_time"
-                    value={formData.start_time}
-                    onChange={handleInputChange}
-                    placeholder="e.g. 9:00 AM"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="end_time">End Time</Label>
-                  <Input
-                    id="end_time"
-                    name="end_time"
-                    value={formData.end_time}
-                    onChange={handleInputChange}
-                    placeholder="e.g. 11:00 AM"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
                   <Label htmlFor="location">Location</Label>
                   <Input
                     id="location"
@@ -303,24 +326,58 @@ const Timetable = () => {
                     required
                   />
                 </div>
-                
-                <div>
-                  <Label htmlFor="lecturer">Lecturer</Label>
-                  <Input
-                    id="lecturer"
-                    name="lecturer"
-                    value={formData.lecturer}
-                    onChange={handleInputChange}
-                    placeholder="Enter lecturer name"
-                    required
-                  />
+              </div>
+              
+              <div>
+                <Label>Time Selection</Label>
+                <p className="text-sm text-gray-500 mb-2">Click to select start time, then click again to select end time</p>
+                <div className="grid grid-cols-5 gap-2 my-2">
+                  {timeSlots.map((time) => (
+                    <Button
+                      key={time}
+                      type="button"
+                      onClick={() => handleTimeSlotToggle(time)}
+                      className={`
+                        ${formData.start_time === time ? 'bg-green-500 border-green-700' : 
+                          formData.end_time === time ? 'bg-red-500 border-red-700' : 
+                          'bg-gray-100 hover:bg-gray-200 border-gray-300'}
+                        border-2 p-2 flex items-center justify-center
+                      `}
+                    >
+                      {time}
+                      {formData.start_time === time && <Check size={14} className="ml-1" />}
+                    </Button>
+                  ))}
                 </div>
+                <div className="flex space-x-4 mt-2">
+                  <div>
+                    <span className="text-sm font-medium">Start Time:</span> 
+                    <span className="ml-2">{formData.start_time || 'Not selected'}</span>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">End Time:</span> 
+                    <span className="ml-2">{formData.end_time || 'Not selected'}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="lecturer">Lecturer</Label>
+                <Input
+                  id="lecturer"
+                  name="lecturer"
+                  value={formData.lecturer}
+                  onChange={handleInputChange}
+                  placeholder="Enter lecturer name"
+                  required
+                />
               </div>
               
               <div className="flex gap-2 pt-2">
                 <Button 
                   type="submit"
                   className="bg-green-400 border-2 border-black hover:bg-green-500"
+                  disabled={!formData.start_time || !formData.end_time}
                 >
                   {editingClass ? 'Update Class' : 'Add Class'}
                 </Button>
@@ -337,81 +394,75 @@ const Timetable = () => {
         )}
 
         {isLoading ? (
-          <div className="space-y-6">
-            {[1, 2].map(day => (
-              <div key={day} className="animate-pulse">
-                <div className="h-8 bg-gray-200 w-1/4 mb-4 rounded"></div>
-                <div className="h-32 bg-gray-200 rounded"></div>
-              </div>
-            ))}
+          <div className="animate-pulse">
+            <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         ) : (
-          <div className="space-y-8">
-            {classesByDay.map(day => (
-              <div key={day.day}>
-                {day.classes.length > 0 && (
-                  <>
-                    <h2 className="text-2xl font-bold mb-4 border-b-2 border-black pb-2">{day.day}</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                      {day.classes.map((classItem: any) => (
-                        <motion.div
-                          key={classItem.id}
-                          className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <div className="flex items-center gap-2 mb-3">
-                                <BookOpen className="text-blue-600" />
-                                <h3 className="text-xl font-bold">{classItem.course_title}</h3>
+          <div>
+            <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+              <Table>
+                <TableCaption>Your weekly class schedule</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px] font-bold text-black">Time</TableHead>
+                    {daysOfWeek.map((day) => (
+                      <TableHead key={day} className="font-bold text-black">{day}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {timeSlots.map((time) => (
+                    <TableRow key={time}>
+                      <TableCell className="font-medium">{time}</TableCell>
+                      {daysOfWeek.map((day) => {
+                        const classItem = getClassAtDayAndTime(day, time);
+                        return (
+                          <TableCell key={`${day}-${time}`} className="p-0">
+                            {classItem ? (
+                              <div className="p-2 bg-blue-100 border border-blue-300 h-full">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-bold">{classItem.course_code}</p>
+                                    <p className="text-sm">{classItem.course_title}</p>
+                                  </div>
+                                  {isAdmin && (
+                                    <div className="flex gap-1">
+                                      <button
+                                        onClick={() => handleEditClass(classItem)}
+                                        className="p-1 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
+                                      >
+                                        <Edit size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteClass(classItem.id)}
+                                        className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                                      >
+                                        <Trash size={14} />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="text-xs mt-1 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" /> {classItem.location}
+                                </div>
+                                <div className="text-xs flex items-center gap-1">
+                                  <span className="font-medium">Lecturer:</span> {classItem.lecturer}
+                                </div>
                               </div>
-                              <p className="text-sm font-semibold text-gray-500 mb-3">{classItem.course_code}</p>
-                            </div>
-                            
-                            {isAdmin && (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => handleEditClass(classItem)}
-                                  className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
-                                >
-                                  <Edit size={16} />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteClass(classItem.id)}
-                                  className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                                >
-                                  <Trash size={16} />
-                                </button>
-                              </div>
+                            ) : (
+                              <div className="h-full"></div>
                             )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Clock className="w-5 h-5" />
-                              <span>{classItem.start_time} - {classItem.end_time}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <MapPin className="w-5 h-5" />
-                              <span>{classItem.location}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <span className="font-medium">Lecturer:</span>
-                              <span>{classItem.lecturer}</span>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
             
             {classes.length === 0 && (
-              <div className="p-12 text-center bg-white border-4 border-black">
+              <div className="p-12 text-center bg-white border-4 border-black mt-4">
                 <Calendar className="mx-auto h-12 w-12 mb-4 text-gray-400" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No classes scheduled yet</h3>
                 <p className="text-gray-500 mb-6">Get started by adding classes to your timetable</p>
