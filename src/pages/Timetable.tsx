@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
+import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check, Download, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,16 +39,13 @@ const Timetable = () => {
     lecturer: ''
   });
 
-  // Define time slots for the timetable
   const timeSlots = [
     "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
     "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
   ];
 
-  // Get days of the week for grouping
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-  // Fetch timetable entries from Supabase
   const { data: classes = [], isLoading } = useQuery({
     queryKey: ["timetable"],
     queryFn: async () => {
@@ -66,7 +64,6 @@ const Timetable = () => {
     },
   });
 
-  // Add class entry mutation
   const addClassMutation = useMutation({
     mutationFn: async (classData: any) => {
       const { data, error } = await supabase
@@ -88,7 +85,6 @@ const Timetable = () => {
     }
   });
 
-  // Update class entry mutation
   const updateClassMutation = useMutation({
     mutationFn: async ({ id, classData }: { id: number, classData: any }) => {
       const { data, error } = await supabase
@@ -111,7 +107,6 @@ const Timetable = () => {
     }
   });
 
-  // Delete class entry mutation
   const deleteClassMutation = useMutation({
     mutationFn: async (id: number) => {
       const { error } = await supabase
@@ -157,7 +152,6 @@ const Timetable = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Function to handle time slot selection in a more intuitive way
   const handleTimeChange = (type: 'start_time' | 'end_time', value: string) => {
     setFormData(prev => ({ ...prev, [type]: value }));
   };
@@ -206,12 +200,10 @@ const Timetable = () => {
     setShowAddForm(false);
   };
 
-  // Function to get all classes for a specific day
   const getClassesForDay = (day: string) => {
     return classes.filter((classItem: any) => classItem.day === day);
   };
 
-  // Function to download timetable as PDF
   const downloadAsPDF = async () => {
     if (!timetableRef.current) return;
     
@@ -244,7 +236,64 @@ const Timetable = () => {
     }
   };
 
-  // Helper function to generate a color based on course code for consistency
+  const downloadAsExcel = () => {
+    try {
+      toast.info("Preparing your Excel download...");
+      
+      const wb = XLSX.utils.book_new();
+      
+      const excelData = [
+        ["Class Timetable"], // Title row
+        [], // Empty row for spacing
+        ["Day/Time", ...timeSlots], // Header row with time slots
+      ];
+      
+      daysOfWeek.forEach(day => {
+        const dayRow = [day];
+        
+        timeSlots.forEach(time => {
+          const classesAtTime = classes.filter((classItem: any) => {
+            if (classItem.day !== day) return false;
+            
+            const startTimeIndex = timeSlots.indexOf(classItem.start_time);
+            const endTimeIndex = timeSlots.indexOf(classItem.end_time);
+            const currentTimeIndex = timeSlots.indexOf(time);
+            
+            return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
+          });
+          
+          const classItem = classesAtTime[0]; // Get the first class at this time slot if any
+          
+          if (classItem) {
+            dayRow.push(`${classItem.course_code}: ${classItem.course_title}\nLocation: ${classItem.location}\nLecturer: ${classItem.lecturer}`);
+          } else {
+            dayRow.push("");
+          }
+        });
+        
+        excelData.push(dayRow);
+      });
+      
+      const ws = XLSX.utils.aoa_to_sheet(excelData);
+      
+      const wscols = [
+        { wch: 15 }, // Day column
+        ...timeSlots.map(() => ({ wch: 25 })) // Time slot columns
+      ];
+      
+      ws['!cols'] = wscols;
+      
+      XLSX.utils.book_append_sheet(wb, ws, "Timetable");
+      
+      XLSX.writeFile(wb, "class-timetable.xlsx");
+      
+      toast.success("Excel file downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating Excel file:", error);
+      toast.error("Failed to download timetable as Excel");
+    }
+  };
+
   const getCourseColor = (courseCode: string) => {
     const colors = [
       "bg-blue-100 border-blue-300",
@@ -257,13 +306,11 @@ const Timetable = () => {
       "bg-indigo-100 border-indigo-300"
     ];
     
-    // Generate a simple hash from the course code
     let hash = 0;
     for (let i = 0; i < courseCode.length; i++) {
       hash = courseCode.charCodeAt(i) + ((hash << 5) - hash);
     }
     
-    // Use the hash to select a color
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -283,7 +330,13 @@ const Timetable = () => {
               onClick={downloadAsPDF}
               className="px-4 py-2 bg-blue-100 border-4 border-black hover:bg-blue-200 transition-colors"
             >
-              <Download className="mr-2" /> Download Timetable
+              <Download className="mr-2" /> PDF
+            </Button>
+            <Button
+              onClick={downloadAsExcel}
+              className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+            >
+              <FileSpreadsheet className="mr-2" /> Excel
             </Button>
             {isAdmin && !showAddForm && (
               <Button 
@@ -475,7 +528,7 @@ const Timetable = () => {
                         
                         return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
                       });
-
+                      
                       const classItem = classesAtTime[0]; // Get the first class at this time slot if any
                       
                       return (
