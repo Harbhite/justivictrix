@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useState, useEffect, useContext, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -132,7 +131,6 @@ const Timetable = () => {
     }
   });
 
-  // Subscribe to timetable changes
   useEffect(() => {
     const channel = supabase
       .channel('timetable-changes')
@@ -208,20 +206,9 @@ const Timetable = () => {
     setShowAddForm(false);
   };
 
-  // Function to find a class at a specific day and time
-  const getClassAtDayAndTime = (day: string, time: string) => {
-    return classes.find((classItem: any) => {
-      // Check if the class is on this day
-      if (classItem.day !== day) return false;
-      
-      // Convert times to comparable format (assuming format like "9:00 AM")
-      const classStartIndex = timeSlots.indexOf(classItem.start_time);
-      const classEndIndex = timeSlots.indexOf(classItem.end_time);
-      const currentTimeIndex = timeSlots.indexOf(time);
-      
-      // Check if the current time slot is within the class time range
-      return currentTimeIndex >= classStartIndex && currentTimeIndex < classEndIndex;
-    });
+  // Function to get all classes for a specific day
+  const getClassesForDay = (day: string) => {
+    return classes.filter((classItem: any) => classItem.day === day);
   };
 
   // Function to download timetable as PDF
@@ -255,6 +242,29 @@ const Timetable = () => {
       console.error("Error generating PDF:", error);
       toast.error("Failed to download timetable");
     }
+  };
+
+  // Helper function to generate a color based on course code for consistency
+  const getCourseColor = (courseCode: string) => {
+    const colors = [
+      "bg-blue-100 border-blue-300",
+      "bg-green-100 border-green-300",
+      "bg-purple-100 border-purple-300",
+      "bg-yellow-100 border-yellow-300",
+      "bg-pink-100 border-pink-300",
+      "bg-orange-100 border-orange-300",
+      "bg-teal-100 border-teal-300",
+      "bg-indigo-100 border-indigo-300"
+    ];
+    
+    // Generate a simple hash from the course code
+    let hash = 0;
+    for (let i = 0; i < courseCode.length; i++) {
+      hash = courseCode.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Use the hash to select a color
+    return colors[Math.abs(hash) % colors.length];
   };
 
   return (
@@ -294,6 +304,7 @@ const Timetable = () => {
           >
             <h2 className="text-2xl font-bold mb-4">{editingClass ? 'Edit Class Schedule' : 'Add Class to Timetable'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="course_code">Course Code</Label>
@@ -438,68 +449,78 @@ const Timetable = () => {
             <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         ) : (
-          <div ref={timetableRef}>
-            <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-              <Table>
-                <TableCaption>Your weekly class schedule</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px] font-bold text-black">Time</TableHead>
-                    {daysOfWeek.map((day) => (
-                      <TableHead key={day} className="font-bold text-black">{day}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+          <div ref={timetableRef} className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+            
+            <Table>
+              <TableCaption>Your weekly class schedule</TableCaption>
+              <TableHeader>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="w-[100px] font-bold text-black">Day / Time</TableHead>
                   {timeSlots.map((time) => (
-                    <TableRow key={time}>
-                      <TableCell className="font-medium">{time}</TableCell>
-                      {daysOfWeek.map((day) => {
-                        const classItem = getClassAtDayAndTime(day, time);
-                        return (
-                          <TableCell key={`${day}-${time}`} className="p-0">
-                            {classItem ? (
-                              <div className="p-2 bg-blue-100 border border-blue-300 h-full">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-bold">{classItem.course_code}</p>
-                                    <p className="text-sm">{classItem.course_title}</p>
-                                  </div>
-                                  {isAdmin && (
-                                    <div className="flex gap-1">
-                                      <button
-                                        onClick={() => handleEditClass(classItem)}
-                                        className="p-1 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
-                                      >
-                                        <Edit size={14} />
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteClass(classItem.id)}
-                                        className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                                      >
-                                        <Trash size={14} />
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="text-xs mt-1 flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" /> {classItem.location}
-                                </div>
-                                <div className="text-xs flex items-center gap-1">
-                                  <span className="font-medium">Lecturer:</span> {classItem.lecturer}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="h-full"></div>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
+                    <TableHead key={time} className="font-bold text-black text-center">{time}</TableHead>
                   ))}
-                </TableBody>
-              </Table>
-            </div>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {daysOfWeek.map((day) => (
+                  <TableRow key={day} className="hover:bg-gray-50">
+                    <TableCell className="font-medium text-black bg-gray-100">{day}</TableCell>
+                    {timeSlots.map((time) => {
+                      const classesAtTime = classes.filter((classItem: any) => {
+                        if (classItem.day !== day) return false;
+                        
+                        const startTimeIndex = timeSlots.indexOf(classItem.start_time);
+                        const endTimeIndex = timeSlots.indexOf(classItem.end_time);
+                        const currentTimeIndex = timeSlots.indexOf(time);
+                        
+                        return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
+                      });
+
+                      const classItem = classesAtTime[0]; // Get the first class at this time slot if any
+                      
+                      return (
+                        <TableCell key={`${day}-${time}`} className="p-1 min-h-[80px] h-20 align-top">
+                          {classItem ? (
+                            <div className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)}`}>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-bold">{classItem.course_code}</p>
+                                  <p className="text-sm line-clamp-1">{classItem.course_title}</p>
+                                </div>
+                                {isAdmin && (
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() => handleEditClass(classItem)}
+                                      className="p-1 bg-white/70 border-2 border-black rounded-md hover:bg-white/90 transition-colors"
+                                    >
+                                      <Edit size={14} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteClass(classItem.id)}
+                                      className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                                    >
+                                      <Trash size={14} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-xs mt-1 flex items-center gap-1">
+                                <MapPin className="w-3 h-3" /> {classItem.location}
+                              </div>
+                              <div className="text-xs flex items-center gap-1 line-clamp-1">
+                                <span className="font-medium">Lecturer:</span> {classItem.lecturer}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="h-full"></div>
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
             
             {classes.length === 0 && (
               <div className="p-12 text-center bg-white border-4 border-black mt-4">
