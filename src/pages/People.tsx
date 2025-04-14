@@ -1,12 +1,15 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Download, FileType, ExternalLink, Search } from "lucide-react";
+import { X, User, Download, FileType, ExternalLink, Search, Users, Filter } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
@@ -62,68 +65,125 @@ const People = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
+        className="max-w-6xl mx-auto"
       >
-        <h1 className="text-5xl font-black text-law-dark mb-12 border-4 border-black p-4 inline-block transform -rotate-1">
-          Our People
-        </h1>
-
-        <div className="mb-8 max-w-md mx-auto">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search by name, matric number, or position..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-12 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <h1 className="text-5xl font-black text-law-dark mb-3 inline-block transform -rotate-1 border-b-4 border-law-primary pb-2">
+              Our People
+            </h1>
+            <p className="text-gray-600 max-w-2xl">
+              Meet our talented members who make up the LLB28 community. Browse through profiles or search for specific individuals.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="mt-6 md:mt-0 w-full md:w-auto"
+          >
+            <div className="relative flex items-center">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search by name, matric or position..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-3 pl-12 rounded-xl border-2 border-gray-200 focus:border-law-primary focus:outline-none focus:ring-2 focus:ring-law-primary/20 transition-all bg-white/80 backdrop-blur-sm"
+                />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
+              <Button variant="outline" className="ml-2 px-3 py-3 h-auto">
+                <Filter size={18} />
+              </Button>
+            </div>
+          </motion.div>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((index) => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
+              <Card
                 key={index}
-                className="p-6 bg-pink-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-pulse"
+                className="p-6 border-0 shadow-lg animate-pulse bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl"
               >
-                <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full mb-4"></div>
-                <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded"></div>
-              </div>
+                <div className="flex flex-col items-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 mb-4"></div>
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              </Card>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredMembers?.map((member) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredMembers?.map((member, index) => (
               <motion.div
                 key={member.id}
-                className="p-6 bg-gradient-to-br from-pink-100 to-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-                onClick={() => setSelectedMember(member.id)}
-                whileHover={{ scale: 1.02 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.5 }}
               >
-                <div className="w-24 h-24 mx-auto bg-white border-4 border-black rounded-full flex items-center justify-center mb-4">
-                  {member.avatar_url ? (
-                    <img
-                      src={member.avatar_url}
-                      alt={member.name}
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                  ) : (
-                    <User size={40} />
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-center mb-2">{member.name}</h3>
-                <p className="text-center text-law-neutral mb-2">{member.matric_number}</p>
-                <p className="text-center font-medium">{member.gender}</p>
+                <Card
+                  className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl bg-gradient-to-br from-white to-purple-50"
+                  onClick={() => setSelectedMember(member.id)}
+                >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center">
+                      <div className="mb-4 p-1 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full">
+                        <Avatar className="w-24 h-24 border-4 border-white">
+                          {member.avatar_url ? (
+                            <AvatarImage src={member.avatar_url} alt={member.name} />
+                          ) : (
+                            <AvatarFallback className="bg-purple-100 text-purple-700">
+                              <User size={32} />
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                      </div>
+                      <h3 className="text-xl font-bold text-center mb-1 text-gray-800">{member.name}</h3>
+                      <p className="text-center text-gray-500 text-sm mb-1">{member.matric_number}</p>
+                      <p className="text-center text-gray-700 font-medium text-sm bg-gray-100 px-3 py-1 rounded-full">
+                        {member.gender}
+                      </p>
+                      
+                      {member.post_held && (
+                        <div className="mt-3 w-full">
+                          <p className="text-center text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">
+                            {member.post_held}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
+        )}
+
+        {filteredMembers?.length === 0 && !isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Users size={60} className="mx-auto text-gray-300 mb-4" />
+            <h3 className="text-xl font-bold text-gray-700">No members found</h3>
+            <p className="text-gray-500 mt-2">Try adjusting your search query</p>
+          </motion.div>
         )}
 
         <AnimatePresence>
@@ -132,7 +192,7 @@ const People = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
               onClick={() => setSelectedMember(null)}
             >
               <motion.div
@@ -140,72 +200,87 @@ const People = () => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-gradient-to-br from-pink-100 to-purple-100 p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md w-full relative"
+                className="bg-white rounded-2xl max-w-md w-full relative p-0 overflow-hidden shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
+                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                
                 <button
                   onClick={() => setSelectedMember(null)}
-                  className="absolute top-4 right-4 hover:text-gray-700"
+                  className="absolute top-4 right-4 text-white bg-black/20 hover:bg-black/30 p-2 rounded-full transition-colors z-10"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
 
                 {members && (
-                  <div className="space-y-6">
-                    <div className="w-32 h-32 mx-auto bg-white border-4 border-black rounded-full flex items-center justify-center">
-                      {members.find((m) => m.id === selectedMember)?.avatar_url ? (
-                        <img
-                          src={members.find((m) => m.id === selectedMember)?.avatar_url || ''}
-                          alt={members.find((m) => m.id === selectedMember)?.name}
-                          className="w-28 h-28 rounded-full object-cover"
-                        />
-                      ) : (
-                        <User size={48} />
-                      )}
-                    </div>
+                  <div className="relative px-6 pb-6 pt-20">
+                    <div className="flex flex-col items-center">
+                      <Avatar className="w-32 h-32 border-4 border-white bg-white mb-4">
+                        {members.find((m) => m.id === selectedMember)?.avatar_url ? (
+                          <AvatarImage 
+                            src={members.find((m) => m.id === selectedMember)?.avatar_url || ''} 
+                            alt={members.find((m) => m.id === selectedMember)?.name} 
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-purple-100 text-purple-700">
+                            <User size={48} />
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
 
-                    <div className="text-center">
-                      <h2 className="text-2xl font-bold mb-2">
+                      <h2 className="text-2xl font-bold mb-1 text-center">
                         {members.find((m) => m.id === selectedMember)?.name}
                       </h2>
-                      <p className="text-law-neutral mb-2">
+                      
+                      <p className="text-gray-500 mb-1 text-center">
                         {members.find((m) => m.id === selectedMember)?.matric_number}
                       </p>
-                      <p className="font-medium">
-                        {members.find((m) => m.id === selectedMember)?.gender}
-                      </p>
-                    </div>
+                      
+                      <div className="flex items-center justify-center gap-2 mb-6">
+                        <span className="text-sm font-medium px-3 py-1 bg-gray-100 rounded-full">
+                          {members.find((m) => m.id === selectedMember)?.gender}
+                        </span>
+                        
+                        {members.find((m) => m.id === selectedMember)?.post_held && (
+                          <span className="text-sm font-medium px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+                            {members.find((m) => m.id === selectedMember)?.post_held}
+                          </span>
+                        )}
+                      </div>
 
-                    <div className="flex flex-col gap-3 mt-6">
-                      <button
-                        onClick={() => {
-                          setSelectedMember(null);
-                          navigate(`/people/${selectedMember}`);
-                        }}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                        View Full Profile
-                      </button>
-                      
-                      <button
-                        onClick={() => {
-                          setSelectedMember(null);
-                          navigate(`/member-bio/${selectedMember}`);
-                        }}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                        View Modern Bio
-                      </button>
-                      
-                      <button
-                        onClick={downloadBioCard}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                      >
-                        <Download className="w-5 h-5" />
-                        Download Bio Card
-                      </button>
+                      <div className="grid grid-cols-1 gap-3 w-full mt-2">
+                        <Button
+                          onClick={() => {
+                            setSelectedMember(null);
+                            navigate(`/people/${selectedMember}`);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View Full Profile
+                        </Button>
+                        
+                        <Button
+                          onClick={() => {
+                            setSelectedMember(null);
+                            navigate(`/member-bio/${selectedMember}`);
+                          }}
+                          variant="outline"
+                          className="w-full flex items-center justify-center gap-2 border-purple-200 text-purple-700 hover:bg-purple-50"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View Modern Bio
+                        </Button>
+                        
+                        <Button
+                          onClick={downloadBioCard}
+                          variant="outline"
+                          className="w-full flex items-center justify-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download Bio Card
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
