@@ -1,23 +1,23 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, GalleryHorizontal, UsersRound } from "lucide-react";
+import { Menu, X, Search, Calendar, Book, GalleryHorizontal } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
+  // Rearranged links by priority
   const links = [
-    { name: "Resources", path: "/resources" },
-    { name: "Tools", path: "/tools" },
-    { name: "Events", path: "/events" },
-    { name: "Timetable", path: "/timetable" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Study Groups", path: "/study-groups" },
-    { name: "About us", path: "/about" },
-    { name: "Mentors", path: "/people" },
-    { name: "Blog", path: "/blog" },
+    { name: "Timetable", path: "/timetable", icon: Calendar },
+    { name: "Resources", path: "/resources", icon: Book },
+    { name: "Events", path: "/events", icon: Calendar },
+    { name: "Tools", path: "/tools", icon: Book },
+    { name: "Gallery", path: "/gallery", icon: GalleryHorizontal },
+    { name: "About us", path: "/about", icon: Book },
+    { name: "Mentors", path: "/people", icon: Book },
+    { name: "Blog", path: "/blog", icon: Book },
   ];
 
   useEffect(() => {

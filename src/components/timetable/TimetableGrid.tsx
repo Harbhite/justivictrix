@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
-import { useContext } from "react";
-import { Edit, Trash, MapPin } from "lucide-react";
+import { useContext, useState } from "react";
+import { Edit, Trash, MapPin, Info, X } from "lucide-react";
 import { AuthContext } from "@/App";
 import {
   Table,
@@ -12,6 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
 
 interface TimetableGridProps {
   classes: any[];
@@ -32,10 +39,7 @@ const TimetableGrid = ({
 }: TimetableGridProps) => {
   const { user } = useContext(AuthContext);
   const isAdmin = user?.email === "swisssunny1@gmail.com";
-
-  const getClassesForDay = (day: string) => {
-    return classes.filter((classItem: any) => classItem.day === day);
-  };
+  const [selectedClass, setSelectedClass] = useState<any>(null);
 
   const getCourseColor = (courseCode: string) => {
     const colors = [
@@ -57,90 +61,199 @@ const TimetableGrid = ({
     return colors[Math.abs(hash) % colors.length];
   };
 
+  // Function to calculate the column span for a class
+  const getColumnSpan = (startTime: string, endTime: string) => {
+    const startIndex = timeSlots.indexOf(startTime);
+    const endIndex = timeSlots.indexOf(endTime);
+    return endIndex - startIndex;
+  };
+
+  // Organize classes by day and handle multi-hour spans
+  const getOrganizedClasses = () => {
+    const organizedClasses = {};
+
+    daysOfWeek.forEach(day => {
+      organizedClasses[day] = {};
+      
+      // Initialize each time slot
+      timeSlots.forEach(time => {
+        organizedClasses[day][time] = null;
+      });
+      
+      // Add classes for this day
+      const dayClasses = classes.filter(c => c.day === day);
+      
+      dayClasses.forEach(classItem => {
+        const startTimeIndex = timeSlots.indexOf(classItem.start_time);
+        const endTimeIndex = timeSlots.indexOf(classItem.end_time);
+        
+        // Mark the start slot with the class and its span
+        if (startTimeIndex >= 0 && endTimeIndex > startTimeIndex) {
+          organizedClasses[day][classItem.start_time] = {
+            ...classItem,
+            colSpan: endTimeIndex - startTimeIndex
+          };
+          
+          // Mark subsequent slots as occupied
+          for (let i = startTimeIndex + 1; i < endTimeIndex; i++) {
+            organizedClasses[day][timeSlots[i]] = 'occupied';
+          }
+        }
+      });
+    });
+
+    return organizedClasses;
+  };
+
+  const organizedClasses = getOrganizedClasses();
+
   return (
-    <div 
-      ref={timetableRef} 
-      className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
-    >
-      <Table>
-        <TableCaption>Your weekly class schedule</TableCaption>
-        <TableHeader>
-          <TableRow className="bg-gray-100">
-            <TableHead className="w-[100px] font-bold text-black">Day / Time</TableHead>
-            {timeSlots.map((time) => (
-              <TableHead key={time} className="font-bold text-black text-center">{time}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {daysOfWeek.map((day) => (
-            <TableRow key={day} className="hover:bg-gray-50">
-              <TableCell className="font-medium text-black bg-gray-100">{day}</TableCell>
-              {timeSlots.map((time) => {
-                const classesAtTime = classes.filter((classItem: any) => {
-                  if (classItem.day !== day) return false;
+    <>
+      <div 
+        ref={timetableRef} 
+        className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
+      >
+        <Table>
+          <TableCaption>Your weekly class schedule</TableCaption>
+          <TableHeader>
+            <TableRow className="bg-gray-100">
+              <TableHead className="w-[100px] font-bold text-black">Day / Time</TableHead>
+              {timeSlots.map((time) => (
+                <TableHead key={time} className="font-bold text-black text-center">{time}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {daysOfWeek.map((day) => (
+              <TableRow key={day} className="hover:bg-gray-50">
+                <TableCell className="font-medium text-black bg-gray-100">{day}</TableCell>
+                {timeSlots.map((time, index) => {
+                  const classItem = organizedClasses[day][time];
                   
-                  const startTimeIndex = timeSlots.indexOf(classItem.start_time);
-                  const endTimeIndex = timeSlots.indexOf(classItem.end_time);
-                  const currentTimeIndex = timeSlots.indexOf(time);
-                  
-                  return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
-                });
-                
-                const classItem = classesAtTime[0]; // Get the first class at this time slot if any
-                
-                return (
-                  <TableCell key={`${day}-${time}`} className="p-1 min-h-[80px] h-20 align-top">
-                    {classItem ? (
-                      <motion.div 
-                        className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)}`}
-                        whileHover={{ scale: 1.03 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-bold">{classItem.course_code}</p>
-                            <p className="text-sm line-clamp-1">{classItem.course_title}</p>
-                          </div>
-                          {isAdmin && (
+                  // Skip rendering for occupied slots (will be covered by colSpan)
+                  if (classItem === 'occupied') {
+                    return null;
+                  }
+
+                  return (
+                    <TableCell 
+                      key={`${day}-${time}`} 
+                      className="p-1 min-h-[80px] h-20 align-top"
+                      colSpan={classItem?.colSpan || 1}
+                    >
+                      {classItem ? (
+                        <motion.div 
+                          className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)} cursor-pointer`}
+                          whileHover={{ scale: 1.03 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          onClick={() => setSelectedClass(classItem)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-bold">{classItem.course_code}</p>
+                              <p className="text-sm line-clamp-1">{classItem.course_title}</p>
+                            </div>
                             <div className="flex gap-1">
                               <button
-                                onClick={() => handleEditClass(classItem)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedClass(classItem);
+                                }}
                                 className="p-1 bg-white/70 border-2 border-black rounded-md hover:bg-white/90 transition-colors"
+                                aria-label="View details"
                               >
-                                <Edit size={14} />
+                                <Info size={14} />
                               </button>
-                              <button
-                                onClick={() => handleDeleteClass(classItem.id)}
-                                className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                              >
-                                <Trash size={14} />
-                              </button>
+                              {isAdmin && (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditClass(classItem);
+                                    }}
+                                    className="p-1 bg-white/70 border-2 border-black rounded-md hover:bg-white/90 transition-colors"
+                                  >
+                                    <Edit size={14} />
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteClass(classItem.id);
+                                    }}
+                                    className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
+                                  >
+                                    <Trash size={14} />
+                                  </button>
+                                </>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="text-xs mt-1 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {classItem.location}
-                        </div>
-                        <div className="text-xs flex items-center gap-1 line-clamp-1">
-                          <span className="font-medium">Lecturer:</span> {classItem.lecturer}
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <div className="h-full"></div>
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                          </div>
+                          <div className="text-xs mt-1 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {classItem.location}
+                          </div>
+                          <div className="text-xs flex items-center gap-1 line-clamp-1">
+                            <span className="font-medium">Lecturer:</span> {classItem.lecturer}
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <div className="h-full"></div>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {classes.length === 0 && (
-        <EmptyTimetable isAdmin={isAdmin} />
-      )}
-    </div>
+        {classes.length === 0 && (
+          <EmptyTimetable isAdmin={isAdmin} />
+        )}
+      </div>
+
+      {/* Course Detail Dialog */}
+      <Dialog open={!!selectedClass} onOpenChange={(open) => !open && setSelectedClass(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">
+              {selectedClass?.course_code}
+            </DialogTitle>
+            <DialogDescription>
+              <div className={`inline-block px-3 py-1 rounded-full ${selectedClass && getCourseColor(selectedClass.course_code)} mt-2`}>
+                {selectedClass?.course_title}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Schedule</h3>
+                <p className="text-base">{selectedClass?.day}, {selectedClass?.start_time} - {selectedClass?.end_time}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Location</h3>
+                <p className="text-base">{selectedClass?.location}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Instructor</h3>
+              <p className="text-base">{selectedClass?.lecturer}</p>
+            </div>
+            
+            <div className="border-t pt-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Course Details</h3>
+              <ul className="list-disc space-y-1 pl-5 text-sm">
+                <li>Students should bring relevant textbooks and materials</li>
+                <li>Attendance is mandatory for this course</li>
+                <li>Office hours: After class or by appointment</li>
+              </ul>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
