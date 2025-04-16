@@ -4,7 +4,17 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-createRoot(document.getElementById("root")!).render(
+// Make sure to create the root element properly
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+const root = createRoot(rootElement);
+
+// Add animations and enhanced visual experience
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

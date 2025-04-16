@@ -10,6 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthContext } from "@/App";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
 
 const Events = () => {
   const { user } = useContext(AuthContext);
@@ -176,6 +184,22 @@ const Events = () => {
     setShowAddForm(false);
   };
 
+  // Function to get a unique color for each event
+  const getEventColor = (index: number) => {
+    const colors = [
+      "bg-blue-50 border-blue-200 hover:bg-blue-100",
+      "bg-green-50 border-green-200 hover:bg-green-100",
+      "bg-purple-50 border-purple-200 hover:bg-purple-100",
+      "bg-yellow-50 border-yellow-200 hover:bg-yellow-100",
+      "bg-pink-50 border-pink-200 hover:bg-pink-100",
+      "bg-orange-50 border-orange-200 hover:bg-orange-100",
+      "bg-teal-50 border-teal-200 hover:bg-teal-100",
+      "bg-indigo-50 border-indigo-200 hover:bg-indigo-100"
+    ];
+    
+    return colors[index % colors.length];
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -184,9 +208,13 @@ const Events = () => {
         transition={{ duration: 0.6 }}
       >
         <div className="flex justify-between items-start mb-12">
-          <h1 className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1">
+          <motion.h1 
+            className="text-5xl font-black text-law-dark border-4 border-black p-4 inline-block transform -rotate-1"
+            whileHover={{ rotate: 0, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
+          >
             Class Events
-          </h1>
+          </motion.h1>
           <div className="flex gap-4">
             <Link
               to="/timetable"
@@ -295,85 +323,101 @@ const Events = () => {
           </motion.div>
         )}
 
-        <div className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mb-8">
-          {isLoading ? (
-            <div className="animate-pulse">
-              <div className="h-10 bg-gray-200 rounded w-1/2 mb-4"></div>
-              <div className="space-y-3">
-                {[1, 2, 3].map(item => (
-                  <div key={item} className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
-                    <div className="h-8 bg-gray-200 rounded col-span-2"></div>
-                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
-                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
-                    <div className="h-8 bg-gray-200 rounded col-span-1"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <>
-              <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
-              {events.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b-2 border-black">
-                        <th className="text-left py-3 px-4">Event</th>
-                        <th className="text-left py-3 px-4">Date</th>
-                        <th className="text-left py-3 px-4">Time</th>
-                        <th className="text-left py-3 px-4">Location</th>
-                        <th className="text-left py-3 px-4">Description</th>
-                        {isAdmin && <th className="text-right py-3 px-4">Actions</th>}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {events.map((event: any) => (
-                        <tr key={event.id} className="border-b border-gray-200 hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium">{event.title}</td>
-                          <td className="py-3 px-4">{event.date}</td>
-                          <td className="py-3 px-4">{event.time}</td>
-                          <td className="py-3 px-4">{event.location}</td>
-                          <td className="py-3 px-4">{event.description}</td>
-                          {isAdmin && (
-                            <td className="py-3 px-4 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => handleEditEvent(event)}
-                                  className="p-1.5 bg-blue-100 border-2 border-black rounded-md hover:bg-blue-200 transition-colors"
-                                >
-                                  <Edit size={16} />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteEvent(event.id)}
-                                  className="p-1.5 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                                >
-                                  <Trash size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-lg text-gray-500">No events found.</p>
+        {isLoading ? (
+          <div className="animate-pulse space-y-4">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="h-40 bg-gray-200 rounded-xl"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.length > 0 ? (
+              events.map((event: any, index: number) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <Card className={`border-4 border-black shadow-lg ${getEventColor(index)} transition-all duration-300`}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-xl font-bold">{event.title}</CardTitle>
+                        {isAdmin && (
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleEditEvent(event)}
+                              size="sm"
+                              variant="outline"
+                              className="h-8 w-8 p-0 border-2 border-black"
+                            >
+                              <Edit size={14} />
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteEvent(event.id)}
+                              size="sm"
+                              variant="outline"
+                              className="h-8 w-8 p-0 border-2 border-black text-red-500"
+                            >
+                              <Trash size={14} />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center text-gray-700">
+                          <Calendar className="mr-2 h-4 w-4" />
+                          <span>{event.date}</span>
+                        </div>
+                        <div className="flex items-center text-gray-700">
+                          <Clock className="mr-2 h-4 w-4" />
+                          <span>{event.time}</span>
+                        </div>
+                        <div className="flex items-center text-gray-700">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          <span>{event.location}</span>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-gray-600">{event.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        className="w-full mt-2 border-2 border-black bg-white text-black hover:bg-gray-100" 
+                        variant="outline"
+                      >
+                        Add to Calendar
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-16">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="p-8 bg-white border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-md mx-auto"
+                >
+                  <Calendar className="mx-auto h-16 w-16 mb-4 text-gray-400" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No events scheduled</h3>
+                  <p className="text-gray-500 mb-6">There are no upcoming events at the moment</p>
                   {isAdmin && (
                     <Button 
                       onClick={() => setShowAddForm(true)}
-                      className="mt-4 px-4 py-2 bg-green-100 border-2 border-black hover:bg-green-200 transition-colors"
+                      className="mx-auto px-4 py-2 bg-green-100 border-2 border-black hover:bg-green-200 transition-colors"
                     >
-                      <Plus className="mr-2" /> Add First Event
+                      <Plus className="mr-2" /> Create First Event
                     </Button>
                   )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+                </motion.div>
+              </div>
+            )}
+          </div>
+        )}
       </motion.div>
     </div>
   );

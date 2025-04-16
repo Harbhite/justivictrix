@@ -126,6 +126,164 @@ const Timetable = () => {
     }
   });
 
+  const populateCoursesFirst = async () => {
+    const firstSemesterCourses = [
+      {
+        course_code: "GES 201",
+        course_title: "Use of English 2",
+        day: "Monday",
+        start_time: "8:00 AM",
+        end_time: "10:00 AM",
+        location: "Room 101",
+        lecturer: "Dr. Johnson"
+      },
+      {
+        course_code: "GES 105",
+        course_title: "Agriculture, Renewable Natural Resources, Animal Husbandry & Health",
+        day: "Monday",
+        start_time: "1:00 PM",
+        end_time: "3:00 PM",
+        location: "Room 102",
+        lecturer: "Prof. Adams"
+      },
+      {
+        course_code: "LPU 201",
+        course_title: "Constitutional Law 1",
+        day: "Tuesday",
+        start_time: "9:00 AM",
+        end_time: "11:00 AM",
+        location: "Law Theatre 1",
+        lecturer: "Prof. Adebayo"
+      },
+      {
+        course_code: "LJI 201",
+        course_title: "Nigerian Legal System 1",
+        day: "Tuesday",
+        start_time: "2:00 PM",
+        end_time: "4:00 PM",
+        location: "Law Theatre 2",
+        lecturer: "Dr. Nwachukwu"
+      },
+      {
+        course_code: "LCI 201",
+        course_title: "Contract Law 1",
+        day: "Wednesday",
+        start_time: "10:00 AM",
+        end_time: "12:00 PM",
+        location: "Room 303",
+        lecturer: "Dr. Clark"
+      },
+      {
+        course_code: "LPP 201",
+        course_title: "Reproductive and Sexual Health Law 1",
+        day: "Thursday",
+        start_time: "8:00 AM",
+        end_time: "10:00 AM",
+        location: "Law Theatre 3",
+        lecturer: "Prof. Williams"
+      },
+      {
+        course_code: "SOC 208",
+        course_title: "Entrepreneurship and Leadership Development",
+        day: "Friday",
+        start_time: "1:00 PM",
+        end_time: "3:00 PM",
+        location: "Business Hall",
+        lecturer: "Dr. Thompson"
+      }
+    ];
+
+    try {
+      toast.info("Adding 1st semester courses...");
+      for (const course of firstSemesterCourses) {
+        await addClassMutation.mutateAsync(course);
+      }
+      toast.success("1st semester courses added successfully!");
+    } catch (error) {
+      toast.error("Failed to add all courses");
+      console.error(error);
+    }
+  };
+
+  const populateCoursesSecond = async () => {
+    const secondSemesterCourses = [
+      {
+        course_code: "GES 104",
+        course_title: "Science, Industry and Mankind",
+        day: "Monday",
+        start_time: "10:00 AM",
+        end_time: "12:00 PM",
+        location: "Science Block",
+        lecturer: "Dr. Phillips"
+      },
+      {
+        course_code: "GES 106",
+        course_title: "Philosophy, Logic and Critical Thinking",
+        day: "Monday",
+        start_time: "3:00 PM",
+        end_time: "5:00 PM",
+        location: "Arts Building",
+        lecturer: "Prof. Franklin"
+      },
+      {
+        course_code: "LPU 202",
+        course_title: "Constitutional Law 2",
+        day: "Tuesday",
+        start_time: "11:00 AM",
+        end_time: "1:00 PM",
+        location: "Law Theatre 1",
+        lecturer: "Prof. Adebayo"
+      },
+      {
+        course_code: "LJI 202",
+        course_title: "Nigerian Legal System 2",
+        day: "Wednesday",
+        start_time: "9:00 AM",
+        end_time: "11:00 AM",
+        location: "Law Theatre 2",
+        lecturer: "Dr. Nwachukwu"
+      },
+      {
+        course_code: "LCI 202",
+        course_title: "Contract Law 2",
+        day: "Thursday",
+        start_time: "1:00 PM",
+        end_time: "3:00 PM",
+        location: "Room 303",
+        lecturer: "Dr. Clark"
+      },
+      {
+        course_code: "LPP 202",
+        course_title: "Reproductive and Sexual Health Law 2",
+        day: "Thursday",
+        start_time: "3:00 PM",
+        end_time: "5:00 PM",
+        location: "Law Theatre 3",
+        lecturer: "Prof. Williams"
+      },
+      {
+        course_code: "LAW 201",
+        course_title: "Introduction to Law and Psychology",
+        day: "Friday",
+        start_time: "9:00 AM",
+        end_time: "11:00 AM",
+        location: "Psychology Building",
+        lecturer: "Dr. Morgan"
+      }
+    ];
+
+    try {
+      toast.info("Adding 2nd semester courses...");
+      for (const course of secondSemesterCourses) {
+        await addClassMutation.mutateAsync(course);
+      }
+      toast.success("2nd semester courses added successfully!");
+    } catch (error) {
+      toast.error("Failed to add all courses");
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     const channel = supabase
       .channel('timetable-changes')
@@ -339,12 +497,30 @@ const Timetable = () => {
               <FileSpreadsheet className="mr-2" /> Excel
             </Button>
             {isAdmin && !showAddForm && (
-              <Button 
-                onClick={() => setShowAddForm(true)}
-                className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
-              >
-                <Plus className="mr-2" /> Add Class
-              </Button>
+              <>
+                <Button 
+                  onClick={() => setShowAddForm(true)}
+                  className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+                >
+                  <Plus className="mr-2" /> Add Class
+                </Button>
+                {classes.length === 0 && (
+                  <>
+                    <Button 
+                      onClick={populateCoursesFirst}
+                      className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
+                    >
+                      Add 1st Semester
+                    </Button>
+                    <Button 
+                      onClick={populateCoursesSecond}
+                      className="px-4 py-2 bg-yellow-100 border-4 border-black hover:bg-yellow-200 transition-colors"
+                    >
+                      Add 2nd Semester
+                    </Button>
+                  </>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -418,50 +594,32 @@ const Timetable = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="start_time">Start Time</Label>
-                  <Input
-                    type="time"
-                    id="start_time"
-                    name="start_time"
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-md"
                     value={formData.start_time}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleTimeChange('start_time', e.target.value)}
                     required
-                  />
-                  <div className="mt-2">
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      value={formData.start_time}
-                      onChange={(e) => handleTimeChange('start_time', e.target.value)}
-                    >
-                      <option value="">Select start time</option>
-                      {timeSlots.map(time => (
-                        <option key={`start-${time}`} value={time}>{time}</option>
-                      ))}
-                    </select>
-                  </div>
+                  >
+                    <option value="">Select start time</option>
+                    {timeSlots.map(time => (
+                      <option key={`start-${time}`} value={time}>{time}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div>
                   <Label htmlFor="end_time">End Time</Label>
-                  <Input
-                    type="time"
-                    id="end_time"
-                    name="end_time"
+                  <select
+                    className="w-full p-2 border border-gray-300 rounded-md"
                     value={formData.end_time}
-                    onChange={handleInputChange}
+                    onChange={(e) => handleTimeChange('end_time', e.target.value)}
                     required
-                  />
-                  <div className="mt-2">
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      value={formData.end_time}
-                      onChange={(e) => handleTimeChange('end_time', e.target.value)}
-                    >
-                      <option value="">Select end time</option>
-                      {timeSlots.map(time => (
-                        <option key={`end-${time}`} value={time}>{time}</option>
-                      ))}
-                    </select>
-                  </div>
+                  >
+                    <option value="">Select end time</option>
+                    {timeSlots.map(time => (
+                      <option key={`end-${time}`} value={time}>{time}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               
@@ -534,7 +692,11 @@ const Timetable = () => {
                       return (
                         <TableCell key={`${day}-${time}`} className="p-1 min-h-[80px] h-20 align-top">
                           {classItem ? (
-                            <div className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)}`}>
+                            <motion.div 
+                              className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)}`}
+                              whileHover={{ scale: 1.03 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
                               <div className="flex justify-between items-start">
                                 <div>
                                   <p className="font-bold">{classItem.course_code}</p>
@@ -563,7 +725,7 @@ const Timetable = () => {
                               <div className="text-xs flex items-center gap-1 line-clamp-1">
                                 <span className="font-medium">Lecturer:</span> {classItem.lecturer}
                               </div>
-                            </div>
+                            </motion.div>
                           ) : (
                             <div className="h-full"></div>
                           )}
@@ -581,12 +743,26 @@ const Timetable = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No classes scheduled yet</h3>
                 <p className="text-gray-500 mb-6">Get started by adding classes to your timetable</p>
                 {isAdmin && (
-                  <Button 
-                    onClick={() => setShowAddForm(true)}
-                    className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors"
-                  >
-                    <Plus className="mr-2" /> Add First Class
-                  </Button>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <Button 
+                      onClick={() => setShowAddForm(true)}
+                      className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors"
+                    >
+                      <Plus className="mr-2" /> Add First Class
+                    </Button>
+                    <Button 
+                      onClick={populateCoursesFirst}
+                      className="px-4 py-2 bg-purple-400 border-2 border-black hover:bg-purple-500 transition-colors"
+                    >
+                      Add 1st Semester Courses
+                    </Button>
+                    <Button 
+                      onClick={populateCoursesSecond}
+                      className="px-4 py-2 bg-yellow-400 border-2 border-black hover:bg-yellow-500 transition-colors"
+                    >
+                      Add 2nd Semester Courses
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
