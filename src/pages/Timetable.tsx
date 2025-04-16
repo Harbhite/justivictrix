@@ -1,25 +1,15 @@
+
 import { motion } from "framer-motion";
 import { useState, useEffect, useContext, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import * as XLSX from 'xlsx';
-import { Calendar, Clock, MapPin, BookOpen, Plus, Edit, Trash, Check, Download, FileSpreadsheet } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Calendar } from "lucide-react";
 import { AuthContext } from "@/App";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import TimetableForm from "@/components/timetable/TimetableForm";
+import TimetableGrid from "@/components/timetable/TimetableGrid";
+import TimetableExport from "@/components/timetable/TimetableExport";
+import TimetableDataManager from "@/components/timetable/TimetableDataManager";
 
 const Timetable = () => {
   const { user } = useContext(AuthContext);
@@ -29,15 +19,6 @@ const Timetable = () => {
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    course_code: '',
-    course_title: '',
-    day: '',
-    start_time: '',
-    end_time: '',
-    location: '',
-    lecturer: ''
-  });
 
   const timeSlots = [
     "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
@@ -64,49 +45,6 @@ const Timetable = () => {
     },
   });
 
-  const addClassMutation = useMutation({
-    mutationFn: async (classData: any) => {
-      const { data, error } = await supabase
-        .from("timetable")
-        .insert([classData])
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timetable"] });
-      toast.success("Class added to timetable");
-      resetForm();
-    },
-    onError: (error) => {
-      toast.error("Failed to add class");
-      console.error(error);
-    }
-  });
-
-  const updateClassMutation = useMutation({
-    mutationFn: async ({ id, classData }: { id: number, classData: any }) => {
-      const { data, error } = await supabase
-        .from("timetable")
-        .update(classData)
-        .eq("id", id)
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timetable"] });
-      toast.success("Timetable updated");
-      resetForm();
-    },
-    onError: (error) => {
-      toast.error("Failed to update timetable");
-      console.error(error);
-    }
-  });
-
   const deleteClassMutation = useMutation({
     mutationFn: async (id: number) => {
       const { error } = await supabase
@@ -126,180 +64,30 @@ const Timetable = () => {
     }
   });
 
-  const populateCoursesFirst = async () => {
-    const firstSemesterCourses = [
-      {
-        course_code: "GES 201",
-        course_title: "Use of English 2",
-        day: "Monday",
-        start_time: "8:00 AM",
-        end_time: "10:00 AM",
-        location: "Room 101",
-        lecturer: "Dr. Johnson"
-      },
-      {
-        course_code: "GES 105",
-        course_title: "Agriculture, Renewable Natural Resources, Animal Husbandry & Health",
-        day: "Monday",
-        start_time: "1:00 PM",
-        end_time: "3:00 PM",
-        location: "Room 102",
-        lecturer: "Prof. Adams"
-      },
-      {
-        course_code: "LPU 201",
-        course_title: "Constitutional Law 1",
-        day: "Tuesday",
-        start_time: "9:00 AM",
-        end_time: "11:00 AM",
-        location: "Law Theatre 1",
-        lecturer: "Prof. Adebayo"
-      },
-      {
-        course_code: "LJI 201",
-        course_title: "Nigerian Legal System 1",
-        day: "Tuesday",
-        start_time: "2:00 PM",
-        end_time: "4:00 PM",
-        location: "Law Theatre 2",
-        lecturer: "Dr. Nwachukwu"
-      },
-      {
-        course_code: "LCI 201",
-        course_title: "Contract Law 1",
-        day: "Wednesday",
-        start_time: "10:00 AM",
-        end_time: "12:00 PM",
-        location: "Room 303",
-        lecturer: "Dr. Clark"
-      },
-      {
-        course_code: "LPP 201",
-        course_title: "Reproductive and Sexual Health Law 1",
-        day: "Thursday",
-        start_time: "8:00 AM",
-        end_time: "10:00 AM",
-        location: "Law Theatre 3",
-        lecturer: "Prof. Williams"
-      },
-      {
-        course_code: "SOC 208",
-        course_title: "Entrepreneurship and Leadership Development",
-        day: "Friday",
-        start_time: "1:00 PM",
-        end_time: "3:00 PM",
-        location: "Business Hall",
-        lecturer: "Dr. Thompson"
-      }
-    ];
-
-    try {
-      const { error: deleteError } = await supabase
-        .from("timetable")
-        .delete()
-        .in('course_code', firstSemesterCourses.map(c => c.course_code));
-      
-      toast.info("Adding 1st semester courses...");
-      for (const course of firstSemesterCourses) {
-        await addClassMutation.mutateAsync(course);
-      }
-      toast.success("1st semester courses added successfully!");
-    } catch (error) {
-      toast.error("Failed to add all courses");
-      console.error(error);
-    }
-  };
-
-  const populateCoursesSecond = async () => {
-    const secondSemesterCourses = [
-      {
-        course_code: "GES 104",
-        course_title: "Science, Industry and Mankind",
-        day: "Monday",
-        start_time: "10:00 AM",
-        end_time: "12:00 PM",
-        location: "Science Block",
-        lecturer: "Dr. Phillips"
-      },
-      {
-        course_code: "GES 106",
-        course_title: "Philosophy, Logic and Critical Thinking",
-        day: "Monday",
-        start_time: "3:00 PM",
-        end_time: "5:00 PM",
-        location: "Arts Building",
-        lecturer: "Prof. Franklin"
-      },
-      {
-        course_code: "LPU 202",
-        course_title: "Constitutional Law 2",
-        day: "Tuesday",
-        start_time: "11:00 AM",
-        end_time: "1:00 PM",
-        location: "Law Theatre 1",
-        lecturer: "Prof. Adebayo"
-      },
-      {
-        course_code: "LJI 202",
-        course_title: "Nigerian Legal System 2",
-        day: "Wednesday",
-        start_time: "9:00 AM",
-        end_time: "11:00 AM",
-        location: "Law Theatre 2",
-        lecturer: "Dr. Nwachukwu"
-      },
-      {
-        course_code: "LCI 202",
-        course_title: "Contract Law 2",
-        day: "Thursday",
-        start_time: "1:00 PM",
-        end_time: "3:00 PM",
-        location: "Room 303",
-        lecturer: "Dr. Clark"
-      },
-      {
-        course_code: "LPP 202",
-        course_title: "Reproductive and Sexual Health Law 2",
-        day: "Thursday",
-        start_time: "3:00 PM",
-        end_time: "5:00 PM",
-        location: "Law Theatre 3",
-        lecturer: "Prof. Williams"
-      },
-      {
-        course_code: "LAW 201",
-        course_title: "Introduction to Law and Psychology",
-        day: "Friday",
-        start_time: "9:00 AM",
-        end_time: "11:00 AM",
-        location: "Psychology Building",
-        lecturer: "Dr. Morgan"
-      }
-    ];
-
-    try {
-      const { error: deleteError } = await supabase
-        .from("timetable")
-        .delete()
-        .in('course_code', secondSemesterCourses.map(c => c.course_code));
-      
-      toast.info("Adding 2nd semester courses...");
-      for (const course of secondSemesterCourses) {
-        await addClassMutation.mutateAsync(course);
-      }
-      toast.success("2nd semester courses added successfully!");
-    } catch (error) {
-      toast.error("Failed to add all courses");
-      console.error(error);
-    }
-  };
-
+  // Initial data loading
   useEffect(() => {
     if (classes.length === 0) {
-      populateCoursesFirst();
+      const populateInitialData = async () => {
+        try {
+          const { data } = await supabase.from("timetable").select("count");
+          if (data && data[0] && data[0].count === 0) {
+            // Load 1st semester courses if timetable is empty
+            const dataManager = new TimetableDataManager({ 
+              setShowAddForm, 
+              isAdmin: true 
+            });
+            await dataManager.populateCoursesFirst();
+          }
+        } catch (error) {
+          console.error("Error checking timetable:", error);
+        }
+      };
+      
+      populateInitialData();
     }
   }, [classes.length]);
 
+  // Real-time subscription
   useEffect(() => {
     const channel = supabase
       .channel('timetable-changes')
@@ -321,36 +109,8 @@ const Timetable = () => {
     };
   }, [queryClient]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleTimeChange = (type: 'start_time' | 'end_time', value: string) => {
-    setFormData(prev => ({ ...prev, [type]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingClass) {
-      updateClassMutation.mutate({ id: editingClass.id, classData: formData });
-    } else {
-      addClassMutation.mutate(formData);
-    }
-  };
-
   const handleEditClass = (classItem: any) => {
     setEditingClass(classItem);
-    setFormData({
-      course_code: classItem.course_code,
-      course_title: classItem.course_title,
-      day: classItem.day,
-      start_time: classItem.start_time,
-      end_time: classItem.end_time,
-      location: classItem.location,
-      lecturer: classItem.lecturer
-    });
     setShowAddForm(true);
   };
 
@@ -358,134 +118,6 @@ const Timetable = () => {
     if (window.confirm("Are you sure you want to remove this class from the timetable?")) {
       deleteClassMutation.mutate(id);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      course_code: '',
-      course_title: '',
-      day: '',
-      start_time: '',
-      end_time: '',
-      location: '',
-      lecturer: ''
-    });
-    setEditingClass(null);
-    setShowAddForm(false);
-  };
-
-  const getClassesForDay = (day: string) => {
-    return classes.filter((classItem: any) => classItem.day === day);
-  };
-
-  const downloadAsPDF = async () => {
-    if (!timetableRef.current) return;
-    
-    try {
-      toast.info("Preparing your timetable download...");
-      
-      const canvas = await html2canvas(timetableRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgWidth = 280;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      pdf.save('class-timetable.pdf');
-      
-      toast.success("Timetable downloaded successfully!");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast.error("Failed to download timetable");
-    }
-  };
-
-  const downloadAsExcel = () => {
-    try {
-      toast.info("Preparing your Excel download...");
-      
-      const wb = XLSX.utils.book_new();
-      
-      const excelData = [
-        ["Class Timetable"], // Title row
-        [], // Empty row for spacing
-        ["Day/Time", ...timeSlots], // Header row with time slots
-      ];
-      
-      daysOfWeek.forEach(day => {
-        const dayRow = [day];
-        
-        timeSlots.forEach(time => {
-          const classesAtTime = classes.filter((classItem: any) => {
-            if (classItem.day !== day) return false;
-            
-            const startTimeIndex = timeSlots.indexOf(classItem.start_time);
-            const endTimeIndex = timeSlots.indexOf(classItem.end_time);
-            const currentTimeIndex = timeSlots.indexOf(time);
-            
-            return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
-          });
-          
-          const classItem = classesAtTime[0]; // Get the first class at this time slot if any
-          
-          if (classItem) {
-            dayRow.push(`${classItem.course_code}: ${classItem.course_title}\nLocation: ${classItem.location}\nLecturer: ${classItem.lecturer}`);
-          } else {
-            dayRow.push("");
-          }
-        });
-        
-        excelData.push(dayRow);
-      });
-      
-      const ws = XLSX.utils.aoa_to_sheet(excelData);
-      
-      const wscols = [
-        { wch: 15 }, // Day column
-        ...timeSlots.map(() => ({ wch: 25 })) // Time slot columns
-      ];
-      
-      ws['!cols'] = wscols;
-      
-      XLSX.utils.book_append_sheet(wb, ws, "Timetable");
-      
-      XLSX.writeFile(wb, "class-timetable.xlsx");
-      
-      toast.success("Excel file downloaded successfully!");
-    } catch (error) {
-      console.error("Error generating Excel file:", error);
-      toast.error("Failed to download timetable as Excel");
-    }
-  };
-
-  const getCourseColor = (courseCode: string) => {
-    const colors = [
-      "bg-blue-100 border-blue-300",
-      "bg-green-100 border-green-300",
-      "bg-purple-100 border-purple-300",
-      "bg-yellow-100 border-yellow-300",
-      "bg-pink-100 border-pink-300",
-      "bg-orange-100 border-orange-300",
-      "bg-teal-100 border-teal-300",
-      "bg-indigo-100 border-indigo-300"
-    ];
-    
-    let hash = 0;
-    for (let i = 0; i < courseCode.length; i++) {
-      hash = courseCode.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    return colors[Math.abs(hash) % colors.length];
   };
 
   return (
@@ -500,171 +132,29 @@ const Timetable = () => {
             Class Timetable
           </h1>
           <div className="flex gap-2">
-            <Button
-              onClick={downloadAsPDF}
-              className="px-4 py-2 bg-blue-100 border-4 border-black hover:bg-blue-200 transition-colors"
-            >
-              <Download className="mr-2" /> PDF
-            </Button>
-            <Button
-              onClick={downloadAsExcel}
-              className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
-            >
-              <FileSpreadsheet className="mr-2" /> Excel
-            </Button>
+            <TimetableExport 
+              timetableRef={timetableRef}
+              classes={classes}
+              timeSlots={timeSlots}
+              daysOfWeek={daysOfWeek}
+            />
             {isAdmin && !showAddForm && (
-              <>
-                <Button 
-                  onClick={() => setShowAddForm(true)}
-                  className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
-                >
-                  <Plus className="mr-2" /> Add Class
-                </Button>
-                <Button 
-                  onClick={populateCoursesFirst}
-                  className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
-                >
-                  Add 1st Semester
-                </Button>
-                <Button 
-                  onClick={populateCoursesSecond}
-                  className="px-4 py-2 bg-yellow-100 border-4 border-black hover:bg-yellow-200 transition-colors"
-                >
-                  Add 2nd Semester
-                </Button>
-              </>
+              <TimetableDataManager 
+                setShowAddForm={setShowAddForm}
+                isAdmin={isAdmin}
+              />
             )}
           </div>
         </div>
 
         {isAdmin && showAddForm && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="mb-8 p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
-          >
-            <h2 className="text-2xl font-bold mb-4">{editingClass ? 'Edit Class Schedule' : 'Add Class to Timetable'}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="course_code">Course Code</Label>
-                  <Input
-                    id="course_code"
-                    name="course_code"
-                    value={formData.course_code}
-                    onChange={handleInputChange}
-                    placeholder="e.g. LAW101"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="course_title">Course Title</Label>
-                  <Input
-                    id="course_title"
-                    name="course_title"
-                    value={formData.course_title}
-                    onChange={handleInputChange}
-                    placeholder="Enter course title"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="day">Day</Label>
-                  <select 
-                    id="day"
-                    name="day"
-                    value={formData.day}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select day</option>
-                    {daysOfWeek.map(day => (
-                      <option key={day} value={day}>{day}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    placeholder="Enter class location"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="start_time">Start Time</Label>
-                  <select
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    value={formData.start_time}
-                    onChange={(e) => handleTimeChange('start_time', e.target.value)}
-                    required
-                  >
-                    <option value="">Select start time</option>
-                    {timeSlots.map(time => (
-                      <option key={`start-${time}`} value={time}>{time}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="end_time">End Time</Label>
-                  <select
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    value={formData.end_time}
-                    onChange={(e) => handleTimeChange('end_time', e.target.value)}
-                    required
-                  >
-                    <option value="">Select end time</option>
-                    {timeSlots.map(time => (
-                      <option key={`end-${time}`} value={time}>{time}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="lecturer">Lecturer</Label>
-                <Input
-                  id="lecturer"
-                  name="lecturer"
-                  value={formData.lecturer}
-                  onChange={handleInputChange}
-                  placeholder="Enter lecturer name"
-                  required
-                />
-              </div>
-              
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  type="submit"
-                  className="bg-green-400 border-2 border-black hover:bg-green-500"
-                  disabled={!formData.start_time || !formData.end_time}
-                >
-                  {editingClass ? 'Update Class' : 'Add Class'}
-                </Button>
-                <Button 
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-200 border-2 border-black hover:bg-gray-300"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </motion.div>
+          <TimetableForm 
+            editingClass={editingClass}
+            setEditingClass={setEditingClass}
+            setShowAddForm={setShowAddForm}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+          />
         )}
 
         {isLoading ? (
@@ -672,113 +162,14 @@ const Timetable = () => {
             <div className="h-64 bg-gray-200 rounded"></div>
           </div>
         ) : (
-          <div ref={timetableRef} className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-            
-            <Table>
-              <TableCaption>Your weekly class schedule</TableCaption>
-              <TableHeader>
-                <TableRow className="bg-gray-100">
-                  <TableHead className="w-[100px] font-bold text-black">Day / Time</TableHead>
-                  {timeSlots.map((time) => (
-                    <TableHead key={time} className="font-bold text-black text-center">{time}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {daysOfWeek.map((day) => (
-                  <TableRow key={day} className="hover:bg-gray-50">
-                    <TableCell className="font-medium text-black bg-gray-100">{day}</TableCell>
-                    {timeSlots.map((time) => {
-                      const classesAtTime = classes.filter((classItem: any) => {
-                        if (classItem.day !== day) return false;
-                        
-                        const startTimeIndex = timeSlots.indexOf(classItem.start_time);
-                        const endTimeIndex = timeSlots.indexOf(classItem.end_time);
-                        const currentTimeIndex = timeSlots.indexOf(time);
-                        
-                        return currentTimeIndex >= startTimeIndex && currentTimeIndex < endTimeIndex;
-                      });
-                      
-                      const classItem = classesAtTime[0]; // Get the first class at this time slot if any
-                      
-                      return (
-                        <TableCell key={`${day}-${time}`} className="p-1 min-h-[80px] h-20 align-top">
-                          {classItem ? (
-                            <motion.div 
-                              className={`p-2 h-full rounded ${getCourseColor(classItem.course_code)}`}
-                              whileHover={{ scale: 1.03 }}
-                              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                            >
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-bold">{classItem.course_code}</p>
-                                  <p className="text-sm line-clamp-1">{classItem.course_title}</p>
-                                </div>
-                                {isAdmin && (
-                                  <div className="flex gap-1">
-                                    <button
-                                      onClick={() => handleEditClass(classItem)}
-                                      className="p-1 bg-white/70 border-2 border-black rounded-md hover:bg-white/90 transition-colors"
-                                    >
-                                      <Edit size={14} />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteClass(classItem.id)}
-                                      className="p-1 bg-red-100 border-2 border-black rounded-md hover:bg-red-200 transition-colors"
-                                    >
-                                      <Trash size={14} />
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="text-xs mt-1 flex items-center gap-1">
-                                <MapPin className="w-3 h-3" /> {classItem.location}
-                              </div>
-                              <div className="text-xs flex items-center gap-1 line-clamp-1">
-                                <span className="font-medium">Lecturer:</span> {classItem.lecturer}
-                              </div>
-                            </motion.div>
-                          ) : (
-                            <div className="h-full"></div>
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            
-            {classes.length === 0 && (
-              <div className="p-12 text-center bg-white border-4 border-black mt-4">
-                <Calendar className="mx-auto h-12 w-12 mb-4 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No classes scheduled yet</h3>
-                <p className="text-gray-500 mb-6">Get started by adding classes to your timetable</p>
-                {isAdmin && (
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <Button 
-                      onClick={() => setShowAddForm(true)}
-                      className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors"
-                    >
-                      <Plus className="mr-2" /> Add First Class
-                    </Button>
-                    <Button 
-                      onClick={populateCoursesFirst}
-                      className="px-4 py-2 bg-purple-400 border-2 border-black hover:bg-purple-500 transition-colors"
-                    >
-                      Add 1st Semester Courses
-                    </Button>
-                    <Button 
-                      onClick={populateCoursesSecond}
-                      className="px-4 py-2 bg-yellow-400 border-2 border-black hover:bg-yellow-500 transition-colors"
-                    >
-                      Add 2nd Semester Courses
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <TimetableGrid 
+            classes={classes}
+            timeSlots={timeSlots}
+            daysOfWeek={daysOfWeek}
+            handleEditClass={handleEditClass}
+            handleDeleteClass={handleDeleteClass}
+            timetableRef={timetableRef}
+          />
         )}
       </motion.div>
     </div>
