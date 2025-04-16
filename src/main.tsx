@@ -19,3 +19,8 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Redirect from study-groups to home if accessed directly
+if (window.location.pathname === '/study-groups') {
+  window.location.href = '/';
+}

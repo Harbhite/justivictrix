@@ -23,7 +23,6 @@ import BlogPost from './pages/BlogPost';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
-import StudyGroups from './pages/StudyGroups';
 
 const queryClient = new QueryClient();
 
@@ -136,10 +135,6 @@ const router = createBrowserRouter([
       {
         path: "tools",
         element: <Tools />,
-      },
-      {
-        path: "study-groups",
-        element: <StudyGroups />,
       },
       {
         path: "blog",

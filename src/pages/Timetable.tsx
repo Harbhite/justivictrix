@@ -194,6 +194,11 @@ const Timetable = () => {
     ];
 
     try {
+      const { error: deleteError } = await supabase
+        .from("timetable")
+        .delete()
+        .in('course_code', firstSemesterCourses.map(c => c.course_code));
+      
       toast.info("Adding 1st semester courses...");
       for (const course of firstSemesterCourses) {
         await addClassMutation.mutateAsync(course);
@@ -273,6 +278,11 @@ const Timetable = () => {
     ];
 
     try {
+      const { error: deleteError } = await supabase
+        .from("timetable")
+        .delete()
+        .in('course_code', secondSemesterCourses.map(c => c.course_code));
+      
       toast.info("Adding 2nd semester courses...");
       for (const course of secondSemesterCourses) {
         await addClassMutation.mutateAsync(course);
@@ -283,6 +293,12 @@ const Timetable = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (classes.length === 0) {
+      populateCoursesFirst();
+    }
+  }, [classes.length]);
 
   useEffect(() => {
     const channel = supabase
@@ -504,22 +520,18 @@ const Timetable = () => {
                 >
                   <Plus className="mr-2" /> Add Class
                 </Button>
-                {classes.length === 0 && (
-                  <>
-                    <Button 
-                      onClick={populateCoursesFirst}
-                      className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
-                    >
-                      Add 1st Semester
-                    </Button>
-                    <Button 
-                      onClick={populateCoursesSecond}
-                      className="px-4 py-2 bg-yellow-100 border-4 border-black hover:bg-yellow-200 transition-colors"
-                    >
-                      Add 2nd Semester
-                    </Button>
-                  </>
-                )}
+                <Button 
+                  onClick={populateCoursesFirst}
+                  className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
+                >
+                  Add 1st Semester
+                </Button>
+                <Button 
+                  onClick={populateCoursesSecond}
+                  className="px-4 py-2 bg-yellow-100 border-4 border-black hover:bg-yellow-200 transition-colors"
+                >
+                  Add 2nd Semester
+                </Button>
               </>
             )}
           </div>
