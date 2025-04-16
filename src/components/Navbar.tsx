@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Search, Calendar, Book, GalleryHorizontal } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Rearranged links by priority
   const links = [
@@ -67,7 +69,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
             {links.map((link) => (
               <Link
                 key={link.path}
@@ -115,13 +117,14 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === link.path
                       ? "text-gray-900 bg-gray-100"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
+                  <link.icon className="mr-3" size={20} />
                   {link.name}
                 </Link>
               ))}

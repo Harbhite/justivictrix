@@ -2,12 +2,12 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, User, Tag, Clock } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const BlogPost = () => {
   const { id } = useParams();
-  // In a real application, you would fetch the blog post by ID
-  // Here we're using sample data for demonstration
-
+  const isMobile = useIsMobile();
+  
   // Sample blog post data
   const blogPost = {
     id: parseInt(id || '1'),
@@ -108,61 +108,61 @@ const BlogPost = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f6f3] py-16">
+    <div className="min-h-screen bg-[#f8f6f3] py-8 sm:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back button */}
-        <Link to="/blog" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-8">
+        <Link to="/blog" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 sm:mb-8">
           <ArrowLeft size={18} className="mr-2" />
           Back to all articles
         </Link>
 
         {/* Blog post header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-700 mb-4">
             {blogPost.category}
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             {blogPost.title}
           </h1>
-          <div className="flex flex-wrap items-center text-gray-600 gap-4 mb-6">
+          <div className="flex flex-wrap items-center text-gray-600 gap-3 sm:gap-4 mb-6">
             <div className="flex items-center">
               <User size={16} className="mr-2" />
-              <span>{blogPost.author}</span>
+              <span className="text-sm sm:text-base">{blogPost.author}</span>
             </div>
             <div className="flex items-center">
               <Calendar size={16} className="mr-2" />
-              <span>{blogPost.date}</span>
+              <span className="text-sm sm:text-base">{blogPost.date}</span>
             </div>
             <div className="flex items-center">
               <Clock size={16} className="mr-2" />
-              <span>{blogPost.readTime}</span>
+              <span className="text-sm sm:text-base">{blogPost.readTime}</span>
             </div>
           </div>
         </div>
 
         {/* Featured image */}
-        <div className="mb-10">
+        <div className="mb-8 sm:mb-10">
           <img 
             src={blogPost.image} 
             alt={blogPost.title}
-            className="w-full h-96 object-cover rounded-xl"
+            className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-xl"
           />
         </div>
 
         {/* Blog content */}
-        <div className="prose prose-lg max-w-none">
+        <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none">
           <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
         </div>
 
         {/* Tags */}
-        <div className="mt-10 mb-16">
-          <h3 className="text-lg font-bold mb-4">Tags:</h3>
+        <div className="mt-8 sm:mt-10 mb-10 sm:mb-16">
+          <h3 className="text-lg font-bold mb-3 sm:mb-4">Tags:</h3>
           <div className="flex flex-wrap gap-2">
             {blogPost.tags.map((tag, index) => (
               <Link 
                 key={index} 
                 to={`/blog/tag/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                className="bg-gray-100 px-3 py-1 rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-200 transition-colors"
               >
                 <span className="flex items-center">
                   <Tag size={14} className="mr-1" />
@@ -174,9 +174,9 @@ const BlogPost = () => {
         </div>
 
         {/* Related posts */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-8">Related Articles</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+        <div className="mt-10 sm:mt-16">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Related Articles</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {relatedPosts.map(post => (
               <div 
                 key={post.id}
