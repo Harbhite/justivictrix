@@ -72,11 +72,10 @@ const Timetable = () => {
           const { data } = await supabase.from("timetable").select("count");
           if (data && data[0] && data[0].count === 0) {
             // Load 1st semester courses if timetable is empty
-            const dataManager = new TimetableDataManager({ 
-              setShowAddForm, 
-              isAdmin: true 
-            });
-            await dataManager.populateCoursesFirst();
+            const dataManager = new TimetableDataManager();
+            if (dataManager.populateCoursesFirst) {
+              await dataManager.populateCoursesFirst();
+            }
           }
         } catch (error) {
           console.error("Error checking timetable:", error);
