@@ -72,8 +72,8 @@ const Timetable = () => {
           const { data } = await supabase.from("timetable").select("count");
           if (data && data[0] && data[0].count === 0) {
             // Load 1st semester courses if timetable is empty
-            const dataManager = new TimetableDataManager();
-            await dataManager.populateCoursesFirst();
+            // Don't use 'new' with React components
+            await populateCoursesFirst();
           }
         } catch (error) {
           console.error("Error checking timetable:", error);
@@ -83,6 +83,101 @@ const Timetable = () => {
       populateInitialData();
     }
   }, [classes.length]);
+
+  // Function to populate first semester courses
+  const populateCoursesFirst = async () => {
+    try {
+      toast.info("Adding 1st semester courses...");
+      
+      const firstSemesterCourses = [
+        {
+          course_code: "GES 201",
+          course_title: "Use of English 2",
+          day: "Monday",
+          start_time: "8:00 AM",
+          end_time: "10:00 AM",
+          location: "Room 101",
+          lecturer: "Dr. Johnson"
+        },
+        {
+          course_code: "GES 105",
+          course_title: "Agriculture, Renewable Natural Resources, Animal Husbandry & Health",
+          day: "Monday",
+          start_time: "1:00 PM",
+          end_time: "3:00 PM",
+          location: "Room 102",
+          lecturer: "Prof. Adams"
+        },
+        {
+          course_code: "LPU 201",
+          course_title: "Constitutional Law 1",
+          day: "Tuesday",
+          start_time: "9:00 AM",
+          end_time: "11:00 AM",
+          location: "Law Theatre 1",
+          lecturer: "Prof. Adebayo"
+        },
+        {
+          course_code: "LJI 201",
+          course_title: "Nigerian Legal System 1",
+          day: "Tuesday",
+          start_time: "2:00 PM",
+          end_time: "4:00 PM",
+          location: "Law Theatre 2",
+          lecturer: "Dr. Nwachukwu"
+        },
+        {
+          course_code: "LCI 201",
+          course_title: "Contract Law 1",
+          day: "Wednesday",
+          start_time: "10:00 AM",
+          end_time: "12:00 PM",
+          location: "Room 303",
+          lecturer: "Dr. Clark"
+        },
+        {
+          course_code: "LPP 201",
+          course_title: "Reproductive and Sexual Health Law 1",
+          day: "Thursday",
+          start_time: "8:00 AM",
+          end_time: "10:00 AM",
+          location: "Law Theatre 3",
+          lecturer: "Prof. Williams"
+        },
+        {
+          course_code: "SOC 208",
+          course_title: "Entrepreneurship and Leadership Development",
+          day: "Friday",
+          start_time: "1:00 PM",
+          end_time: "3:00 PM",
+          location: "Business Hall",
+          lecturer: "Dr. Thompson"
+        }
+      ];
+      
+      // Delete existing courses first
+      const { error: deleteError } = await supabase
+        .from("timetable")
+        .delete()
+        .in('course_code', firstSemesterCourses.map(c => c.course_code));
+      
+      // Add courses one by one
+      for (const course of firstSemesterCourses) {
+        const { error } = await supabase
+          .from("timetable")
+          .insert([course]);
+          
+        if (error) throw error;
+      }
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ["timetable"] });
+      toast.success("1st semester courses added successfully!");
+    } catch (error) {
+      toast.error("Failed to add all courses");
+      console.error(error);
+    }
+  };
 
   // Real-time subscription
   useEffect(() => {
