@@ -23,6 +23,7 @@ import BlogPost from './pages/BlogPost';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
+import Profile from './pages/Profile';
 
 const queryClient = new QueryClient();
 
@@ -147,6 +148,10 @@ const router = createBrowserRouter([
       {
         path: "auth",
         element: <Auth />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
       {
         path: "*",
