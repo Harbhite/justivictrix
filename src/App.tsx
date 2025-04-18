@@ -22,6 +22,7 @@ import Timetable from './pages/Timetable';
 import Tools from './pages/Tools';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import BlogEditor from './pages/BlogEditor';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
@@ -151,6 +152,14 @@ const router = createBrowserRouter([
       {
         path: "blog/:id",
         element: <BlogPost />,
+      },
+      {
+        path: "blog/new",
+        element: <BlogEditor />,
+      },
+      {
+        path: "blog/edit/:id",
+        element: <BlogEditor />,
       },
       {
         path: "auth",

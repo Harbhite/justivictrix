@@ -101,6 +101,50 @@ export type ExtendedDatabase = Database & {
         };
         Relationships: [];
       };
+      blog_posts: {
+        Row: {
+          id: number;
+          title: string;
+          content: string;
+          excerpt: string;
+          author_id: string;
+          is_anonymous: boolean;
+          created_at: string;
+          updated_at: string;
+          category: string;
+          image_url: string;
+        };
+        Insert: {
+          title: string;
+          content: string;
+          excerpt: string;
+          author_id: string;
+          is_anonymous?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          category: string;
+          image_url?: string;
+        };
+        Update: {
+          title?: string;
+          content?: string;
+          excerpt?: string;
+          author_id?: string;
+          is_anonymous?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          category?: string;
+          image_url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey";
+            columns: ["author_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     } & Database['public']['Tables'];
     Views: Database['public']['Views'];
     Functions: Database['public']['Functions'];

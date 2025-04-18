@@ -200,6 +200,33 @@ const Events = () => {
     return colors[index % colors.length];
   };
 
+  const addToGoogleCalendar = (event: any) => {
+    const title = encodeURIComponent(event.title);
+    const location = encodeURIComponent(event.location);
+    const description = encodeURIComponent(event.description);
+    
+    // Parse date and time (assuming format like "March 15, 2024" and "14:30")
+    const dateParts = event.date.split(',');
+    const dateText = dateParts.length > 1 ? dateParts[1].trim() + ' ' + dateParts[0].trim() : event.date;
+    const [hours, minutes] = event.time.split(':');
+    
+    // Create start and end dates
+    const startDate = new Date(dateText + ' ' + event.time);
+    const endDate = new Date(startDate.getTime() + (60 * 60 * 1000)); // Add 1 hour
+    
+    // Format dates for Google Calendar URL
+    const formatDate = (date: Date) => {
+      return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+    };
+    
+    const startDateStr = formatDate(startDate);
+    const endDateStr = formatDate(endDate);
+    
+    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDateStr}/${endDateStr}&details=${description}&location=${location}`;
+    
+    window.open(googleCalendarUrl, '_blank');
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -385,9 +412,11 @@ const Events = () => {
                     </CardContent>
                     <CardFooter>
                       <Button 
+                        onClick={() => addToGoogleCalendar(event)}
                         className="w-full mt-2 border-2 border-black bg-white text-black hover:bg-gray-100" 
                         variant="outline"
                       >
+                        <Calendar className="mr-2 h-4 w-4" />
                         Add to Calendar
                       </Button>
                     </CardFooter>
