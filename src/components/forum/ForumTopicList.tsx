@@ -46,46 +46,60 @@ const ForumTopicList: React.FC<ForumTopicListProps> = ({ categoryId }) => {
     const fetchTopics = async () => {
       try {
         // Fetch topics for this category
-        let query = supabase
+        const { data: topicsData, error: topicsError } = await supabase
           .from("forum_topics")
-          .select(`
-            *,
-            user:user_id (
-              username:profiles(username),
-              full_name:profiles(full_name)
-            )
-          `)
+          .select("*")
           .eq("category_id", categoryId)
           .order("is_pinned", { ascending: false })
           .order("created_at", { ascending: false });
-
-        const { data: topicsData, error: topicsError } = await query;
 
         if (topicsError) {
           console.error("Error fetching topics:", topicsError);
           return;
         }
 
-        // For each topic, count the number of posts
-        const topicsWithCounts = await Promise.all(
+        // For each topic, fetch user profile and count posts
+        const topicsWithDetails = await Promise.all(
           topicsData.map(async (topic) => {
-            const { count, error } = await supabase
+            // Count the number of posts
+            const { count, error: countError } = await supabase
               .from("forum_posts")
               .select("*", { count: "exact" })
               .eq("topic_id", topic.id);
+            
+            if (countError) {
+              console.error("Error counting posts:", countError);
+            }
+            
+            // Get user details if available
+            let username = "";
+            let fullName = "";
+            
+            if (topic.user_id) {
+              const { data: userData, error: userError } = await supabase
+                .from("profiles")
+                .select("username, full_name")
+                .eq("id", topic.user_id)
+                .single();
+                
+              if (!userError && userData) {
+                username = userData.username || "";
+                fullName = userData.full_name || "";
+              }
+            }
 
             return {
               ...topic,
               postCount: count || 0,
               user: {
-                username: topic.user?.username?.username,
-                full_name: topic.user?.full_name?.full_name
+                username,
+                full_name: fullName
               }
             };
           })
         );
 
-        setTopics(topicsWithCounts);
+        setTopics(topicsWithDetails);
         setLoading(false);
       } catch (error) {
         console.error("Error:", error);

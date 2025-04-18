@@ -48,13 +48,7 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
         // Fetch posts for this topic
         const { data: postsData, error: postsError } = await supabase
           .from("forum_posts")
-          .select(`
-            *,
-            user:user_id (
-              username:profiles(username),
-              full_name:profiles(full_name)
-            )
-          `)
+          .select("*")
           .eq("topic_id", topicId)
           .order("created_at", { ascending: true });
 
@@ -63,29 +57,50 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
           return;
         }
 
-        // Check for anonymous posts
-        const anonymousPosts = await Promise.all(
+        // Fetch user profiles separately
+        const postsWithUserDetails = await Promise.all(
           postsData.map(async (post) => {
-            if (!post.user_id) return { ...post, isAnonymous: true };
+            let username = "";
+            let fullName = "";
+            let isAnonymous = false;
             
-            const { data: anonData } = await supabase
-              .from("forum_anonymous_tokens")
-              .select("*")
-              .eq("user_id", post.user_id)
-              .single();
+            if (post.user_id) {
+              // Check for anonymous token
+              const { data: anonData } = await supabase
+                .from("forum_anonymous_tokens")
+                .select("*")
+                .eq("user_id", post.user_id)
+                .single();
+                
+              isAnonymous = !!anonData;
+              
+              // If not anonymous, fetch profile
+              if (!isAnonymous) {
+                const { data: profileData } = await supabase
+                  .from("profiles")
+                  .select("username, full_name")
+                  .eq("id", post.user_id)
+                  .single();
+                
+                if (profileData) {
+                  username = profileData.username || "";
+                  fullName = profileData.full_name || "";
+                }
+              }
+            }
               
             return { 
               ...post,
-              isAnonymous: !!anonData,
+              isAnonymous,
               user: {
-                username: post.user?.username?.username,
-                full_name: post.user?.full_name?.full_name
+                username,
+                full_name: fullName
               }
             };
           })
         );
 
-        setPosts(anonymousPosts);
+        setPosts(postsWithUserDetails);
         setLoading(false);
       } catch (error) {
         console.error("Error:", error);

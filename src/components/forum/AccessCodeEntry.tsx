@@ -68,16 +68,21 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
           throw accessError;
         }
       } else {
-        // Initialize user reputation
-        await supabase
+        // Initialize user reputation - fixed to not use onConflict
+        const { data: existingRep } = await supabase
           .from("user_reputation")
-          .insert({
-            user_id: user.id,
-            reputation_points: 0,
-            level: 1
-          })
-          .onConflict("user_id")
-          .ignore();
+          .select("*")
+          .eq("user_id", user.id);
+          
+        if (!existingRep || existingRep.length === 0) {
+          await supabase
+            .from("user_reputation")
+            .insert({
+              user_id: user.id,
+              reputation_points: 0,
+              level: 1
+            });
+        }
           
         toast.success("Access granted to the secret forum");
         onAccessGranted();

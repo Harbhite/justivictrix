@@ -34,7 +34,7 @@ const ForumTopic = () => {
     }
 
     const checkAccess = async () => {
-      if (!user) return;
+      if (!user || !topicId) return;
 
       try {
         const { data: accessData, error: accessError } = await supabase
@@ -49,14 +49,8 @@ const ForumTopic = () => {
           return;
         }
 
-        // Increment view count
-        await supabase
-          .from("forum_topics")
-          .update({ views: topicData.views + 1 })
-          .eq("id", topicId);
-
-        // Fetch the topic and its category
-        const { data: topicData, error: topicError } = await supabase
+        // Fetch the topic first
+        const { data: fetchedTopicData, error: topicError } = await supabase
           .from("forum_topics")
           .select("*")
           .eq("id", topicId)
@@ -68,17 +62,24 @@ const ForumTopic = () => {
           return;
         }
 
+        // Increment view count
+        await supabase
+          .from("forum_topics")
+          .update({ views: (fetchedTopicData.views || 0) + 1 })
+          .eq("id", topicId);
+
+        // Fetch the category
         const { data: categoryData, error: categoryError } = await supabase
           .from("forum_categories")
           .select("*")
-          .eq("id", topicData.category_id)
+          .eq("id", fetchedTopicData.category_id)
           .single();
 
         if (categoryError) {
           console.error("Error fetching category:", categoryError);
         }
 
-        setTopic(topicData);
+        setTopic(fetchedTopicData);
         setCategory(categoryData);
         setLoading(false);
       } catch (error) {
