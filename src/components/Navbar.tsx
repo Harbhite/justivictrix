@@ -1,9 +1,20 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, Calendar, Book, GalleryHorizontal, UserCircle } from "lucide-react";
+import { 
+  Menu, 
+  X, 
+  Search, 
+  Calendar, 
+  Book, 
+  GalleryHorizontal, 
+  UserCircle,
+  Settings
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import SecretLink from "./SecretLink";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,6 +50,8 @@ const Navbar = () => {
     { name: "Blog", path: "/blog", icon: Book },
   ];
 
+  const isForumPage = location.pathname.includes("/forum") || location.pathname === "/secret-forum";
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? "bg-white shadow-md" : "bg-[#f8f6f3]"
@@ -72,6 +85,20 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            
+            {/* Secret Forum Link - Hidden in plain sight */}
+            <SecretLink />
+            
+            {/* Forum Settings Link - Only shown when on forum pages */}
+            {isForumPage && user && (
+              <Link
+                to="/forum/settings"
+                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                <Settings size={16} />
+                Forum Settings
+              </Link>
+            )}
             
             {user ? (
               <Link
@@ -130,6 +157,23 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              
+              {/* Secret Forum Link (mobile) */}
+              <div className="flex px-3 py-2 rounded-md text-base font-medium transition-colors">
+                <SecretLink />
+              </div>
+              
+              {/* Forum Settings Link - Only shown when on forum pages */}
+              {isForumPage && user && (
+                <Link
+                  to="/forum/settings"
+                  className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings className="mr-3" size={20} />
+                  Forum Settings
+                </Link>
+              )}
               
               {user ? (
                 <Link

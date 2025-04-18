@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
@@ -7,6 +8,7 @@ import {
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Toaster } from "sonner";
 import People from './pages/People';
 import FullProfile from './pages/FullProfile';
 import MemberBio from './pages/MemberBio';
@@ -24,6 +26,10 @@ import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
+import SecretForum from './pages/SecretForum';
+import ForumCategory from './pages/ForumCategory';
+import ForumTopic from './pages/ForumTopic';
+import ForumSettings from './pages/ForumSettings';
 
 const queryClient = new QueryClient();
 
@@ -35,6 +41,7 @@ const Layout = () => {
       <div className="pt-16"> {/* Add padding to account for fixed navbar */}
         <Outlet />
       </div>
+      <Toaster position="top-right" />
     </>
   );
 };
@@ -152,6 +159,23 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profile />,
+      },
+      // Secret Forum Routes
+      {
+        path: "secret-forum",
+        element: <SecretForum />,
+      },
+      {
+        path: "forum/category/:categorySlug",
+        element: <ForumCategory />,
+      },
+      {
+        path: "forum/topic/:topicId",
+        element: <ForumTopic />,
+      },
+      {
+        path: "forum/settings",
+        element: <ForumSettings />,
       },
       {
         path: "*",
