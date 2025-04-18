@@ -10,7 +10,7 @@ const Navbar = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // Rearranged links by priority
+  // Rearranged links by priority, removed Study Groups link
   const links = [
     { name: "Timetable", path: "/timetable", icon: Calendar },
     { name: "Resources", path: "/resources", icon: Book },
