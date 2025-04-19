@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Upload, Camera, User } from "lucide-react";
+
+interface Profile {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string;
+  created_at: string;
+  updated_at: string;
+  bio?: string | null;
+  position?: string | null;
+}
 
 const ProfileEditor = () => {
   const { user } = useAuth();
@@ -41,11 +51,12 @@ const ProfileEditor = () => {
     }
 
     if (data) {
-      setUsername(data.username || "");
-      setFullName(data.full_name || "");
-      setBio(data.bio || "");
-      setPosition(data.position || "");
-      setAvatarUrl(data.avatar_url || "");
+      const profile = data as Profile;
+      setUsername(profile.username || "");
+      setFullName(profile.full_name || "");
+      setBio(profile.bio || "");
+      setPosition(profile.position || "");
+      setAvatarUrl(profile.avatar_url || "");
     }
   };
 

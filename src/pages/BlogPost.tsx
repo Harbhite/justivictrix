@@ -31,7 +31,7 @@ const BlogPost = () => {
           *,
           author:author_id(username, full_name, avatar_url)
         `)
-        .eq("id", id)
+        .eq("id", Number(id)) // Convert id to number
         .single();
 
       if (error) throw error;
