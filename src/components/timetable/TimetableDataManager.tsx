@@ -208,19 +208,19 @@ const TimetableDataManager = ({
     <>
       <Button 
         onClick={() => setShowAddForm(true)}
-        className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+        className="px-4 py-2 bg-purple-500 text-white hover:bg-purple-600 transition-colors border-2 border-purple-700"
       >
         <Plus className="mr-2" /> Add Class
       </Button>
       <Button 
         onClick={populateCoursesFirst}
-        className="px-4 py-2 bg-purple-100 border-4 border-black hover:bg-purple-200 transition-colors"
+        className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors border-2 border-blue-700"
       >
         Add 1st Semester
       </Button>
       <Button 
         onClick={populateCoursesSecond}
-        className="px-4 py-2 bg-yellow-100 border-4 border-black hover:bg-yellow-200 transition-colors"
+        className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors border-2 border-green-700"
       >
         Add 2nd Semester
       </Button>

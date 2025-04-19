@@ -19,11 +19,6 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!accessCode.trim()) {
-      toast.error("Please enter an access code");
-      return;
-    }
-
     if (!user) {
       toast.error("You must be logged in to access the forum");
       return;
@@ -32,33 +27,12 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
     setIsSubmitting(true);
 
     try {
-      // Validate access code
-      const { data: codeData, error: codeError } = await supabase
-        .from("forum_access_codes")
-        .select("*")
-        .eq("access_code", accessCode.trim())
-        .eq("is_active", true)
-        .single();
-
-      if (codeError || !codeData) {
-        toast.error("Invalid access code");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Check if code is expired
-      if (codeData.expiry_date && new Date(codeData.expiry_date) < new Date()) {
-        toast.error("This access code has expired");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Grant access to the user
+      // Grant access to the forum for all authenticated users
       const { error: accessError } = await supabase
         .from("forum_user_access")
         .insert({
           user_id: user.id,
-          access_code_id: codeData.id
+          access_code_id: '00000000-0000-0000-0000-000000000000' // Default access code ID
         });
 
       if (accessError) {
@@ -68,7 +42,7 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
           throw accessError;
         }
       } else {
-        // Initialize user reputation - fixed to not use onConflict
+        // Initialize user reputation
         const { data: existingRep } = await supabase
           .from("user_reputation")
           .select("*")
@@ -84,12 +58,12 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
             });
         }
           
-        toast.success("Access granted to the secret forum");
+        toast.success("Access granted to the forum");
         onAccessGranted();
       }
     } catch (error) {
-      console.error("Error validating access code:", error);
-      toast.error("Failed to validate access code");
+      console.error("Error granting access:", error);
+      toast.error("Failed to grant forum access");
     } finally {
       setIsSubmitting(false);
     }
@@ -98,24 +72,9 @@ const AccessCodeEntry: React.FC<AccessCodeEntryProps> = ({ onAccessGranted }) =>
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-          <Input
-            type="text"
-            value={accessCode}
-            onChange={(e) => setAccessCode(e.target.value)}
-            placeholder="Enter your access code"
-            className="pl-9"
-            autoComplete="off"
-          />
-        </div>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Verifying..." : "Submit"}
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Granting access..." : "Access Forum"}
         </Button>
-      </div>
-      
-      <div className="text-xs text-gray-500 italic">
-        Hint: Try entering "LLB28_SECRET_2025"
       </div>
     </form>
   );

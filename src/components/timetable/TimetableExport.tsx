@@ -153,13 +153,13 @@ const TimetableExport = ({
     <div className="flex gap-2">
       <Button
         onClick={downloadAsPDF}
-        className="px-4 py-2 bg-blue-100 border-4 border-black hover:bg-blue-200 transition-colors"
+        className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors border-2 border-red-700"
       >
         <Download className="mr-2" /> PDF
       </Button>
       <Button
         onClick={downloadAsExcel}
-        className="px-4 py-2 bg-green-100 border-4 border-black hover:bg-green-200 transition-colors"
+        className="px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 transition-colors border-2 border-emerald-700"
       >
         <FileSpreadsheet className="mr-2" /> Excel
       </Button>
