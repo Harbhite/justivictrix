@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import MemberCard from "@/components/members/MemberCard";
 
 const People = () => {
   const [selectedMember, setSelectedMember] = useState<number | null>(null);
@@ -112,85 +113,20 @@ const People = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((index) => (
-              <Card key={index} className="p-6 animate-pulse bg-white/60 backdrop-blur border-0 shadow-lg">
-                <div className="flex flex-col items-center">
-                  <div className="w-24 h-24 rounded-full bg-gray-200 mb-4"></div>
-                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </Card>
+              <div key={index} className="animate-pulse">
+                <div className="h-80 bg-gray-100 rounded-xl"></div>
+              </div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMembers?.map((member, index) => (
-              <motion.div
+              <MemberCard
                 key={member.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.5 }}
-              >
-                <Card 
-                  className="overflow-hidden bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md"
-                  onClick={() => setSelectedMember(member.id)}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex flex-col">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className="flex items-center gap-4">
-                          <Avatar className="w-16 h-16 border-2 border-white shadow-md">
-                            {member.avatar_url ? (
-                              <AvatarImage src={member.avatar_url} alt={member.name} />
-                            ) : (
-                              <AvatarFallback className="bg-purple-100 text-purple-700">
-                                <User size={24} />
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
-                            <p className="text-sm text-gray-500">{member.matric_number}</p>
-                            {member.post_held && (
-                              <div className="flex items-center gap-1 mt-1 text-sm text-purple-600">
-                                <Briefcase size={14} />
-                                <span>{member.post_held}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-gray-600 hover:text-purple-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/people/${member.id}`);
-                          }}
-                        >
-                          <ExternalLink size={16} className="mr-2" />
-                          View Profile
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-600 hover:text-purple-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/member-bio/${member.id}`);
-                          }}
-                        >
-                          <User size={16} className="mr-2" />
-                          View Bio
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                member={member}
+                index={index}
+                onSelect={setSelectedMember}
+              />
             ))}
           </div>
         )}
