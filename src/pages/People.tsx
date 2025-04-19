@@ -1,7 +1,6 @@
-
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Download, FileType, ExternalLink, Search, Users, Filter } from "lucide-react";
+import { X, User, Download, FileType, ExternalLink, Search, Users, Filter, Mail, MapPin, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -70,7 +69,7 @@ const People = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-7xl mx-auto"
       >
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
           <motion.div
@@ -111,23 +110,19 @@ const People = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
-              <Card
-                key={index}
-                className="p-6 border-0 shadow-lg animate-pulse bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl"
-              >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((index) => (
+              <Card key={index} className="p-6 animate-pulse bg-white/60 backdrop-blur border-0 shadow-lg">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 rounded-full bg-gray-200 mb-4"></div>
                   <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                 </div>
               </Card>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMembers?.map((member, index) => (
               <motion.div
                 key={member.id}
@@ -135,37 +130,63 @@ const People = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.5 }}
               >
-                <Card
-                  className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl bg-gradient-to-br from-white to-purple-50"
+                <Card 
+                  className="overflow-hidden bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md"
                   onClick={() => setSelectedMember(member.id)}
                 >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
                   <CardContent className="p-6">
-                    <div className="flex flex-col items-center">
-                      <div className="mb-4 p-1 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full">
-                        <Avatar className="w-24 h-24 border-4 border-white">
-                          {member.avatar_url ? (
-                            <AvatarImage src={member.avatar_url} alt={member.name} />
-                          ) : (
-                            <AvatarFallback className="bg-purple-100 text-purple-700">
-                              <User size={32} />
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                      </div>
-                      <h3 className="text-xl font-bold text-center mb-1 text-gray-800">{member.name}</h3>
-                      <p className="text-center text-gray-500 text-sm mb-1">{member.matric_number}</p>
-                      <p className="text-center text-gray-700 font-medium text-sm bg-gray-100 px-3 py-1 rounded-full">
-                        {member.gender}
-                      </p>
-                      
-                      {member.post_held && (
-                        <div className="mt-3 w-full">
-                          <p className="text-center text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full">
-                            {member.post_held}
-                          </p>
+                    <div className="flex flex-col">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="w-16 h-16 border-2 border-white shadow-md">
+                            {member.avatar_url ? (
+                              <AvatarImage src={member.avatar_url} alt={member.name} />
+                            ) : (
+                              <AvatarFallback className="bg-purple-100 text-purple-700">
+                                <User size={24} />
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+                            <p className="text-sm text-gray-500">{member.matric_number}</p>
+                            {member.post_held && (
+                              <div className="flex items-center gap-1 mt-1 text-sm text-purple-600">
+                                <Briefcase size={14} />
+                                <span>{member.post_held}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-gray-600 hover:text-purple-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/people/${member.id}`);
+                          }}
+                        >
+                          <ExternalLink size={16} className="mr-2" />
+                          View Profile
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-purple-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/member-bio/${member.id}`);
+                          }}
+                        >
+                          <User size={16} className="mr-2" />
+                          View Bio
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
