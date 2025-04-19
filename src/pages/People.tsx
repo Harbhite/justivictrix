@@ -16,6 +16,13 @@ const People = () => {
   const navigate = useNavigate();
   const bioCardRef = useRef<HTMLDivElement>(null);
 
+  const placeholderAvatars = [
+    "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1",
+    "https://images.unsplash.com/photo-1582562124811-c09040d0a901",
+    "https://images.unsplash.com/photo-1501286353178-1ec881214838",
+    "https://images.unsplash.com/photo-1441057206919-63d19fac2369"
+  ];
+
   const { data: members, isLoading } = useQuery({
     queryKey: ["members"],
     queryFn: async () => {
@@ -131,21 +138,21 @@ const People = () => {
                 transition={{ delay: index * 0.05, duration: 0.5 }}
               >
                 <Card 
-                  className="overflow-hidden bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md"
+                  className="overflow-hidden bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100 hover:shadow-xl transition-all duration-300 cursor-pointer border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   onClick={() => setSelectedMember(member.id)}
                 >
                   <CardContent className="p-6">
                     <div className="flex flex-col">
                       <div className="flex items-start justify-between mb-6">
                         <div className="flex items-center gap-4">
-                          <Avatar className="w-16 h-16 border-2 border-white shadow-md">
-                            {member.avatar_url ? (
-                              <AvatarImage src={member.avatar_url} alt={member.name} />
-                            ) : (
-                              <AvatarFallback className="bg-purple-100 text-purple-700">
-                                <User size={24} />
-                              </AvatarFallback>
-                            )}
+                          <Avatar className="w-16 h-16 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <AvatarImage 
+                              src={member.avatar_url || placeholderAvatars[index % placeholderAvatars.length]} 
+                              alt={member.name} 
+                            />
+                            <AvatarFallback className="bg-purple-100 text-purple-700">
+                              <User size={24} />
+                            </AvatarFallback>
                           </Avatar>
                           <div>
                             <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
