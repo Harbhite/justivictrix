@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -86,10 +85,8 @@ const Navbar = () => {
               </Link>
             ))}
             
-            {/* Secret Forum Link - Hidden in plain sight */}
             <SecretLink />
             
-            {/* Forum Settings Link - Only shown when on forum pages */}
             {isForumPage && user && (
               <Link
                 to="/forum/settings"
@@ -158,12 +155,10 @@ const Navbar = () => {
                 </Link>
               ))}
               
-              {/* Secret Forum Link (mobile) */}
               <div className="flex px-3 py-2 rounded-md text-base font-medium transition-colors">
                 <SecretLink />
               </div>
               
-              {/* Forum Settings Link - Only shown when on forum pages */}
               {isForumPage && user && (
                 <Link
                   to="/forum/settings"

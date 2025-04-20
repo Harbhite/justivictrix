@@ -10,7 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Image, Heading2, List, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link } from "lucide-react";
+import { 
+  Image as ImageIcon, 
+  Heading2, 
+  List, 
+  Bold, 
+  Italic, 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight, 
+  Link 
+} from "lucide-react";
 
 // Simple categories for the blog
 const BLOG_CATEGORIES = [
@@ -34,6 +44,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const [imageUrl, setImageUrl] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   // Fetch post data if editing existing post
   useEffect(() => {
@@ -67,8 +78,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   };
 
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!user) return;
-    
     try {
       setIsUploading(true);
       
@@ -77,28 +86,63 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       }
       
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      setImageFile(file);
       
+      // Create a preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImageUrl(previewUrl);
+      
+      toast.success("Image selected for upload");
+    } catch (error) {
+      console.error("Error selecting image:", error);
+      toast.error("Failed to select image");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Function to actually upload the image to Supabase Storage
+  const uploadImageToStorage = async () => {
+    if (!imageFile || !user) return null;
+    
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      
+      // Check if blog-images bucket exists, create if not
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const blogBucket = buckets?.find(b => b.name === 'blog-images');
+      
+      if (!blogBucket) {
+        const { error: bucketError } = await supabase.storage.createBucket('blog-images', {
+          public: true
+        });
+        
+        if (bucketError) {
+          console.error("Error creating bucket:", bucketError);
+          throw bucketError;
+        }
+      }
+      
+      // Upload file
       const { error: uploadError } = await supabase.storage
         .from('blog-images')
-        .upload(filePath, file);
+        .upload(fileName, imageFile);
         
       if (uploadError) {
         throw uploadError;
       }
       
+      // Get public URL
       const { data } = supabase.storage
         .from('blog-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
         
-      setImageUrl(data.publicUrl);
-      toast.success("Image uploaded successfully");
+      return data.publicUrl;
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
-    } finally {
-      setIsUploading(false);
+      return null;
     }
   };
 
@@ -116,6 +160,16 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     setIsSaving(true);
 
     try {
+      // If we have a new image file, upload it first
+      let finalImageUrl = imageUrl;
+      if (imageFile) {
+        const uploadedUrl = await uploadImageToStorage();
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+      
+      // Prepare post data
       const postData = {
         title,
         content,
@@ -123,7 +177,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         author_id: user.id,
         is_anonymous: isAnonymous,
         category,
-        image_url: imageUrl || "https://images.unsplash.com/photo-1505664063603-28e48c8ad148?q=80&w=1470&fit=crop"
+        image_url: finalImageUrl || "https://images.unsplash.com/photo-1505664063603-28e48c8ad148?q=80&w=1470&fit=crop"
       };
 
       if (postId) {
@@ -155,40 +209,75 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
-  // Simple rich text editor functions
+  // Improved rich text editor functions
   const formatText = (format: string) => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().length > 0 && selection.rangeCount > 0) {
-      let selectedText = selection.toString();
-      let formattedText = "";
-
-      switch (format) {
-        case 'bold':
-          formattedText = `**${selectedText}**`;
-          break;
-        case 'italic':
-          formattedText = `*${selectedText}*`;
-          break;
-        case 'heading':
-          formattedText = `## ${selectedText}`;
-          break;
-        case 'list':
-          formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
-          break;
-        default:
-          return;
-      }
-
-      // Replace selected text with formatted text
-      const contentTextArea = document.getElementById('content') as HTMLTextAreaElement;
-      const start = contentTextArea.selectionStart;
-      const end = contentTextArea.selectionEnd;
-      
-      const textBefore = content.substring(0, start);
-      const textAfter = content.substring(end);
-      
-      setContent(textBefore + formattedText + textAfter);
+    const textArea = document.getElementById('content') as HTMLTextAreaElement;
+    if (!textArea) return;
+    
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    const selectedText = textArea.value.substring(start, end);
+    
+    let formattedText = "";
+    let cursorPosition = 0;
+    
+    switch (format) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        cursorPosition = start + 2;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        cursorPosition = start + 1;
+        break;
+      case 'heading':
+        formattedText = `## ${selectedText}`;
+        cursorPosition = start + 3;
+        break;
+      case 'list':
+        // Split by new line and add bullet points
+        formattedText = selectedText.split('\n')
+          .map(line => `- ${line}`)
+          .join('\n');
+        cursorPosition = start + 2;
+        break;
+      case 'link':
+        formattedText = `[${selectedText}](url)`;
+        cursorPosition = end + 3;
+        break;
+      case 'align-left':
+        formattedText = `<div style="text-align: left">${selectedText}</div>`;
+        cursorPosition = start + 30;
+        break;
+      case 'align-center':
+        formattedText = `<div style="text-align: center">${selectedText}</div>`;
+        cursorPosition = start + 32;
+        break;
+      case 'align-right':
+        formattedText = `<div style="text-align: right">${selectedText}</div>`;
+        cursorPosition = start + 31;
+        break;
+      default:
+        return;
     }
+    
+    // Replace selected text with formatted text
+    const textBefore = content.substring(0, start);
+    const textAfter = content.substring(end);
+    
+    setContent(textBefore + formattedText + textAfter);
+    
+    // Set cursor position after the formatting is applied
+    setTimeout(() => {
+      textArea.focus();
+      if (selectedText.length > 0) {
+        textArea.selectionStart = start;
+        textArea.selectionEnd = start + formattedText.length;
+      } else {
+        textArea.selectionStart = cursorPosition;
+        textArea.selectionEnd = cursorPosition;
+      }
+    }, 0);
   };
 
   return (
@@ -228,6 +317,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="Image URL or upload an image"
+              disabled={!!imageFile}
             />
           </div>
           <div>
@@ -235,8 +325,8 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               htmlFor="image-upload" 
               className="flex items-center gap-2 px-4 py-2 border bg-gray-100 hover:bg-gray-200 rounded-md cursor-pointer"
             >
-              <Image size={16} />
-              <span>Upload</span>
+              <ImageIcon size={16} />
+              <span>{isUploading ? "Uploading..." : "Upload"}</span>
             </Label>
             <Input
               id="image-upload"
@@ -269,13 +359,14 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       <div className="space-y-2">
         <div className="flex justify-between items-center mb-2">
           <Label htmlFor="content">Content</Label>
-          <div className="flex gap-1 border rounded p-1">
+          <div className="flex gap-1 border rounded p-1 flex-wrap">
             <Button
               type="button"
               size="sm"
               variant="ghost"
               onClick={() => formatText('bold')}
               className="h-8 w-8 p-0"
+              title="Bold"
             >
               <Bold size={16} />
             </Button>
@@ -285,6 +376,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               variant="ghost"
               onClick={() => formatText('italic')}
               className="h-8 w-8 p-0"
+              title="Italic"
             >
               <Italic size={16} />
             </Button>
@@ -294,6 +386,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               variant="ghost"
               onClick={() => formatText('heading')}
               className="h-8 w-8 p-0"
+              title="Heading"
             >
               <Heading2 size={16} />
             </Button>
@@ -303,8 +396,49 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               variant="ghost"
               onClick={() => formatText('list')}
               className="h-8 w-8 p-0"
+              title="Bullet List"
             >
               <List size={16} />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => formatText('link')}
+              className="h-8 w-8 p-0"
+              title="Insert Link"
+            >
+              <Link size={16} />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => formatText('align-left')}
+              className="h-8 w-8 p-0"
+              title="Align Left"
+            >
+              <AlignLeft size={16} />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => formatText('align-center')}
+              className="h-8 w-8 p-0"
+              title="Align Center"
+            >
+              <AlignCenter size={16} />
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => formatText('align-right')}
+              className="h-8 w-8 p-0"
+              title="Align Right"
+            >
+              <AlignRight size={16} />
             </Button>
           </div>
         </div>

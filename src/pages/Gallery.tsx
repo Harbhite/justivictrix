@@ -1,11 +1,12 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import AdminUploadForm from "@/components/AdminUploadForm";
+import { useAuth } from "@/hooks/useAuth";
 
 interface GalleryImage {
   id: number;
@@ -20,6 +21,7 @@ const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   
   const fetchGalleryImages = async () => {
     try {
@@ -64,6 +66,33 @@ const Gallery = () => {
     }
   };
 
+  // Function to delete an image
+  const handleDeleteImage = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening the modal when clicking delete button
+    
+    if (!user) {
+      toast.error("You must be logged in to delete images");
+      return;
+    }
+    
+    if (confirm("Are you sure you want to delete this image?")) {
+      try {
+        const { error } = await supabase
+          .from('gallery')
+          .delete()
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        toast.success("Image deleted successfully");
+        fetchGalleryImages(); // Refresh the gallery
+      } catch (err: any) {
+        console.error('Error deleting image:', err);
+        toast.error("Failed to delete image");
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -103,7 +132,7 @@ const Gallery = () => {
             {galleryImages.map((image) => (
               <motion.div
                 key={image.id}
-                className="cursor-pointer overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group"
+                className="cursor-pointer overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group relative"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openModal(image.image_url)}
@@ -118,6 +147,18 @@ const Gallery = () => {
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-50 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <p className="text-sm font-medium">{image.title}</p>
                   </div>
+                  
+                  {/* Admin delete button */}
+                  {user && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1 h-auto"
+                      onClick={(e) => handleDeleteImage(image.id, e)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             ))}

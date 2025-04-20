@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import BlogEditorComponent from "@/components/blog/BlogEditor";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 const BlogEditorPage = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const BlogEditorPage = () => {
 
   // If not authenticated, don't render the editor
   if (!user) {
+    toast.error("You must be logged in to create or edit blog posts");
     return null;
   }
 
