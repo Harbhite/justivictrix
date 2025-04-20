@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -13,7 +14,6 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import SecretLink from "./SecretLink";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -85,8 +85,6 @@ const Navbar = () => {
               </Link>
             ))}
             
-            <SecretLink />
-            
             {isForumPage && user && (
               <Link
                 to="/forum/settings"
@@ -154,10 +152,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              
-              <div className="flex px-3 py-2 rounded-md text-base font-medium transition-colors">
-                <SecretLink />
-              </div>
               
               {isForumPage && user && (
                 <Link

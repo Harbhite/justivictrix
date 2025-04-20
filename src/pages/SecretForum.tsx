@@ -2,20 +2,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { MessageSquareText, Lock, Key } from "lucide-react";
+import { MessageSquareText, Key } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import ForumCategoryList from "@/components/forum/ForumCategoryList";
-import AccessCodeEntry from "@/components/forum/AccessCodeEntry";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SecretForum = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [hasAccess, setHasAccess] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -23,30 +18,35 @@ const SecretForum = () => {
       navigate("/auth");
       return;
     }
-
-    const checkAccess = async () => {
+    
+    // Check if we need to redirect from access code
+    const checkRedirectFromAccess = async () => {
       if (!user) return;
-
+      
+      // Create access for the user if they don't have it yet
       try {
         const { data, error } = await supabase
           .from("forum_user_access")
           .select("*")
           .eq("user_id", user.id)
           .single();
-
+        
         if (error && error.code !== "PGRST116") {
           console.error("Error checking forum access:", error);
         }
-
-        setHasAccess(!!data);
-        setLoading(false);
+        
+        // If user doesn't have access yet, create it
+        if (!data) {
+          await supabase
+            .from("forum_user_access")
+            .insert([{ user_id: user.id }]);
+        }
       } catch (error) {
-        console.error("Error checking forum access:", error);
-        setLoading(false);
+        console.error("Error granting forum access:", error);
       }
     };
-
-    checkAccess();
+    
+    checkRedirectFromAccess();
   }, [user, isLoading, navigate]);
 
   if (isLoading || loading) {
@@ -57,6 +57,10 @@ const SecretForum = () => {
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -71,25 +75,7 @@ const SecretForum = () => {
         </p>
       </div>
 
-      {!hasAccess ? (
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock size={20} />
-              Access Required
-            </CardTitle>
-            <CardDescription>
-              This forum requires a special access code to enter. 
-              Please enter your access code below.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AccessCodeEntry onAccessGranted={() => setHasAccess(true)} />
-          </CardContent>
-        </Card>
-      ) : (
-        <ForumCategoryList />
-      )}
+      <ForumCategoryList />
     </div>
   );
 };

@@ -1,11 +1,19 @@
+
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Loader2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import AdminUploadForm from "@/components/AdminUploadForm";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface GalleryImage {
   id: number;
@@ -22,6 +30,7 @@ const Gallery = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const { user } = useAuth();
+  const carouselRef = useRef<HTMLDivElement>(null);
   
   const fetchGalleryImages = async () => {
     try {
@@ -49,8 +58,9 @@ const Gallery = () => {
     fetchGalleryImages();
   }, []);
   
-  const openModal = (src: string) => {
+  const openModal = (src: string, index: number) => {
     setSelectedImage(src);
+    setCurrentImageIndex(index);
     document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
   };
   
@@ -151,42 +161,99 @@ const Gallery = () => {
         )}
         
         {!isLoading && !error && galleryImages.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {galleryImages.map((image) => (
-              <motion.div
-                key={image.id}
-                className="cursor-pointer overflow-hidden rounded-xl shadow-lg group relative bg-white"
-                whileHover={{ scale: 1.03, y: -5 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => openModal(image.image_url)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="relative overflow-hidden" style={{ paddingBottom: '75%' }}>
-                  <img 
-                    src={image.image_url} 
-                    alt={image.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-white font-medium text-sm">{image.title}</p>
-                  </div>
-                  
-                  {user && (
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1.5 h-auto"
-                      onClick={(e) => handleDeleteImage(image.id, e)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  )}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl border-4 border-black shadow-lg">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {galleryImages.map((image, index) => (
+                    <CarouselItem key={image.id}>
+                      <div className="p-1">
+                        <div className="overflow-hidden rounded-xl shadow-lg bg-white">
+                          <div className="relative group">
+                            <div 
+                              className="cursor-pointer relative overflow-hidden pt-[75%]"
+                              onClick={() => openModal(image.image_url, index)}
+                            >
+                              <img 
+                                src={image.image_url} 
+                                alt={image.title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            </div>
+                            
+                            {user && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1.5 h-auto"
+                                onClick={(e) => handleDeleteImage(image.id, e)}
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            )}
+                            
+                            <div className="p-4">
+                              <h3 className="font-bold text-lg">{image.title}</h3>
+                              <p className="text-gray-600 text-sm">{new Date(image.date).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex items-center justify-center mt-4">
+                  <CarouselPrevious className="relative position-static mr-2" />
+                  <CarouselNext className="relative position-static ml-2" />
                 </div>
-              </motion.div>
-            ))}
+              </Carousel>
+              
+              <div className="text-center mt-6">
+                <p className="text-gray-600">Swipe left or right to view more pictures</p>
+              </div>
+            </div>
+            
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6">All Photos</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {galleryImages.map((image, index) => (
+                  <motion.div
+                    key={image.id}
+                    className="cursor-pointer overflow-hidden rounded-xl shadow-lg group relative bg-white"
+                    whileHover={{ scale: 1.03, y: -5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => openModal(image.image_url, index)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <div className="relative overflow-hidden" style={{ paddingBottom: '75%' }}>
+                      <img 
+                        src={image.image_url} 
+                        alt={image.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <p className="text-white font-medium text-sm">{image.title}</p>
+                      </div>
+                      
+                      {user && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1.5 h-auto"
+                          onClick={(e) => handleDeleteImage(image.id, e)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
         
@@ -236,10 +303,13 @@ const Gallery = () => {
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
               >
                 <img 
-                  src={selectedImage} 
-                  alt="Enlarged view" 
+                  src={galleryImages[currentImageIndex]?.image_url} 
+                  alt={galleryImages[currentImageIndex]?.title} 
                   className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                 />
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/50 text-white rounded-b-lg">
+                  <h3 className="font-bold">{galleryImages[currentImageIndex]?.title}</h3>
+                </div>
               </motion.div>
             </motion.div>
           )}

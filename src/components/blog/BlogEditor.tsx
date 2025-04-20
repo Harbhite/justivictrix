@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,6 +75,34 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
+  // Create blog-images bucket if it doesn't exist
+  const ensureBucketExists = async () => {
+    try {
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const blogBucket = buckets?.find(b => b.name === 'blog-images');
+      
+      if (!blogBucket) {
+        const { data, error } = await supabase.storage.createBucket('blog-images', {
+          public: true,
+          fileSizeLimit: 5242880 // 5MB
+        });
+        
+        if (error) {
+          console.error("Error creating bucket:", error);
+          return false;
+        }
+        
+        // Add public policy to the bucket
+        await supabase.storage.from('blog-images').createSignedUrl('dummy.txt', 1);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error ensuring bucket exists:", error);
+      return false;
+    }
+  };
+
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setIsUploading(true);
@@ -101,24 +130,24 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     if (!imageFile || !user) return null;
     
     try {
+      // Ensure bucket exists before uploading
+      const bucketExists = await ensureBucketExists();
+      if (!bucketExists) {
+        toast.error("Failed to create storage bucket");
+        return null;
+      }
+      
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const blogBucket = buckets?.find(b => b.name === 'blog-images');
-      
-      if (!blogBucket) {
-        await supabase.storage.createBucket('blog-images', {
-          public: true,
-          fileSizeLimit: 1024 * 1024 * 2
-        });
-      }
       
       const { error: uploadError, data } = await supabase.storage
         .from('blog-images')
         .upload(fileName, imageFile);
         
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
       
       const { data: urlData } = supabase.storage
         .from('blog-images')
@@ -129,6 +158,27 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
       return null;
+    }
+  };
+
+  const createBlogPostsTable = async () => {
+    try {
+      // Check if blog_posts table exists
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .limit(1);
+      
+      // If error code suggests the table doesn't exist, return false
+      if (error && (error.code === '42P01' || error.message.includes('relation "blog_posts" does not exist'))) {
+        return false;
+      }
+      
+      // Table exists
+      return true;
+    } catch (error) {
+      console.error("Error checking blog_posts table:", error);
+      return false;
     }
   };
 
@@ -146,6 +196,15 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     setIsSaving(true);
 
     try {
+      // Check if table exists
+      const tableExists = await createBlogPostsTable();
+      
+      if (!tableExists) {
+        toast.error("Blog system is not properly set up. Please contact administrator.");
+        setIsSaving(false);
+        return;
+      }
+      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
@@ -162,23 +221,31 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         author_id: user.id,
         is_anonymous: isAnonymous,
         category,
-        image_url: finalImageUrl || null
+        image_url: finalImageUrl || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       if (postId) {
         const { error } = await supabase
           .from("blog_posts")
-          .update(postData)
+          .update({...postData, updated_at: new Date().toISOString()})
           .eq("id", postId);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
         toast.success("Blog post updated successfully");
       } else {
         const { error } = await supabase
           .from("blog_posts")
           .insert([postData]);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Insert error:", error);
+          throw error;
+        }
         toast.success("Blog post published successfully");
       }
 
