@@ -11,21 +11,25 @@ const BentoCard = ({ title, description, icon: Icon, color, expandedContent }: {
   expandedContent?: string;
 }) => {
   return (
-    <Collapsible className={`${color} p-6 rounded-2xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] duration-300`}>
+    <Collapsible className="relative group">
       <CollapsibleTrigger className="w-full text-left">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm">
-            <Icon size={24} className="text-gray-700" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold mb-2 text-gray-800">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
+        <div className={`${color} p-6 rounded-3xl transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px]`}>
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-white/90 backdrop-blur-sm rounded-2xl">
+              <Icon size={24} className="text-gray-700" />
+            </div>
+            <div>
+              <h3 className="text-xl font-medium mb-2 text-gray-800">{title}</h3>
+              <p className="text-sm text-gray-600/90">{description}</p>
+            </div>
           </div>
         </div>
       </CollapsibleTrigger>
       {expandedContent && (
-        <CollapsibleContent className="mt-4 pt-4 border-t border-black/5">
-          <p className="text-sm text-gray-700">{expandedContent}</p>
+        <CollapsibleContent className="absolute inset-x-0 top-full mt-2 z-10">
+          <div className="p-4 rounded-2xl bg-white/95 backdrop-blur-sm shadow-lg border border-gray-100">
+            <p className="text-sm text-gray-700">{expandedContent}</p>
+          </div>
         </CollapsibleContent>
       )}
     </Collapsible>
@@ -38,55 +42,55 @@ const About = () => {
       title: "Our Studies",
       description: "Core legal subjects and methodologies",
       icon: BookOpen,
-      color: "bg-gradient-to-br from-rose-100 to-rose-200",
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
       expandedContent: "Dive deep into Constitutional Law, Criminal Law, and Legal Methods with our comprehensive curriculum designed for future legal professionals."
     },
     {
       title: "Community",
       description: "Supporting each other through law school",
       icon: Users,
-      color: "bg-gradient-to-br from-emerald-100 to-emerald-200",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
       expandedContent: "Join our vibrant community of law students who share resources, study together, and support each other throughout their legal education journey."
     },
     {
       title: "Activities",
       description: "Engaging in practical legal exercises",
       icon: Trophy,
-      color: "bg-gradient-to-br from-amber-100 to-amber-200",
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
       expandedContent: "Participate in moot courts, legal writing workshops, and various law school competitions to gain practical experience."
     },
     {
       title: "Study Groups",
       description: "Collaborative learning sessions",
       icon: Scale,
-      color: "bg-gradient-to-br from-purple-100 to-purple-200",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
       expandedContent: "Regular study groups and discussion sessions help everyone understand complex legal concepts through peer learning."
     },
     {
       title: "Projects",
       description: "Hands-on legal research",
       icon: Brain,
-      color: "bg-gradient-to-br from-blue-100 to-blue-200",
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
       expandedContent: "Work on collaborative legal research projects and case studies that prepare you for real-world legal practice."
     },
     {
       title: "Court Visits",
       description: "Learning from real proceedings",
       icon: Gavel,
-      color: "bg-gradient-to-br from-yellow-100 to-yellow-200",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
       expandedContent: "Regular visits to courts allow students to observe real legal proceedings and learn from practicing lawyers."
     }
   ];
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-16 bg-gradient-to-br from-purple-50/50 to-amber-50/50">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-6xl mx-auto"
       >
-        <h1 className="text-5xl font-black text-law-dark mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+        <h1 className="text-4xl font-medium text-gray-800 mb-8">
           About Our Class
         </h1>
 
@@ -103,14 +107,19 @@ const About = () => {
           ))}
         </div>
 
-        <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-sm"
+        >
           <p className="text-lg mb-4 text-gray-700">
             We are LLB 28, a dynamic class of law students passionate about legal education and professional growth. Our website serves as a central hub for sharing resources, coordinating activities, and fostering collaboration among peers.
           </p>
           <p className="text-lg text-gray-700">
             Together, we navigate through various law subjects, from Constitutional Law to Criminal Law, Civil Procedure, and more. We believe in collaborative learning and helping each other succeed in our legal education journey.
           </p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
