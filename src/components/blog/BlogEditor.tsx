@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +21,6 @@ import {
   Link 
 } from "lucide-react";
 
-// Simple categories for the blog
 const BLOG_CATEGORIES = [
   "Law Updates",
   "Student Life",
@@ -46,7 +44,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Fetch post data if editing existing post
   useEffect(() => {
     if (postId) {
       fetchPost();
@@ -88,7 +85,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       const file = event.target.files[0];
       setImageFile(file);
       
-      // Create a preview URL
       const previewUrl = URL.createObjectURL(file);
       setImageUrl(previewUrl);
       
@@ -101,7 +97,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
-  // Function to actually upload the image to Supabase Storage
   const uploadImageToStorage = async () => {
     if (!imageFile || !user) return null;
     
@@ -109,36 +104,27 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       
-      // Check if blog-images bucket exists, create if not
       const { data: buckets } = await supabase.storage.listBuckets();
       const blogBucket = buckets?.find(b => b.name === 'blog-images');
       
       if (!blogBucket) {
-        const { error: bucketError } = await supabase.storage.createBucket('blog-images', {
-          public: true
+        await supabase.storage.createBucket('blog-images', {
+          public: true,
+          fileSizeLimit: 1024 * 1024 * 2
         });
-        
-        if (bucketError) {
-          console.error("Error creating bucket:", bucketError);
-          throw bucketError;
-        }
       }
       
-      // Upload file
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('blog-images')
         .upload(fileName, imageFile);
         
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
       
-      // Get public URL
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('blog-images')
         .getPublicUrl(fileName);
         
-      return data.publicUrl;
+      return urlData.publicUrl;
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Failed to upload image");
@@ -160,8 +146,8 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     setIsSaving(true);
 
     try {
-      // If we have a new image file, upload it first
       let finalImageUrl = imageUrl;
+      
       if (imageFile) {
         const uploadedUrl = await uploadImageToStorage();
         if (uploadedUrl) {
@@ -169,19 +155,17 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         }
       }
       
-      // Prepare post data
       const postData = {
-        title,
+        title: title.trim(),
         content,
-        excerpt: excerpt || content.substring(0, 150) + "...",
+        excerpt: excerpt.trim() || content.substring(0, 150) + "...",
         author_id: user.id,
         is_anonymous: isAnonymous,
         category,
-        image_url: finalImageUrl || "https://images.unsplash.com/photo-1505664063603-28e48c8ad148?q=80&w=1470&fit=crop"
+        image_url: finalImageUrl || null
       };
 
       if (postId) {
-        // Update existing post
         const { error } = await supabase
           .from("blog_posts")
           .update(postData)
@@ -190,7 +174,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         if (error) throw error;
         toast.success("Blog post updated successfully");
       } else {
-        // Create new post
         const { error } = await supabase
           .from("blog_posts")
           .insert([postData]);
@@ -199,17 +182,15 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         toast.success("Blog post published successfully");
       }
 
-      // Redirect to blog page
       navigate("/blog");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving blog post:", error);
-      toast.error("Failed to save blog post");
+      toast.error(error.message || "Failed to save blog post");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Improved rich text editor functions
   const formatText = (format: string) => {
     const textArea = document.getElementById('content') as HTMLTextAreaElement;
     if (!textArea) return;
@@ -235,7 +216,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         cursorPosition = start + 3;
         break;
       case 'list':
-        // Split by new line and add bullet points
         formattedText = selectedText.split('\n')
           .map(line => `- ${line}`)
           .join('\n');
@@ -261,13 +241,11 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         return;
     }
     
-    // Replace selected text with formatted text
     const textBefore = content.substring(0, start);
     const textAfter = content.substring(end);
     
     setContent(textBefore + formattedText + textAfter);
     
-    // Set cursor position after the formatting is applied
     setTimeout(() => {
       textArea.focus();
       if (selectedText.length > 0) {

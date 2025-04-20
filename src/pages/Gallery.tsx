@@ -1,7 +1,6 @@
-
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { X, Loader2, Trash2 } from "lucide-react";
+import { X, Loader2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const { user } = useAuth();
   
   const fetchGalleryImages = async () => {
@@ -59,14 +59,12 @@ const Gallery = () => {
     document.body.style.overflow = 'auto'; // Re-enable scrolling
   };
   
-  // Handle click outside the image to close modal
   const handleModalClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       closeModal();
     }
   };
 
-  // Function to delete an image
   const handleDeleteImage = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening the modal when clicking delete button
     
@@ -92,6 +90,31 @@ const Gallery = () => {
       }
     }
   };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === galleryImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const previousImage = () => {
+    setCurrentImageIndex((prev) => 
+      prev === 0 ? galleryImages.length - 1 : prev - 1
+    );
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedImage) {
+        if (e.key === 'ArrowRight') nextImage();
+        if (e.key === 'ArrowLeft') previousImage();
+        if (e.key === 'Escape') closeModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, galleryImages.length]);
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -132,10 +155,13 @@ const Gallery = () => {
             {galleryImages.map((image) => (
               <motion.div
                 key={image.id}
-                className="cursor-pointer overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group relative"
-                whileHover={{ scale: 1.03 }}
+                className="cursor-pointer overflow-hidden rounded-xl shadow-lg group relative bg-white"
+                whileHover={{ scale: 1.03, y: -5 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => openModal(image.image_url)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
                 <div className="relative overflow-hidden" style={{ paddingBottom: '75%' }}>
                   <img 
@@ -143,17 +169,16 @@ const Gallery = () => {
                     alt={image.title}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-50 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-sm font-medium">{image.title}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <p className="text-white font-medium text-sm">{image.title}</p>
                   </div>
                   
-                  {/* Admin delete button */}
                   {user && (
                     <Button
                       size="sm"
                       variant="destructive"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1 h-auto"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 p-1.5 h-auto"
                       onClick={(e) => handleDeleteImage(image.id, e)}
                     >
                       <Trash2 size={16} />
@@ -165,34 +190,60 @@ const Gallery = () => {
           </div>
         )}
         
-        {/* Image Modal */}
-        {selectedImage && (
-          <motion.div 
-            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={handleModalClick}
-          >
-            <motion.div
-              className="relative max-w-5xl max-h-[90vh] w-full"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        <AnimatePresence>
+          {selectedImage && (
+            <motion.div 
+              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleModalClick}
             >
+              <Button 
+                variant="ghost"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:bg-white/20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  previousImage();
+                }}
+              >
+                <ChevronLeft size={32} />
+              </Button>
+
+              <Button 
+                variant="ghost"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:bg-white/20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextImage();
+                }}
+              >
+                <ChevronRight size={32} />
+              </Button>
+
               <button 
-                className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+                className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
                 onClick={closeModal}
               >
                 <X size={32} />
               </button>
-              <img 
-                src={selectedImage} 
-                alt="Enlarged view" 
-                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
-              />
+
+              <motion.div
+                className="relative max-w-5xl max-h-[90vh] w-full"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              >
+                <img 
+                  src={selectedImage} 
+                  alt="Enlarged view" 
+                  className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
