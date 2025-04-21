@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +43,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (postId) {
@@ -105,6 +105,18 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       
+      const { data: buckets, error: bucketsError } = await supabase.storage
+        .listBuckets();
+        
+      if (bucketsError) {
+        console.error("Error checking for buckets:", bucketsError);
+        throw new Error("Storage system is not properly configured");
+      }
+      
+      if (!buckets.some(bucket => bucket.name === 'blog-images')) {
+        throw new Error("Blog image storage is not set up correctly");
+      }
+      
       const { error: uploadError, data } = await supabase.storage
         .from('blog-images')
         .upload(fileName, imageFile);
@@ -119,10 +131,29 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         .getPublicUrl(fileName);
         
       return urlData.publicUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading image:", error);
-      toast.error("Failed to upload image");
+      setError(error.message || "Failed to upload image");
       return null;
+    }
+  };
+
+  const checkBlogTableExists = async () => {
+    try {
+      const { error } = await supabase
+        .from("blog_posts")
+        .select("id")
+        .limit(1);
+        
+      if (error) {
+        console.error("Error accessing blog posts table:", error);
+        throw new Error("Blog system is not properly set up. Please contact administrator");
+      }
+      
+      return true;
+    } catch (error: any) {
+      setError(error.message);
+      return false;
     }
   };
 
@@ -138,14 +169,28 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
 
     setIsSaving(true);
+    setError(null);
 
     try {
+      const isTableReady = await checkBlogTableExists();
+      if (!isTableReady) {
+        toast.error("Blog system is not properly set up");
+        setIsSaving(false);
+        return;
+      }
+      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
         const uploadedUrl = await uploadImageToStorage();
         if (uploadedUrl) {
           finalImageUrl = uploadedUrl;
+        } else if (error) {
+          if (!imageUrl) {
+            setIsSaving(false);
+            toast.error(error);
+            return;
+          }
         }
       }
       
@@ -171,15 +216,17 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         }
         toast.success("Blog post updated successfully");
       } else {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from("blog_posts")
-          .insert([postData]);
+          .insert([postData])
+          .select();
 
         if (error) {
           console.error("Insert error:", error);
           throw error;
         }
         toast.success("Blog post published successfully");
+        console.log("Published post:", data);
       }
 
       navigate("/blog");
@@ -260,6 +307,12 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
+          {error}
+        </div>
+      )}
+    
       <div className="space-y-2">
         <Label htmlFor="title">Blog Title</Label>
         <Input
