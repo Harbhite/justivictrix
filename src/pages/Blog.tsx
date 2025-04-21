@@ -35,19 +35,43 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     setIsLoading(true);
     try {
-      // Get all blog posts
+      // Get all blog posts without joining with profiles
       const { data: postsData, error: postsError } = await supabase
         .from('blog_posts')
-        .select(`
-          *,
-          author:author_id(username, full_name, avatar_url)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (postsError) throw postsError;
 
-      // If we have posts
+      // If we have posts, get author details separately for non-anonymous posts
       if (postsData && postsData.length > 0) {
+        // Get all unique author IDs from non-anonymous posts
+        const authorIds = [...new Set(
+          postsData
+            .filter(post => !post.is_anonymous)
+            .map(post => post.author_id)
+        )];
+        
+        // Fetch author details for these IDs
+        const { data: authorsData } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .in('id', authorIds);
+          
+        // Create a map of author details by ID
+        const authorsMap = authorsData ? 
+          authorsData.reduce((map: any, author) => {
+            map[author.id] = author;
+            return map;
+          }, {}) : {};
+          
+        // Add author details to each post
+        postsData.forEach(post => {
+          if (!post.is_anonymous && post.author_id && authorsMap[post.author_id]) {
+            post.author = authorsMap[post.author_id];
+          }
+        });
+
         // Update category counts
         const newCategories = [...categories];
         const categoryCounts = postsData.reduce((acc: any, post) => {

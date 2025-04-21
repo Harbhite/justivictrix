@@ -25,16 +25,29 @@ const BlogPost = () => {
   const fetchPost = async () => {
     setIsLoading(true);
     try {
+      // Simplified query that doesn't join with profiles
       const { data, error } = await supabase
         .from("blog_posts")
-        .select(`
-          *,
-          author:author_id(username, full_name, avatar_url)
-        `)
-        .eq("id", Number(id)) // Convert id to number
+        .select("*")
+        .eq("id", Number(id))
         .single();
 
       if (error) throw error;
+      
+      // If we have a post and it's not anonymous, get the author info separately
+      if (data && !data.is_anonymous && data.author_id) {
+        const { data: authorData, error: authorError } = await supabase
+          .from("profiles")
+          .select("username, full_name, avatar_url")
+          .eq("id", data.author_id)
+          .single();
+          
+        if (!authorError && authorData) {
+          // Add author info to the post object
+          data.author = authorData;
+        }
+      }
+      
       setPost(data);
     } catch (error) {
       console.error("Error fetching blog post:", error);
@@ -114,7 +127,7 @@ const BlogPost = () => {
           {/* Featured Image */}
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
             <img 
-              src={post.image_url} 
+              src={post.image_url || "/placeholder.svg"} 
               alt={post.title}
               className="w-full h-full object-cover"
             />
