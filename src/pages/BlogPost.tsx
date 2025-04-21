@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Edit, Trash } from "lucide-react";
@@ -8,12 +7,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { BlogPost } from "@/types/blog";
 
 const BlogPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +25,6 @@ const BlogPost = () => {
   const fetchPost = async () => {
     setIsLoading(true);
     try {
-      // Simplified query that doesn't join with profiles
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
@@ -34,7 +33,6 @@ const BlogPost = () => {
 
       if (error) throw error;
       
-      // If we have a post and it's not anonymous, get the author info separately
       if (data && !data.is_anonymous && data.author_id) {
         const { data: authorData, error: authorError } = await supabase
           .from("profiles")
@@ -43,7 +41,6 @@ const BlogPost = () => {
           .single();
           
         if (!authorError && authorData) {
-          // Add author info to the post object
           data.author = authorData;
         }
       }
@@ -124,7 +121,6 @@ const BlogPost = () => {
         </button>
 
         <article className="bg-white rounded-xl shadow-md overflow-hidden">
-          {/* Featured Image */}
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
             <img 
               src={post.image_url || "/placeholder.svg"} 
@@ -151,9 +147,7 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-6 sm:p-8">
-            {/* Author edit controls */}
             {user && post.author_id === user.id && (
               <div className="flex justify-end mb-6 gap-2">
                 <Button
@@ -177,7 +171,6 @@ const BlogPost = () => {
               </div>
             )}
 
-            {/* Blog content */}
             <div className="prose max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {post.content}

@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";

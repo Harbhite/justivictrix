@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight, Plus, Edit, Trash } from 'lucide-react';
@@ -6,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { BlogPost } from '@/types/blog';
 
 const Blog = () => {
   const { user } = useAuth();
@@ -13,8 +13,8 @@ const Blog = () => {
   const [category, setCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [featuredPost, setFeaturedPost] = useState<any>(null);
-  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(null);
+  const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   
   // Blog categories
   const categories = [
