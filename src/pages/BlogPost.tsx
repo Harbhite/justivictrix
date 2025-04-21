@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Edit, Trash } from "lucide-react";
@@ -7,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BlogPost } from "@/types/blog";
+import type { BlogPost } from "@/types/blog";
 
 const BlogPost = () => {
   const { id } = useParams();
