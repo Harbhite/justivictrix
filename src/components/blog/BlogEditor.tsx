@@ -64,42 +64,14 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       if (data) {
         setTitle(data.title);
         setContent(data.content);
-        setExcerpt(data.excerpt);
+        setExcerpt(data.excerpt || "");
         setCategory(data.category);
-        setIsAnonymous(data.is_anonymous);
+        setIsAnonymous(data.is_anonymous || false);
         setImageUrl(data.image_url || "");
       }
     } catch (error) {
       console.error("Error fetching post:", error);
       toast.error("Failed to load blog post");
-    }
-  };
-
-  // Create blog-images bucket if it doesn't exist
-  const ensureBucketExists = async () => {
-    try {
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const blogBucket = buckets?.find(b => b.name === 'blog-images');
-      
-      if (!blogBucket) {
-        const { data, error } = await supabase.storage.createBucket('blog-images', {
-          public: true,
-          fileSizeLimit: 5242880 // 5MB
-        });
-        
-        if (error) {
-          console.error("Error creating bucket:", error);
-          return false;
-        }
-        
-        // Add public policy to the bucket
-        await supabase.storage.from('blog-images').createSignedUrl('dummy.txt', 1);
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Error ensuring bucket exists:", error);
-      return false;
     }
   };
 
@@ -130,13 +102,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     if (!imageFile || !user) return null;
     
     try {
-      // Ensure bucket exists before uploading
-      const bucketExists = await ensureBucketExists();
-      if (!bucketExists) {
-        toast.error("Failed to create storage bucket");
-        return null;
-      }
-      
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       
@@ -161,27 +126,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
-  const createBlogPostsTable = async () => {
-    try {
-      // Check if blog_posts table exists
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id')
-        .limit(1);
-      
-      // If error code suggests the table doesn't exist, return false
-      if (error && (error.code === '42P01' || error.message.includes('relation "blog_posts" does not exist'))) {
-        return false;
-      }
-      
-      // Table exists
-      return true;
-    } catch (error) {
-      console.error("Error checking blog_posts table:", error);
-      return false;
-    }
-  };
-
   const saveBlogPost = async () => {
     if (!user) {
       toast.error("You must be logged in to publish a blog post");
@@ -196,15 +140,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     setIsSaving(true);
 
     try {
-      // Check if table exists
-      const tableExists = await createBlogPostsTable();
-      
-      if (!tableExists) {
-        toast.error("Blog system is not properly set up. Please contact administrator.");
-        setIsSaving(false);
-        return;
-      }
-      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
@@ -222,8 +157,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         is_anonymous: isAnonymous,
         category,
         image_url: finalImageUrl || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
       };
 
       if (postId) {
