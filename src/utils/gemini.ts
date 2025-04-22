@@ -20,10 +20,16 @@ export const generateMindMap = async (topic: string) => {
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
+    
+    // Extract JSON from the response - sometimes Gemini might return extra text
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonText = jsonMatch ? jsonMatch[0] : text;
+    
     try {
-      return JSON.parse(text);
+      return JSON.parse(jsonText);
     } catch (e) {
       console.error("Error parsing JSON response:", e);
+      console.log("Raw response:", text);
       return {
         center: topic,
         branches: [{ topic: "Error", children: ["Could not generate mind map. Please try again."] }]
