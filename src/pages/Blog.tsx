@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight, Plus, Edit, Trash } from 'lucide-react';
@@ -5,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { BlogPost } from '@/types/blog';
+import type { BlogPost } from '@/types/blog';
 
 const Blog = () => {
   const { user } = useAuth();
@@ -66,7 +67,7 @@ const Blog = () => {
           }, {}) : {};
           
         // Add author details to each post
-        postsData.forEach(post => {
+        postsData.forEach((post: BlogPost) => {
           if (!post.is_anonymous && post.author_id && authorsMap[post.author_id]) {
             post.author = authorsMap[post.author_id];
           }
