@@ -46,7 +46,7 @@ const BlogPost = () => {
         }
       }
       
-      setPost(data);
+      setPost(data as BlogPost);
     } catch (error) {
       console.error("Error fetching blog post:", error);
       toast.error("Failed to load blog post");
@@ -124,32 +124,32 @@ const BlogPost = () => {
         <article className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
             <img 
-              src={post.image_url || "/placeholder.svg"} 
-              alt={post.title}
+              src={post?.image_url || "/placeholder.svg"} 
+              alt={post?.title}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
               <div className="inline-block bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-gray-700 mb-3">
-                {post.category}
+                {post?.category}
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">{post.title}</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">{post?.title}</h1>
               <div className="flex items-center text-white/90">
                 <Calendar size={16} className="mr-2" />
                 <span className="text-sm mr-4">
-                  {new Date(post.created_at).toLocaleDateString()}
+                  {post?.created_at ? new Date(post.created_at).toLocaleDateString() : ''}
                 </span>
                 <User size={16} className="mr-2" />
                 <span className="text-sm">
-                  {post.is_anonymous 
+                  {post?.is_anonymous 
                     ? "Anonymous" 
-                    : (post.author?.full_name || post.author?.username || "Unknown")}
+                    : (post?.author?.full_name || post?.author?.username || "Unknown")}
                 </span>
               </div>
             </div>
           </div>
 
           <div className="p-6 sm:p-8">
-            {user && post.author_id === user.id && (
+            {user && post?.author_id === user.id && (
               <div className="flex justify-end mb-6 gap-2">
                 <Button
                   variant="outline"
@@ -163,7 +163,7 @@ const BlogPost = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleDeletePost}
+                  onClick={() => handleDeletePost()}
                   className="flex items-center gap-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash size={14} />
@@ -173,9 +173,11 @@ const BlogPost = () => {
             )}
 
             <div className="prose max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {post.content}
-              </ReactMarkdown>
+              {post?.content && (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {post.content}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         </article>
