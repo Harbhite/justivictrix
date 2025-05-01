@@ -127,6 +127,10 @@ const BlogPost = () => {
               src={post?.image_url || "/placeholder.svg"} 
               alt={post?.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg"; 
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
               <div className="inline-block bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-gray-700 mb-3">
@@ -163,7 +167,7 @@ const BlogPost = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleDeletePost()}
+                  onClick={handleDeletePost}
                   className="flex items-center gap-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash size={14} />
