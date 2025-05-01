@@ -1,10 +1,15 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
+import LegalCaseGenerator from "@/components/tools/LegalCaseGenerator";
+import LegalFlashcardGenerator from "@/components/tools/LegalFlashcardGenerator";
+import ArgumentGenerator from "@/components/tools/ArgumentGenerator";
+import CitationGenerator from "@/components/tools/CitationGenerator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
@@ -111,31 +116,94 @@ const Tools = () => {
           </div>
         </div>
 
-        {/* AI Mind Map Generator */}
-        <div className="p-8 bg-green-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        {/* AI Tools Section with Tabs */}
+        <div className="p-8 bg-blue-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <Book size={28} />
-            Legal Mind Map Generator
+            <Sparkles size={28} />
+            AI Legal Assistant Tools
           </h2>
-          <MindMapGenerator />
-        </div>
 
-        {/* AI Notes Generator */}
-        <div className="p-8 bg-blue-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <BookOpen size={28} />
-            Legal Notes Generator
-          </h2>
-          <NotesGenerator />
-        </div>
-
-        {/* Legal Dictionary */}
-        <div className="p-8 bg-purple-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <Book size={28} />
-            Legal Dictionary
-          </h2>
-          <LegalDictionary />
+          <Tabs defaultValue="mind-map" className="w-full">
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-8">
+              <TabsTrigger value="mind-map" className="text-xs md:text-sm">Mind Map</TabsTrigger>
+              <TabsTrigger value="notes" className="text-xs md:text-sm">Study Notes</TabsTrigger>
+              <TabsTrigger value="dictionary" className="text-xs md:text-sm">Dictionary</TabsTrigger>
+              <TabsTrigger value="case-study" className="text-xs md:text-sm">Case Study</TabsTrigger>
+              <TabsTrigger value="flashcards" className="text-xs md:text-sm">Flashcards</TabsTrigger>
+              <TabsTrigger value="arguments" className="text-xs md:text-sm">Arguments</TabsTrigger>
+              <TabsTrigger value="citation" className="text-xs md:text-sm">Citation</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="mind-map">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <BrainCircuit size={20} />
+                  Legal Mind Map Generator
+                </h3>
+                <MindMapGenerator />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notes">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <BookOpen size={20} />
+                  Legal Notes Generator
+                </h3>
+                <NotesGenerator />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="dictionary">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Book size={20} />
+                  Legal Dictionary
+                </h3>
+                <LegalDictionary />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="case-study">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <FileText size={20} />
+                  Legal Case Study Generator
+                </h3>
+                <LegalCaseGenerator />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="flashcards">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <List size={20} />
+                  Legal Flashcards Generator
+                </h3>
+                <LegalFlashcardGenerator />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="arguments">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <MessageSquare size={20} />
+                  Legal Arguments Generator
+                </h3>
+                <ArgumentGenerator />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="citation">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <BookTemplate size={20} />
+                  Legal Citation Generator
+                </h3>
+                <CitationGenerator />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* IRAC Method Guide */}
