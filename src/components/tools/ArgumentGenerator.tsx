@@ -15,7 +15,7 @@ interface Argument {
 const ArgumentGenerator = () => {
   const [topic, setTopic] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [arguments, setArguments] = useState<Argument | null>(null);
+  const [generatedArguments, setGeneratedArguments] = useState<Argument | null>(null);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -26,7 +26,7 @@ const ArgumentGenerator = () => {
     setIsLoading(true);
     try {
       const result = await generateArguments(topic);
-      setArguments(result);
+      setGeneratedArguments(result);
     } catch (error) {
       console.error("Error generating arguments:", error);
       toast.error("Failed to generate arguments");
@@ -36,13 +36,13 @@ const ArgumentGenerator = () => {
   };
 
   const handleCopy = (type: 'pro' | 'contra' | 'all') => {
-    if (!arguments) return;
+    if (!generatedArguments) return;
     
     let textToCopy = '';
     
     if (type === 'pro' || type === 'all') {
       textToCopy += "Arguments in Favor:\n\n";
-      arguments.pro.forEach((arg, i) => {
+      generatedArguments.pro.forEach((arg, i) => {
         textToCopy += `${i + 1}. ${arg}\n`;
       });
     }
@@ -50,7 +50,7 @@ const ArgumentGenerator = () => {
     if (type === 'contra' || type === 'all') {
       if (type === 'all') textToCopy += "\n\n";
       textToCopy += "Arguments Against:\n\n";
-      arguments.contra.forEach((arg, i) => {
+      generatedArguments.contra.forEach((arg, i) => {
         textToCopy += `${i + 1}. ${arg}\n`;
       });
     }
@@ -60,16 +60,16 @@ const ArgumentGenerator = () => {
   };
 
   const handleDownload = () => {
-    if (!arguments) return;
+    if (!generatedArguments) return;
     
     let textToDownload = `Arguments for "${topic}"\n\n`;
     textToDownload += "ARGUMENTS IN FAVOR:\n\n";
-    arguments.pro.forEach((arg, i) => {
+    generatedArguments.pro.forEach((arg, i) => {
       textToDownload += `${i + 1}. ${arg}\n\n`;
     });
     
     textToDownload += "\nARGUMENTS AGAINST:\n\n";
-    arguments.contra.forEach((arg, i) => {
+    generatedArguments.contra.forEach((arg, i) => {
       textToDownload += `${i + 1}. ${arg}\n\n`;
     });
     
@@ -102,7 +102,7 @@ const ArgumentGenerator = () => {
         </Button>
       </div>
 
-      {arguments && (
+      {generatedArguments && (
         <div className="space-y-4">
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => handleCopy('all')}>
@@ -131,7 +131,7 @@ const ArgumentGenerator = () => {
                 </div>
                 
                 <ul className="space-y-4">
-                  {arguments.pro.map((arg, index) => (
+                  {generatedArguments.pro.map((arg, index) => (
                     <li key={index} className="border-l-4 border-green-500 pl-4 py-2">
                       <p className="whitespace-pre-wrap">{arg}</p>
                     </li>
@@ -148,7 +148,7 @@ const ArgumentGenerator = () => {
                 </div>
                 
                 <ul className="space-y-4">
-                  {arguments.contra.map((arg, index) => (
+                  {generatedArguments.contra.map((arg, index) => (
                     <li key={index} className="border-l-4 border-red-500 pl-4 py-2">
                       <p className="whitespace-pre-wrap">{arg}</p>
                     </li>
