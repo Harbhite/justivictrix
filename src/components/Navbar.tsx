@@ -9,7 +9,8 @@ import {
   Book, 
   GalleryHorizontal, 
   UserCircle,
-  Settings
+  Settings,
+  MessageSquare
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +48,7 @@ const Navbar = () => {
     { name: "About us", path: "/about", icon: Book },
     { name: "Mentors", path: "/people", icon: Book },
     { name: "Blog", path: "/blog", icon: Book },
+    { name: "Forum", path: "/secret-forum", icon: MessageSquare },
   ];
 
   const isForumPage = location.pathname.includes("/forum") || location.pathname === "/secret-forum";

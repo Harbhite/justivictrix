@@ -4,12 +4,12 @@ export interface BlogPost {
   title: string;
   content: string;
   excerpt: string;
+  image_url: string;
   author_id: string;
-  is_anonymous: boolean;
   created_at: string;
   updated_at: string;
   category: string;
-  image_url: string;
+  is_anonymous: boolean;
   author?: {
     username?: string;
     full_name?: string;
