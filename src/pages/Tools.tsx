@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, FileContract } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -9,11 +9,12 @@ import LegalCaseGenerator from "@/components/tools/LegalCaseGenerator";
 import LegalFlashcardGenerator from "@/components/tools/LegalFlashcardGenerator";
 import ArgumentGenerator from "@/components/tools/ArgumentGenerator";
 import CitationGenerator from "@/components/tools/CitationGenerator";
+import IracGuideGenerator from "@/components/tools/IracGuideGenerator";
+import ContractGenerator from "@/components/tools/ContractGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
-  const [iracOpen, setIracOpen] = useState(false);
   const [referenceOpen, setReferenceOpen] = useState(false);
 
   const addCourse = () => {
@@ -124,7 +125,7 @@ const Tools = () => {
           </h2>
 
           <Tabs defaultValue="mind-map" className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-8">
+            <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 mb-8">
               <TabsTrigger value="mind-map" className="text-xs md:text-sm">Mind Map</TabsTrigger>
               <TabsTrigger value="notes" className="text-xs md:text-sm">Study Notes</TabsTrigger>
               <TabsTrigger value="dictionary" className="text-xs md:text-sm">Dictionary</TabsTrigger>
@@ -132,6 +133,8 @@ const Tools = () => {
               <TabsTrigger value="flashcards" className="text-xs md:text-sm">Flashcards</TabsTrigger>
               <TabsTrigger value="arguments" className="text-xs md:text-sm">Arguments</TabsTrigger>
               <TabsTrigger value="citation" className="text-xs md:text-sm">Citation</TabsTrigger>
+              <TabsTrigger value="irac" className="text-xs md:text-sm">IRAC Guide</TabsTrigger>
+              <TabsTrigger value="contract" className="text-xs md:text-sm">Contracts</TabsTrigger>
             </TabsList>
             
             <TabsContent value="mind-map">
@@ -203,69 +206,27 @@ const Tools = () => {
                 <CitationGenerator />
               </div>
             </TabsContent>
+
+            <TabsContent value="irac">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <GanttChart size={20} />
+                  AI IRAC Analysis Generator
+                </h3>
+                <IracGuideGenerator />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contract">
+              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <FileContract size={20} />
+                  Legal Contract Generator
+                </h3>
+                <ContractGenerator />
+              </div>
+            </TabsContent>
           </Tabs>
-        </div>
-
-        {/* IRAC Method Guide */}
-        <div className="p-8 bg-red-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-bold mb-6 flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <MessageSquare size={28} />
-              IRAC Method Guide
-            </span>
-            <button
-              onClick={() => setIracOpen(!iracOpen)}
-              className="text-xl border-2 border-black px-4 py-2 hover:bg-red-200"
-            >
-              {iracOpen ? "Close" : "Open"} Guide
-            </button>
-          </h2>
-
-          {iracOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-6"
-            >
-              <div className="p-6 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-3">Issue (What's the legal question?)</h3>
-                <ul className="list-disc ml-6 space-y-2">
-                  <li>Identify the specific legal problem or question that needs to be resolved</li>
-                  <li>Focus on the key legal issues, not just factual disputes</li>
-                  <li>Frame the issue as a question that can be answered with legal analysis</li>
-                </ul>
-              </div>
-
-              <div className="p-6 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-3">Rule (What law applies?)</h3>
-                <ul className="list-disc ml-6 space-y-2">
-                  <li>State the relevant legal rules from statutes, cases, or regulations</li>
-                  <li>Include any tests or elements that courts use to apply the rule</li>
-                  <li>Cite specific legal authorities that establish the rule</li>
-                </ul>
-              </div>
-
-              <div className="p-6 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-3">Analysis (How does the law apply?)</h3>
-                <ul className="list-disc ml-6 space-y-2">
-                  <li>Apply the rule to the specific facts of your case</li>
-                  <li>Explain why the facts satisfy or fail to satisfy each element of the rule</li>
-                  <li>Compare and contrast with precedent cases</li>
-                  <li>Consider counter-arguments and address them</li>
-                </ul>
-              </div>
-
-              <div className="p-6 bg-white border-2 border-black">
-                <h3 className="text-xl font-bold mb-3">Conclusion (What's the outcome?)</h3>
-                <ul className="list-disc ml-6 space-y-2">
-                  <li>State your final conclusion based on the analysis</li>
-                  <li>Briefly summarize the key reasons supporting your conclusion</li>
-                  <li>Address any practical implications or next steps</li>
-                </ul>
-              </div>
-            </motion.div>
-          )}
         </div>
 
         {/* Citation Reference Guide */}

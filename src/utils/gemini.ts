@@ -173,8 +173,12 @@ export const generateFlashcards = async (topic: string) => {
     const text = result.response.text();
     
     try {
-      return parseJsonResponse(text);
+      // Try to parse as JSON array
+      const jsonText = text.match(/\[[\s\S]*\]/) ? text.match(/\[[\s\S]*\]/)![0] : text;
+      return JSON.parse(jsonText);
     } catch (e) {
+      console.error("Error parsing flashcard JSON response:", e);
+      console.log("Raw flashcard response:", text);
       return [
         { 
           question: "Error generating flashcards", 
