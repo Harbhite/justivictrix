@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Edit, Trash } from "lucide-react";
@@ -34,19 +33,22 @@ const BlogPost = () => {
 
       if (error) throw error;
       
-      if (data && !data.is_anonymous && data.author_id) {
+      const blogPost: BlogPost = data;
+
+      // If the post is not anonymous, fetch the author details
+      if (blogPost && !blogPost.is_anonymous && blogPost.author_id) {
         const { data: authorData, error: authorError } = await supabase
           .from("profiles")
           .select("username, full_name, avatar_url")
-          .eq("id", data.author_id)
+          .eq("id", blogPost.author_id)
           .single();
           
         if (!authorError && authorData) {
-          data.author = authorData;
+          blogPost.author = authorData;
         }
       }
       
-      setPost(data as BlogPost);
+      setPost(blogPost);
     } catch (error) {
       console.error("Error fetching blog post:", error);
       toast.error("Failed to load blog post");

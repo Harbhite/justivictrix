@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Plus, Edit, Trash, Download } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -55,9 +54,15 @@ const Events = () => {
   // Add event mutation
   const addEventMutation = useMutation({
     mutationFn: async (eventData: any) => {
+      // Add a unique ID to ensure the insert works properly
+      const eventWithId = {
+        ...eventData,
+        id: Date.now()
+      };
+      
       const { data, error } = await supabase
         .from("events")
-        .insert([eventData])
+        .insert([eventWithId])
         .select();
       
       if (error) throw error;

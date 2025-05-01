@@ -90,8 +90,12 @@ ${branch.children.map(child => `- ${child}`).join('\n')}
           placeholder="Enter a legal topic..."
           className="flex-1"
         />
-        <Button onClick={handleGenerate} disabled={isLoading}>
-          Generate Mind Map
+        <Button 
+          onClick={handleGenerate} 
+          disabled={isLoading}
+          className="bg-green-500 hover:bg-green-600 text-white"
+        >
+          {isLoading ? "Generating..." : "Generate Mind Map"}
         </Button>
       </div>
 
@@ -108,15 +112,26 @@ ${branch.children.map(child => `- ${child}`).join('\n')}
             </Button>
           </div>
 
-          <div id="mind-map" className="bg-white p-6 rounded-lg border-2 border-black">
-            <h3 className="text-xl font-bold text-center mb-4">{mindMap.center}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div id="mind-map" className="bg-white p-6 rounded-lg border-2 border-black shadow-lg">
+            <h3 className="text-2xl font-bold text-center mb-6 text-law-dark border-b-2 pb-2">
+              {mindMap.center}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mindMap.branches.map((branch, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-bold mb-2">{branch.topic}</h4>
-                  <ul className="list-disc list-inside">
+                <div 
+                  key={index} 
+                  className="p-4 bg-gray-50 rounded-lg border-2 border-gray-300 shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <h4 className="font-bold text-lg mb-3 text-law-dark">{branch.topic}</h4>
+                  <ul className="space-y-2">
                     {branch.children.map((child, childIndex) => (
-                      <li key={childIndex} className="text-sm">{child}</li>
+                      <li 
+                        key={childIndex} 
+                        className="text-sm flex items-start"
+                      >
+                        <span className="inline-block h-2 w-2 rounded-full bg-blue-500 mt-1.5 mr-2"></span>
+                        <span className="text-gray-700">{child}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>

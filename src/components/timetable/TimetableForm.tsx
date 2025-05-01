@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +50,15 @@ const TimetableForm = ({
 
   const addClassMutation = useMutation({
     mutationFn: async (classData: any) => {
+      // Add a unique ID to ensure the insert works properly
+      const classWithId = {
+        ...classData,
+        id: Date.now()
+      };
+      
       const { data, error } = await supabase
         .from("timetable")
-        .insert([classData])
+        .insert([classWithId])
         .select();
       
       if (error) throw error;
