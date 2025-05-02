@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, File } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -8,8 +9,8 @@ import LegalCaseGenerator from "@/components/tools/LegalCaseGenerator";
 import LegalFlashcardGenerator from "@/components/tools/LegalFlashcardGenerator";
 import ArgumentGenerator from "@/components/tools/ArgumentGenerator";
 import CitationGenerator from "@/components/tools/CitationGenerator";
-import IracGuideGenerator from "@/components/tools/IracGuideGenerator";
-import ContractGenerator from "@/components/tools/ContractGenerator";
+import IracGenerator from "@/components/tools/IracGenerator";
+import CaseBriefGenerator from "@/components/tools/CaseBriefGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Tools = () => {
@@ -133,7 +134,7 @@ const Tools = () => {
               <TabsTrigger value="arguments" className="text-xs md:text-sm">Arguments</TabsTrigger>
               <TabsTrigger value="citation" className="text-xs md:text-sm">Citation</TabsTrigger>
               <TabsTrigger value="irac" className="text-xs md:text-sm">IRAC Guide</TabsTrigger>
-              <TabsTrigger value="contract" className="text-xs md:text-sm">Contracts</TabsTrigger>
+              <TabsTrigger value="brief" className="text-xs md:text-sm">Case Brief</TabsTrigger>
             </TabsList>
             
             <TabsContent value="mind-map">
@@ -212,17 +213,17 @@ const Tools = () => {
                   <GanttChart size={20} />
                   AI IRAC Analysis Generator
                 </h3>
-                <IracGuideGenerator />
+                <IracGenerator />
               </div>
             </TabsContent>
 
-            <TabsContent value="contract">
+            <TabsContent value="brief">
               <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <File size={20} />
-                  Legal Contract Generator
+                  <Gavel size={20} />
+                  Case Brief Generator
                 </h3>
-                <ContractGenerator />
+                <CaseBriefGenerator />
               </div>
             </TabsContent>
           </Tabs>

@@ -3,9 +3,11 @@ import { useState } from "react";
 import { generateNotes } from "@/utils/gemini";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, BookOpen } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const NotesGenerator = () => {
   const [topic, setTopic] = useState("");
@@ -62,30 +64,42 @@ const NotesGenerator = () => {
           placeholder="Enter a legal topic for notes..."
           className="flex-1"
         />
-        <Button onClick={handleGenerate} disabled={isLoading}>
-          Generate Notes
+        <Button 
+          onClick={handleGenerate} 
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          {isLoading ? "Generating..." : "Generate Notes"}
         </Button>
       </div>
 
       {notes && (
-        <div className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopy}>
-              <Copy className="mr-2" size={16} />
-              Copy
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="mr-2" size={16} />
-              Export Text
-            </Button>
+        <Card className="mt-4 border-2 border-gray-300 shadow-lg overflow-hidden">
+          <div className="flex justify-between items-center p-3 bg-blue-50 border-b">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              <h3 className="font-bold text-blue-800">Generated Notes: {topic}</h3>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-blue-300 hover:bg-blue-50">
+                <Copy className="mr-2" size={16} />
+                Copy
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport} className="border-blue-300 hover:bg-blue-50">
+                <Download className="mr-2" size={16} />
+                Export
+              </Button>
+            </div>
           </div>
-
-          <Textarea
-            value={notes}
-            readOnly
-            className="min-h-[300px] font-mono text-sm"
-          />
-        </div>
+          
+          <CardContent className="p-6 max-h-[400px] overflow-y-auto bg-white">
+            <div className="prose max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {notes}
+              </ReactMarkdown>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
