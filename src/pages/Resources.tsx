@@ -7,6 +7,16 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ResourceUploadForm from "@/components/ResourceUploadForm";
 import { AuthContext } from "@/App";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Resources = () => {
   const navigate = useNavigate();
@@ -14,6 +24,8 @@ const Resources = () => {
   const { user } = useContext(AuthContext);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const resourcesContainerRef = useRef<HTMLDivElement>(null);
+  const [resourceToDelete, setResourceToDelete] = useState<number | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Check if user is admin (for pinning)
   const isAdmin = user?.email === "swisssunny1@gmail.com";
@@ -34,6 +46,62 @@ const Resources = () => {
 
       return data || [];
     },
+  });
+
+  // Delete resource
+  const deleteResourceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      // First get the resource to find the file URL
+      const { data: resourceData, error: fetchError } = await supabase
+        .from("resources")
+        .select("file_url")
+        .eq("id", id)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Extract filename from URL
+      if (resourceData && resourceData.file_url) {
+        const filePathParts = resourceData.file_url.split('/');
+        const fileName = filePathParts[filePathParts.length - 1];
+        
+        // Delete from storage first
+        const { error: storageError } = await supabase.storage
+          .from('resources')
+          .remove([fileName]);
+        
+        if (storageError) {
+          console.error("Storage deletion error:", storageError);
+          // Continue with database deletion even if storage deletion fails
+        }
+      }
+      
+      // Now delete the database record
+      const { error } = await supabase
+        .from("resources")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+      toast.success("Resource deleted successfully");
+      
+      // If the deleted resource was the selected one, clear the selection
+      if (selectedResource && resourceToDelete === selectedResource.id) {
+        setSelectedResource(null);
+      }
+      
+      setResourceToDelete(null);
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to delete resource");
+      console.error(error);
+      setResourceToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
   });
 
   // Update resource pin status
@@ -58,26 +126,6 @@ const Resources = () => {
     }
   });
 
-  // Delete resource
-  const deleteResourceMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from("resources")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] });
-      toast.success("Resource deleted");
-    },
-    onError: (error) => {
-      toast.error("Failed to delete resource");
-      console.error(error);
-    }
-  });
-
   // Toggle pin status
   const handleTogglePin = (resource: any) => {
     togglePinMutation.mutate({ 
@@ -86,10 +134,16 @@ const Resources = () => {
     });
   };
 
-  // Delete resource
-  const handleDeleteResource = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this resource?")) {
-      deleteResourceMutation.mutate(id);
+  // Confirm delete resource
+  const handleDeleteConfirmation = (id: number) => {
+    setResourceToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Process deletion after confirmation
+  const confirmDelete = () => {
+    if (resourceToDelete !== null) {
+      deleteResourceMutation.mutate(resourceToDelete);
     }
   };
 
@@ -292,7 +346,18 @@ const Resources = () => {
               transition={{ duration: 0.6 }}
               className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
             >
-              <h2 className="text-2xl font-bold mb-4">{selectedResource.title}</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">{selectedResource.title}</h2>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDeleteConfirmation(selectedResource.id)}
+                    className="px-3 py-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors flex items-center gap-2"
+                  >
+                    <Trash size={18} />
+                    Delete Resource
+                  </button>
+                )}
+              </div>
               <div className="w-full h-[600px] border-2 border-black mb-4">
                 <iframe
                   src={`${selectedResource.file_url}#toolbar=1`}
@@ -420,7 +485,7 @@ const Resources = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteResource(resource.id);
+                              handleDeleteConfirmation(resource.id);
                             }}
                             className="px-4 py-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors flex items-center gap-2 inline-block"
                           >
@@ -437,6 +502,35 @@ const Resources = () => {
           )}
         </div>
       </motion.div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Resource?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the resource
+              and remove the file from storage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setResourceToDelete(null);
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
