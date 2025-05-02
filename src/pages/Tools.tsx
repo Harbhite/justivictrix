@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, FileContract } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, File } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -220,7 +219,7 @@ const Tools = () => {
             <TabsContent value="contract">
               <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <FileContract size={20} />
+                  <File size={20} />
                   Legal Contract Generator
                 </h3>
                 <ContractGenerator />
