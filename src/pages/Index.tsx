@@ -1,522 +1,851 @@
 
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowDown, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  BookOpen,
+  Calendar,
+  GraduationCap,
+  Users,
+  FileText,
+  PenTool,
+  Book,
+  LayoutGrid,
+  ArrowRight,
+  Clock,
+  Trophy,
+  Globe,
+  Briefcase,
+  Heart,
+  Share2,
+  UserCheck,
+  VoteIcon,
+  Megaphone,
+  MessageCircle,
+  Sparkles,
+  Settings,
+  ExternalLink,
+  School,
+  Lightbulb
+} from "lucide-react";
 
-const Index = () => {
-  // Interactive features
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+export default function Index() {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const testimonialRef = useRef<HTMLDivElement>(null);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
   
-  // Handle mouse movement for dynamic effects
-  const handleMouseMove = (e) => {
-    setMousePosition({
-      x: e.clientX / window.innerWidth - 0.5,
-      y: e.clientY / window.innerHeight - 0.5
-    });
+  const { data: events } = useQuery({
+    queryKey: ["homepage-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("date", { ascending: true })
+        .limit(3);
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const testimonials = [
+    {
+      quote: "The law program has completely transformed my understanding of legal systems and prepared me well for my career journey.",
+      author: "Sarah Johnson",
+      role: "Class of 2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=faces"
+    },
+    {
+      quote: "The professors are incredibly knowledgeable and supportive. I've gained practical skills that I use every day in my practice.",
+      author: "Michael Chen",
+      role: "Class of 2021",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=faces"
+    },
+    {
+      quote: "Studying here opened doors to opportunities I never thought possible, including my dream internship at the Supreme Court.",
+      author: "Aisha Patel",
+      role: "Class of 2022",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=faces"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+
+  const nextTestimonial = () => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
   
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-  
-  // Quick links section for class resources
-  const quickLinks = [
-    {
-      name: "Class Members",
-      icon: <UsersRound size={24} />,
-      path: "/people",
-      color: "bg-blue-100 text-blue-600"
-    },
-    {
-      name: "Course Materials",
-      icon: <BookOpen size={24} />,
-      path: "/resources",
-      color: "bg-green-100 text-green-600"
-    },
-    {
-      name: "Class Events",
-      icon: <Calendar size={24} />,
-      path: "/events",
-      color: "bg-purple-100 text-purple-600"
-    },
-    {
-      name: "Timetable",
-      icon: <ClipboardList size={24} />,
-      path: "/timetable",
-      color: "bg-amber-100 text-amber-600"
-    },
-    {
-      name: "Study Tools",
-      icon: <Lightbulb size={24} />,
-      path: "/tools",
-      color: "bg-red-100 text-red-600"
-    }
+  const careerPaths = [
+    { title: "Corporate Law", icon: <Briefcase className="h-6 w-6" />, description: "Advise businesses on legal matters and corporate strategy" },
+    { title: "Public Interest", icon: <Heart className="h-6 w-6" />, description: "Work for nonprofits and advocate for societal causes" },
+    { title: "Criminal Justice", icon: <VoteIcon className="h-6 w-6" />, description: "Serve as a prosecutor or defense attorney in criminal cases" },
+    { title: "International Law", icon: <Globe className="h-6 w-6" />, description: "Practice law across borders and in international organizations" }
   ];
   
-  // Upcoming events
-  const upcomingEvents = [
+  const alumniSpotlights = [
     {
-      title: "Constitutional Law Mid-Semester Test",
-      date: "May 15, 2023",
-      time: "10:00 AM",
-      location: "Law Lecture Theatre (LLT)"
+      name: "David Garcia",
+      graduation: "Class of 2015",
+      position: "Partner at Wilson & Reed LLP",
+      achievement: "Named Rising Star by Legal 500",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=faces"
     },
     {
-      title: "Moot Court Competition",
-      date: "May 22, 2023",
-      time: "2:00 PM",
-      location: "Wole Olanipekun Lecture Theatre"
+      name: "Priya Sharma",
+      graduation: "Class of 2010",
+      position: "Senior Counsel at Tech Innovations Inc.",
+      achievement: "Led landmark IP rights case in tech sector",
+      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=faces"
     },
     {
-      title: "Criminal Law Group Study",
-      date: "May 25, 2023",
-      time: "4:00 PM",
-      location: "New Faculty of Law Complex"
+      name: "James Wilson",
+      graduation: "Class of 2018",
+      position: "Environmental Law Specialist",
+      achievement: "Published in Harvard Law Review",
+      image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop&crop=faces"
     }
   ];
-  
-  // Class announcements
-  const announcements = [
+
+  const recentAnnouncements = [
     {
-      title: "Class Rep Election Results",
-      content: "Congratulations to Oluwadare Agbede for being elected as our new Class Representative!",
-      date: "April 30, 2023"
+      title: "Fall Registration Now Open",
+      date: "2025-04-28",
+      category: "Academic",
+      brief: "Registration for fall semester courses is now open through the student portal."
     },
     {
-      title: "Revised Exam Timetable Posted",
-      content: "Please check the updated exam schedule on the timetable page",
-      date: "May 2, 2023"
+      title: "New Legal Clinic Partnership",
+      date: "2025-04-22",
+      category: "Program",
+      brief: "The university has established a new partnership with the City Legal Aid Center."
     },
     {
-      title: "Law Clinic Sign-up Open",
-      content: "Volunteer opportunities are now available at the campus legal aid clinic",
-      date: "May 5, 2023"
+      title: "Summer Internship Opportunities",
+      date: "2025-04-15",
+      category: "Career",
+      brief: "Multiple summer internship positions are available at top law firms."
+    }
+  ];
+
+  const communityHighlights = [
+    {
+      title: "Pro Bono Project Success",
+      description: "Our student-led pro bono project has provided legal assistance to over 200 community members this semester.",
+      icon: <UserCheck className="h-10 w-10 text-amber-500" />
+    },
+    {
+      title: "Law Review Publication",
+      description: "The spring edition of our student law review has been published, featuring groundbreaking research.",
+      icon: <FileText className="h-10 w-10 text-blue-500" />
+    },
+    {
+      title: "Debate Team Victory",
+      description: "Our debate team won the national championship, marking the third consecutive victory for our university.",
+      icon: <Trophy className="h-10 w-10 text-green-500" />
+    }
+  ];
+
+  const researchCenters = [
+    {
+      title: "Center for Constitutional Law",
+      description: "Studying modern constitutional challenges and precedents"
+    },
+    {
+      title: "Institute for Legal Tech Innovation",
+      description: "Exploring how technology is transforming legal practice"
+    },
+    {
+      title: "Environmental Law Research Group",
+      description: "Addressing climate change legal frameworks and policies"
     }
   ];
 
   return (
-    <div 
-      className="relative bg-[#f8f6f3] min-h-screen overflow-x-hidden"
-      onMouseMove={handleMouseMove}
-    >
-      {/* Decorative Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div 
-          className="absolute w-64 h-64 rounded-full bg-yellow-100 blur-3xl opacity-40"
-          style={{ 
-            top: '10%', 
-            left: '5%',
-            transform: `translate(${mousePosition.x * 20}px, ${mousePosition.y * 20}px)`
-          }}
-        ></div>
-        <div 
-          className="absolute w-96 h-96 rounded-full bg-blue-100 blur-3xl opacity-30"
-          style={{ 
-            bottom: '15%', 
-            right: '10%',
-            transform: `translate(${mousePosition.x * -30}px, ${mousePosition.y * -30}px)`
-          }}
-        ></div>
-      </div>
-
+    <div className="relative min-h-screen">
       {/* Hero Section */}
-      <motion.div 
-        initial={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative max-w-7xl mx-auto px-4 pt-20 pb-40 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[90vh]"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-3xl"
-        >
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Welcome to University of Ibadan <span className="text-blue-600">Law Class of 2028</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Your central hub for class resources, events, and connecting with fellow law students at the University of Ibadan.
-          </p>
-          
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="flex flex-wrap justify-center gap-4 mb-16"
-          >
-            <Link 
-              to="/resources" 
-              className="group relative overflow-hidden bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-blue-700 transition-all duration-300 flex items-center"
-            >
-              <span>Explore Resources</span>
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-              <motion.div 
-                className="absolute inset-0 bg-white"
-                initial={{ scale: 0, opacity: 0 }}
-                whileHover={{ scale: 1.5, opacity: 0.1 }}
-                transition={{ duration: 0.4 }}
-              />
-            </Link>
-            
-            <Link 
-              to="/people" 
-              className="group relative overflow-hidden bg-gray-100 text-gray-800 px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-200 transition-all duration-300 flex items-center"
-            >
-              <span>Meet Classmates</span>
-              <UsersRound className="ml-2 group-hover:translate-x-1 transition-transform" />
-              <motion.div 
-                className="absolute inset-0 bg-gray-400"
-                initial={{ scale: 0, opacity: 0 }}
-                whileHover={{ scale: 1.5, opacity: 0.1 }}
-                transition={{ duration: 0.4 }}
-              />
-            </Link>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="flex justify-center"
-          >
+      <section className="bg-gradient-to-r from-gray-900 to-gray-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+        <div className="container mx-auto px-4 pt-20 pb-32 relative z-10">
+          <div className="max-w-3xl">
             <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                window.scrollTo({
-                  top: window.innerHeight,
-                  behavior: "smooth"
-                });
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="mb-8"
             >
-              <span className="text-gray-500 mb-2">Scroll to Explore</span>
-              <ArrowDown className="text-gray-500" />
+              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white mb-6 leading-tight">
+                Your Journey in
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 block">
+                  Legal Excellence
+                </span>
+                Begins Here
+              </h1>
+              <p className="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl">
+                Navigate your law school experience with our comprehensive resource hub. Access course materials, collaborate with peers, and excel in your legal education.
+              </p>
             </motion.div>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button 
+                onClick={() => navigate('/resources')}
+                className="bg-green-500 hover:bg-green-600 text-white py-6 px-8 rounded-md text-lg flex items-center gap-2"
+              >
+                <FileText className="w-5 h-5" />
+                Course Resources
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/timetable')}
+                className="border-2 border-white text-white py-6 px-8 rounded-md text-lg flex items-center gap-2 hover:bg-white/10"
+              >
+                <Calendar className="w-5 h-5" />
+                Class Schedule
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Decorative elements */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1.5, delay: 0.5 }}
+          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-green-500 blur-3xl"
+        ></motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1.5, delay: 0.8 }}
+          className="absolute bottom-10 left-40 w-80 h-80 rounded-full bg-blue-500 blur-3xl"
+        ></motion.div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="md:w-1/2">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">About the Platform</h2>
+              <p className="text-gray-700 text-lg mb-6">
+                This platform serves as your central hub for navigating law school successfully. We've designed it to consolidate all the resources and tools you need in one place.
+              </p>
+              <p className="text-gray-700 text-lg mb-8">
+                From lecture materials and timetables to study groups and events, everything is organized to enhance your academic journey and foster a supportive learning community.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Course Resources</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Event Calendar</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Users className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Study Groups</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Discussion Forum</span>
+                </div>
+              </div>
+            </div>
+            <div className="md:w-1/2">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-green-100 rounded-xl transform rotate-3"></div>
+                <img
+                  src="https://images.unsplash.com/photo-1589391886645-d51941baf7fb?q=80&w=700&auto=format&fit=crop"
+                  alt="Law students studying"
+                  className="relative rounded-lg shadow-lg border-4 border-white z-10"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Quick Access Section */}
-      <div className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Quick Access to Class Resources</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Everything you need for your law studies in one place
-            </p>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {quickLinks.map((link, index) => (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Quick Access</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { title: "Course Resources", icon: <BookOpen className="h-8 w-8" />, path: "/resources" },
+              { title: "Timetable", icon: <Calendar className="h-8 w-8" />, path: "/timetable" },
+              { title: "Study Groups", icon: <Users className="h-8 w-8" />, path: "/study-groups" },
+              { title: "Legal Tools", icon: <PenTool className="h-8 w-8" />, path: "/tools" }
+            ].map((item, index) => (
               <motion.div
-                key={link.name}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow border-2 border-gray-100 overflow-hidden"
               >
-                <Link to={link.path}>
-                  <motion.div 
-                    className={`h-full ${link.color} rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300`}
-                    whileHover={{ y: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="bg-white p-3 rounded-full mb-4">
-                      {link.icon}
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{link.name}</h3>
-                    <p className="text-sm text-gray-600">Access your {link.name.toLowerCase()}</p>
-                  </motion.div>
+                <Link to={item.path} className="flex flex-col items-center p-6 text-center h-full">
+                  <div className="bg-green-50 p-4 rounded-full mb-4">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                  <div className="mt-auto">
+                    <span className="text-green-600 flex items-center justify-center mt-2">
+                      Access <ArrowRight className="h-4 w-4 ml-1" />
+                    </span>
+                  </div>
                 </Link>
               </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Upcoming Events Section */}
-      <div className="py-16 bg-gradient-to-b from-[#f8f6f3] to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row md:items-center md:justify-between mb-12"
-          >
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Upcoming Class Events</h2>
-              <p className="text-gray-600">Stay updated with tests, activities, and deadlines</p>
-            </div>
-            <Link 
-              to="/events"
-              className="mt-4 md:mt-0 inline-flex items-center text-blue-600 font-medium hover:text-blue-800 transition-colors"
-            >
-              View All Events
-              <ArrowRight className="ml-1" size={16} />
-            </Link>
-          </motion.div>
+      {/* Academic Resources Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+            <h2 className="text-3xl font-bold">Academic Resources</h2>
+            <Button className="mt-4 md:mt-0 bg-green-500 hover:bg-green-600" onClick={() => navigate('/resources')}>
+              View All Resources <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {upcomingEvents.map((event, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-green-50 rounded-xl p-6 border border-green-100"
+            >
+              <div className="bg-white p-4 rounded-full inline-block mb-4">
+                <Book className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Course Materials</h3>
+              <p className="text-gray-700 mb-4">
+                Access lecture notes, slides, reading materials, and supplementary resources for all your courses.
+              </p>
+              <Link to="/resources" className="text-green-600 font-medium flex items-center">
+                Browse Materials <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-blue-50 rounded-xl p-6 border border-blue-100"
+            >
+              <div className="bg-white p-4 rounded-full inline-block mb-4">
+                <PenTool className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Study Tools</h3>
+              <p className="text-gray-700 mb-4">
+                Enhance your learning with case briefs, IRAC guides, citation tools, and legal dictionaries.
+              </p>
+              <Link to="/tools" className="text-blue-600 font-medium flex items-center">
+                Explore Tools <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-purple-50 rounded-xl p-6 border border-purple-100"
+            >
+              <div className="bg-white p-4 rounded-full inline-block mb-4">
+                <LayoutGrid className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Course Catalog</h3>
+              <p className="text-gray-700 mb-4">
+                View comprehensive course descriptions, professor information, and prerequisite details.
+              </p>
+              <Link to="/courses" className="text-purple-600 font-medium flex items-center">
+                View Catalog <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Courses Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-12 text-center">Core Courses</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { id: "LAW101", title: "Introduction to Law", credit: "3 Credits" },
+              { id: "LAW201", title: "Constitutional Law", credit: "4 Credits" },
+              { id: "LAW205", title: "Criminal Law", credit: "3 Credits" },
+              { id: "LAW210", title: "Contract Law", credit: "4 Credits" },
+              { id: "LAW215", title: "Tort Law", credit: "3 Credits" },
+              { id: "LAW301", title: "International Law", credit: "3 Credits" }
+            ].map((course, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300"
+                className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden"
               >
-                <div className="flex items-start">
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <Calendar className="text-blue-600" size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="font-bold text-gray-900 mb-1">{event.title}</h3>
-                    <p className="text-gray-800 text-sm mb-1">{event.date} • {event.time}</p>
-                    <p className="text-gray-600 text-sm">{event.location}</p>
+                <div className="border-l-4 border-green-500 p-6">
+                  <h3 className="font-bold text-lg mb-1">{course.title}</h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm">{course.id}</span>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                      {course.credit}
+                    </span>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Class Announcements Section */}
-      <div className="py-16 bg-[#f8f6f3]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Class Announcements</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Important updates from class representatives and faculty
-            </p>
-          </motion.div>
           
-          <div className="space-y-4">
-            {announcements.map((announcement, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg p-6 border-l-4 border-blue-500 hover:shadow-md transition-all duration-300"
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-2">{announcement.title}</h3>
-                    <p className="text-gray-600">{announcement.content}</p>
-                  </div>
-                  <div className="mt-2 md:mt-0 text-sm text-gray-500">{announcement.date}</div>
-                </div>
-              </motion.div>
-            ))}
+          <div className="text-center mt-10">
+            <Link to="/courses">
+              <Button variant="outline" className="border-2 border-gray-800">
+                View All Courses <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Interactive Class Section */}
-      <div className="relative py-20 bg-blue-600 text-white overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop')",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
-        ></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold mb-6">Experience the Journey Together</h2>
-            <p className="text-xl mb-10">
-              From orientation to graduation, we're building memories and professional skills as a class.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-4">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center bg-white text-blue-600 px-6 py-3 rounded-lg font-medium cursor-pointer"
-                onClick={() => {
-                  window.open('https://wa.me/2349014412044', '_blank');
-                }}
-              >
-                Join Class WhatsApp Group
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center bg-transparent border-2 border-white px-6 py-3 rounded-lg font-medium cursor-pointer"
-                onClick={() => {
-                  window.open('mailto:llbclass28@ui.edu.ng');
-                }}
-              >
-                Contact Class Representatives
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Interactive Touch Elements */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Class Journey</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Swipe or drag to explore our academic timeline
-            </p>
-          </motion.div>
+      {/* Faculty Highlights Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-12 text-center">Faculty Highlights</h2>
           
-          <div className="relative py-8">
-            <div className="absolute left-1/2 h-full w-1 bg-gray-200 transform -translate-x-1/2"></div>
-            
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { 
-                year: "Year 1", 
-                title: "Foundations of Legal Thought", 
-                description: "Embarking on our legal journey with Nigerian Legal Methods, discovering the building blocks of legal reasoning and research. The first steps in a transformative professional path.",
-                highlight: "Nigerian legal methods and introduction to foundational law courses" 
+              {
+                name: "Prof. Elizabeth Carter",
+                specialty: "Constitutional Law",
+                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?fit=crop&w=150&h=150",
+                bio: "Former Supreme Court clerk with over 15 years of teaching experience"
               },
-              { 
-                year: "Year 2", 
-                title: "Constitutional Frameworks & Psychological Dimensions", 
-                description: "Diving deeper into the Nigerian legal system and constitutional law while exploring the fascinating intersection of law and human psychology. Building critical analytical skills.",
-                highlight: "Nigerian legal system, contract, constitutional law, law and psychology" 
+              {
+                name: "Prof. Robert Chen",
+                specialty: "Criminal Law",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=150&h=150",
+                bio: "Published author of three acclaimed textbooks on criminal procedure"
               },
-              { 
-                year: "Year 3", 
-                title: "Civil & Commercial Jurisprudence", 
-                description: "Mastering tort law, commercial regulations, and criminal justice principles. Developing the ability to navigate both civil wrongs and business transactions with legal precision.",
-                highlight: "Tort, commercial and criminal law" 
-              },
-              { 
-                year: "Year 4", 
-                title: "Procedural & Property Rights", 
-                description: "Unraveling the intricacies of evidence law, equity principles, and property rights. Learning to apply complex legal doctrines to real-world scenarios with confidence.",
-                highlight: "Evidence, equity and trust, land law" 
-              },
-              { 
-                year: "Year 5", 
-                title: "Professional Integration & Transition", 
-                description: "Culminating our academic journey with capstone projects and practical legal drafting skills. Preparing for the transition to law school and the professional legal world ahead.",
-                highlight: "Final year project, legal drafting, and law school preparation" 
+              {
+                name: "Prof. Maria Rodriguez",
+                specialty: "International Law",
+                image: "https://images.unsplash.com/photo-1544717305-2782549b5136?fit=crop&w=150&h=150",
+                bio: "Former counsel to the United Nations with extensive field experience"
               }
-            ].map((item, index) => (
+            ].map((faculty, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={`relative mb-12 ${index % 2 === 0 ? 'md:mr-auto md:ml-0' : 'md:ml-auto md:mr-0'} md:w-5/12`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col items-center text-center"
               >
-                <motion.div 
-                  drag
-                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                  dragElastic={0.2}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm relative z-10"
-                >
-                  <div className={`absolute top-6 ${index % 2 === 0 ? 'md:-right-10' : 'md:-left-10'} w-8 h-8 rounded-full bg-blue-600 border-4 border-white z-20`}></div>
-                  <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-3">
-                    {item.year}
-                  </span>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600 mb-3">{item.description}</p>
-                  <p className="text-sm text-gray-500 italic">Key focus: {item.highlight}</p>
-                </motion.div>
+                <img 
+                  src={faculty.image} 
+                  alt={faculty.name}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-gray-100 mb-4"
+                />
+                <h3 className="font-bold text-xl mb-1">{faculty.name}</h3>
+                <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full mb-3">
+                  {faculty.specialty}
+                </span>
+                <p className="text-gray-600">{faculty.bio}</p>
               </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Class Quote */}
-      <div className="py-16 bg-gradient-to-b from-white to-[#f8f6f3]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <blockquote className="text-2xl md:text-3xl italic font-medium text-gray-700 mb-6 max-w-4xl mx-auto">
-              "In the class of law, we don't just study principles—we become advocates for justice, together."
-            </blockquote>
-            <p className="text-lg text-gray-600">Class of 2028 Motto</p>
-          </motion.div>
+      {/* Events Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+            <h2 className="text-3xl font-bold">Upcoming Events</h2>
+            <Button 
+              variant="outline" 
+              className="mt-4 md:mt-0 border-2 border-gray-800"
+              onClick={() => navigate('/events')}
+            >
+              All Events <Calendar className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {events?.length ? (
+              events.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
+                >
+                  <div className="bg-green-500 text-white p-3 text-center">
+                    <span className="block text-sm">
+                      {new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}
+                    </span>
+                    <span className="block text-2xl font-bold">
+                      {new Date(event.date).getDate()}
+                    </span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-lg mb-2">{event.title}</h3>
+                    <div className="flex items-center text-gray-600 text-sm mb-3">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>{event.time}</span>
+                    </div>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+                    <Link to={`/events`} className="text-green-600 font-medium flex items-center">
+                      Event Details <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              [1, 2, 3].map((placeholder) => (
+                <div
+                  key={placeholder}
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
+                >
+                  <div className="bg-green-500 text-white p-3 text-center">
+                    <span className="block text-sm">TBD</span>
+                    <span className="block text-2xl font-bold">--</span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-lg mb-2">Upcoming Event</h3>
+                    <div className="flex items-center text-gray-600 text-sm mb-3">
+                      <Clock className="h-4 w-4 mr-1" />
+                      <span>Time TBD</span>
+                    </div>
+                    <p className="text-gray-600 mb-4">Event details will be announced soon.</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Footer */}
-      <footer className="bg-white py-12 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">LLB Class of 2028</h2>
-            <p className="text-center text-gray-600 mb-6 max-w-md">
-              Faculty of Law, University of Ibadan
-            </p>
-            <div className="flex space-x-6 mb-8">
-              <a href="https://wa.me/2349014412044" className="text-gray-500 hover:text-gray-900 transition-colors">
-                <span className="sr-only">WhatsApp</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.472 14.382C17.094 14.194 15.12 13.277 14.773 13.151C14.426 13.025 14.174 12.91 13.923 13.278C13.672 13.646 12.91 14.558 12.658 14.81C12.406 15.062 12.154 15.088 11.776 14.9C11.398 14.712 10.114 14.307 8.768 13.106C7.709 12.155 7.086 11.011 6.834 10.643C6.582 10.275 6.807 10.061 7.025 9.863C7.223 9.685 7.459 9.403 7.679 9.152C7.899 8.901 8.05 8.713 8.176 8.562C8.302 8.411 8.365 8.26 8.491 8.009C8.617 7.757 8.586 7.506 8.491 7.318C8.397 7.13 7.782 5.34 7.467 4.58C7.193 3.872 6.904 3.944 6.624 3.929C6.356 3.915 6.104 3.911 5.853 3.911C5.602 3.911 5.191 4.005 4.844 4.373C4.497 4.741 3.484 5.658 3.484 7.448C3.484 9.238 4.872 10.966 5.092 11.218C5.312 11.47 7.05 14.115 9.716 15.709C10.335 15.977 10.825 16.142 11.213 16.267C11.834 16.465 12.417 16.437 12.886 16.346C13.403 16.244 14.991 15.429 15.306 14.533C15.621 13.637 15.621 12.877 15.527 12.689C15.433 12.501 15.181 12.407 14.803 12.22H14.802C14.364 12.005 12.351 11.073 11.957 10.929C11.563 10.785 11.329 10.713 11.095 11.061C10.896 11.358 10.399 12.003 10.2 12.301C10.001 12.599 9.802 12.634 9.438 12.436C9.074 12.238 8.276 11.958 7.383 11.158C6.756 10.571 6.319 9.852 6.14 9.474C5.961 9.096 6.145 8.897 6.297 8.73C6.436 8.578 6.607 8.347 6.759 8.158C6.911 7.969 7.001 7.824 7.105 7.62C7.209 7.416 7.175 7.191 7.105 7.047C7.035 6.903 6.661 5.555 6.426 4.808C6.213 4.143 5.95 4.218 5.753 4.207C5.56 4.196 5.355 4.196 5.151 4.196" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M3.5 20.5C5.5 18.5 9.23899 17.9832 11 19.5C12.8851 21.1209 15.5 21.5 17.5 19.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-              <a href="mailto:llbclass28@ui.edu.ng" className="text-gray-500 hover:text-gray-900 transition-colors">
-                <span className="sr-only">Email</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M21.75 6.75V17.25C21.75 18.3546 20.8546 19.25 19.75 19.25H4.25C3.14543 19.25 2.25 18.3546 2.25 17.25V6.75M21.75 6.75C21.75 5.64543 20.8546 4.75 19.75 4.75H4.25C3.14543 4.75 2.25 5.64543 2.25 6.75M21.75 6.75V6.825C21.75 7.57364 21.3474 8.2723 20.6795 8.68378L13.1795 13.1838C12.4413 13.6306 11.5587 13.6306 10.8205 13.1838L3.32047 8.68378C2.65264 8.2723 2.25 7.57364 2.25 6.825V6.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-              <a href="#" className="text-gray-500 hover:text-gray-900 transition-colors">
-                <span className="sr-only">Instagram</span>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="18" cy="6" r="1" fill="currentColor" />
-                </svg>
-              </a>
+      {/* Career Paths Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Career Paths</h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {careerPaths.map((path, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+                className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="bg-green-50 p-4 rounded-full border border-green-100 mb-4">
+                  {path.icon}
+                </div>
+                <h3 className="font-bold text-xl mb-3">{path.title}</h3>
+                <p className="text-gray-600">{path.description}</p>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="bg-green-50 rounded-xl p-8 mt-12 border border-green-100">
+            <h3 className="text-xl font-bold mb-4 text-center">Career Development Resources</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-4 rounded-lg border border-gray-100">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-green-600" /> Resume Workshops
+                </h4>
+                <p className="text-sm text-gray-600">Monthly workshops to perfect your legal CV</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-gray-100">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Briefcase className="h-5 w-5 mr-2 text-green-600" /> Internship Programs
+                </h4>
+                <p className="text-sm text-gray-600">Partnerships with top firms for summer positions</p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-gray-100">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-green-600" /> Networking Events
+                </h4>
+                <p className="text-sm text-gray-600">Connect with alumni and practicing attorneys</p>
+              </div>
             </div>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Alumni Spotlights Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Alumni Spotlights</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {alumniSpotlights.map((alumni, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+                className="bg-white rounded-xl shadow-md p-6 border border-gray-200"
+              >
+                <div className="flex items-center mb-4">
+                  <img 
+                    src={alumni.image} 
+                    alt={alumni.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-gray-100 mr-4"
+                  />
+                  <div>
+                    <h3 className="font-bold text-lg">{alumni.name}</h3>
+                    <p className="text-gray-600 text-sm">{alumni.graduation}</p>
+                  </div>
+                </div>
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="font-medium mb-2">{alumni.position}</p>
+                  <div className="bg-yellow-50 border border-yellow-100 p-3 rounded-lg text-sm">
+                    <div className="flex items-center">
+                      <Trophy className="h-4 w-4 text-yellow-600 mr-2" />
+                      <span>{alumni.achievement}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button variant="outline" className="border-2 border-gray-800">
+              View Alumni Network <Share2 className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white" ref={testimonialRef}>
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Student Testimonials</h2>
+          
+          <div className="relative max-w-3xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: activeTestimonial === index ? 1 : 0,
+                  display: activeTestimonial === index ? 'block' : 'none'
+                }}
+                transition={{ duration: 0.5 }}
+                className="bg-green-50 p-8 rounded-xl text-center border border-green-100 shadow-sm"
+              >
+                <div className="mb-6">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.author}
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white mx-auto"
+                  />
+                </div>
+                <blockquote className="text-lg text-gray-700 mb-6 italic">
+                  "{testimonial.quote}"
+                </blockquote>
+                <div className="font-bold">{testimonial.author}</div>
+                <div className="text-gray-600 text-sm">{testimonial.role}</div>
+              </motion.div>
+            ))}
+            
+            <div className="flex justify-center mt-8 gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveTestimonial(index)}
+                  className={`w-3 h-3 rounded-full ${
+                    activeTestimonial === index ? 'bg-green-600' : 'bg-gray-300'
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                ></button>
+              ))}
+            </div>
+            
+            <button 
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12 bg-white rounded-full p-2 shadow-md hidden md:block"
+              onClick={prevTestimonial}
+              aria-label="Previous testimonial"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            
+            <button 
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-12 bg-white rounded-full p-2 shadow-md hidden md:block"
+              onClick={nextTestimonial}
+              aria-label="Next testimonial"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Announcements Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+            <h2 className="text-3xl font-bold">Recent Announcements</h2>
+            <Button 
+              variant="outline" 
+              className="mt-4 md:mt-0 border-2 border-gray-800"
+              onClick={() => navigate('/blog')}
+            >
+              View All <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {recentAnnouncements.map((announcement, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-lg shadow-md border border-gray-200 p-6"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="font-bold text-lg">{announcement.title}</h3>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium 
+                    ${announcement.category === 'Academic' ? 'bg-blue-100 text-blue-800' : 
+                     announcement.category === 'Program' ? 'bg-purple-100 text-purple-800' : 
+                     'bg-green-100 text-green-800'}`}>
+                    {announcement.category}
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-4">{announcement.brief}</p>
+                <div className="flex items-center text-gray-500 text-sm">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>{new Date(announcement.date).toLocaleDateString()}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Community & Research Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <h2 className="text-2xl font-bold mb-8">Community Highlights</h2>
+              
+              <div className="space-y-6">
+                {communityHighlights.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    className="flex bg-gray-50 rounded-lg p-4 border border-gray-200"
+                  >
+                    <div className="mr-4 mt-1">{item.icon}</div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                      <p className="text-gray-600 text-sm">{item.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h2 className="text-2xl font-bold mb-8">Research Centers</h2>
+              
+              <div className="space-y-6">
+                {researchCenters.map((center, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden"
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center mb-2">
+                        <Lightbulb className="h-5 w-5 text-green-600 mr-2" />
+                        <h3 className="font-bold">{center.title}</h3>
+                      </div>
+                      <p className="text-gray-600 text-sm">{center.description}</p>
+                    </div>
+                    <div className="bg-gray-100 px-4 py-2 flex justify-end">
+                      <button className="text-green-600 text-sm font-medium flex items-center">
+                        Learn More <ArrowRight className="ml-1 h-4 w-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-green-800 to-green-900 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-6">Start Your Law School Journey</h2>
+          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
+            Access all the resources, tools, and community support you need to excel in your legal education.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              className="bg-white text-green-800 hover:bg-gray-100 text-lg px-6 py-3"
+              onClick={() => navigate('/resources')}
+            >
+              <FileText className="mr-2 h-5 w-5" />
+              Explore Resources
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-2 border-white text-white hover:bg-white/10 text-lg px-6 py-3"
+              onClick={() => navigate('/tools')}
+            >
+              <Settings className="mr-2 h-5 w-5" />
+              Access Tools
+            </Button>
+          </div>
+          <div className="mt-10">
+            <a 
+              href="https://drive.google.com/drive/folders/1Ari0uhW8reGSfskUj6EwHtexK31ooL6Y" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-green-200 hover:text-white transition-colors"
+            >
+              <ExternalLink className="mr-2 h-5 w-5" />
+              Visit our Google Drive for additional resources
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default Index;
+}
