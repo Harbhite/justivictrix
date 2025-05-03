@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
@@ -31,6 +30,7 @@ import SecretForum from './pages/SecretForum';
 import ForumCategory from './pages/ForumCategory';
 import ForumTopic from './pages/ForumTopic';
 import ForumSettings from './pages/ForumSettings';
+import EasterEggs from './pages/EasterEggs';
 
 const queryClient = new QueryClient();
 
@@ -185,6 +185,11 @@ const router = createBrowserRouter([
       {
         path: "forum/settings",
         element: <ForumSettings />,
+      },
+      // New Easter Eggs route
+      {
+        path: "easter-eggs",
+        element: <EasterEggs />,
       },
       {
         path: "*",
