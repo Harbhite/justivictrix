@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, Briefcase } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -12,7 +11,6 @@ import CitationGenerator from "@/components/tools/CitationGenerator";
 import IracGenerator from "@/components/tools/IracGenerator";
 import CaseBriefGenerator from "@/components/tools/CaseBriefGenerator";
 import LegalResearchAssistant from "@/components/tools/LegalResearchAssistant";
-import ContractAnalyzer from "@/components/tools/ContractAnalyzer";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
@@ -199,22 +197,13 @@ const Tools = () => {
           <CaseBriefGenerator />
         </div>
 
-        {/* NEW TOOL: Legal Research Assistant */}
+        {/* Legal Research Assistant */}
         <div className="p-8 bg-teal-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
             <FileSearch size={28} />
             Legal Research Assistant
           </h2>
           <LegalResearchAssistant />
-        </div>
-
-        {/* NEW TOOL: Contract Analyzer */}
-        <div className="p-8 bg-rose-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <Briefcase size={28} />
-            Contract Analyzer
-          </h2>
-          <ContractAnalyzer />
         </div>
 
         {/* Citation Reference Guide */}

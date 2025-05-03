@@ -33,6 +33,7 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [guestName, setGuestName] = useState("");
   const [useAnonymous, setUseAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,42 +41,25 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({
     e.preventDefault();
     
     if (!title.trim() || !content.trim()) {
-      toast.error("Please fill in all fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    if (!user) {
-      toast.error("You must be logged in to create a topic");
+    if (!user && !guestName.trim()) {
+      toast.error("Please enter your name to post as a guest");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Check if user has anonymous token
-      let anonymousUserId = null;
-      
-      if (useAnonymous) {
-        const { data: anonData } = await supabase
-          .from("forum_anonymous_tokens")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
-          
-        if (!anonData) {
-          toast.error("You don't have an anonymous token");
-          setIsSubmitting(false);
-          return;
-        }
-      }
-
       // Create the topic
       const { data: topicData, error: topicError } = await supabase
         .from("forum_topics")
         .insert({
           title,
           category_id: categoryId,
-          user_id: useAnonymous ? null : user.id
+          user_id: user ? (useAnonymous ? null : user.id) : null
         })
         .select()
         .single();
@@ -88,9 +72,9 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({
       const { error: postError } = await supabase
         .from("forum_posts")
         .insert({
-          content,
+          content: user ? content : `[Guest: ${guestName}] ${content}`,
           topic_id: topicData.id,
-          user_id: useAnonymous ? null : user.id
+          user_id: user ? (useAnonymous ? null : user.id) : null
         });
 
       if (postError) {
@@ -101,6 +85,7 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({
       setTitle("");
       setContent("");
       setUseAnonymous(false);
+      setGuestName("");
       
       // Close dialog
       onOpenChange(false);
@@ -173,16 +158,29 @@ const CreateTopicDialog: React.FC<CreateTopicDialogProps> = ({
               />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="anonymous" 
-                checked={useAnonymous} 
-                onCheckedChange={handleCheckAnonymous}
-              />
-              <Label htmlFor="anonymous" className="font-normal cursor-pointer">
-                Post anonymously
-              </Label>
-            </div>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="anonymous" 
+                  checked={useAnonymous} 
+                  onCheckedChange={handleCheckAnonymous}
+                />
+                <Label htmlFor="anonymous" className="font-normal cursor-pointer">
+                  Post anonymously
+                </Label>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="guest-name">Guest Name</Label>
+                <Input
+                  id="guest-name"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder="Enter your name to post as a guest"
+                  required
+                />
+              </div>
+            )}
           </div>
           
           <DialogFooter>

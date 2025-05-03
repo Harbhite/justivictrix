@@ -17,11 +17,12 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Post {
   id: string;
   content: string;
-  user_id: string;
+  user_id: string | null;
   created_at: string;
   updated_at: string;
   is_solution: boolean;
@@ -30,6 +31,8 @@ interface Post {
     full_name?: string;
   };
   isAnonymous?: boolean;
+  isGuest?: boolean;
+  guestName?: string;
 }
 
 interface ForumPostListProps {
@@ -39,6 +42,7 @@ interface ForumPostListProps {
 const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!topicId) return;
@@ -57,9 +61,29 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
           return;
         }
 
-        // Fetch user profiles separately
+        // Process the posts to identify guest posts
+        const processedPosts = postsData.map(post => {
+          // Check if this is a guest post
+          const guestMatch = post.content.match(/^\[Guest: (.+?)\] (.+)$/);
+          
+          if (!post.user_id && guestMatch) {
+            return {
+              ...post,
+              isGuest: true,
+              guestName: guestMatch[1],
+              content: guestMatch[2],
+            };
+          }
+          
+          return post;
+        });
+        
+        // Fetch user profiles separately for authenticated users
         const postsWithUserDetails = await Promise.all(
-          postsData.map(async (post) => {
+          processedPosts.map(async (post) => {
+            // Skip profile fetching for guest posts
+            if (post.isGuest) return post;
+            
             let username = "";
             let fullName = "";
             let isAnonymous = false;
@@ -112,6 +136,11 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
   }, [topicId]);
 
   const markAsSolution = async (postId: string) => {
+    if (!user) {
+      toast.error("You must be logged in to mark a solution");
+      return;
+    }
+    
     try {
       const { data, error } = await supabase
         .from("forum_posts")
@@ -133,6 +162,12 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
       console.error("Error marking as solution:", error);
       toast.error("Failed to mark post as solution");
     }
+  };
+
+  const reportPost = (postId: string) => {
+    toast.info("Report submitted for review", {
+      description: "Thank you for helping keep our community safe"
+    });
   };
 
   if (loading) {
@@ -181,9 +216,11 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
               </div>
               <div>
                 <div className="font-medium text-gray-900">
-                  {post.isAnonymous 
-                    ? "Anonymous User" 
-                    : post.user?.username || post.user?.full_name || "Unknown User"}
+                  {post.isGuest 
+                    ? `Guest: ${post.guestName}`
+                    : (post.isAnonymous 
+                        ? "Anonymous User" 
+                        : post.user?.username || post.user?.full_name || "Unknown User")}
                 </div>
                 <div className="text-xs text-gray-500">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
@@ -206,13 +243,13 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {!post.is_solution && index > 0 && (
+                  {!post.is_solution && index > 0 && user && (
                     <DropdownMenuItem onClick={() => markAsSolution(post.id)}>
                       <Award className="h-4 w-4 mr-2" />
                       Mark as Solution
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => reportPost(post.id)}>
                     <Flag className="h-4 w-4 mr-2" />
                     Report
                   </DropdownMenuItem>

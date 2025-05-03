@@ -1,24 +1,17 @@
 
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { Lock } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const SecretLink = () => {
-  const { user } = useAuth();
-
-  if (!user) {
-    return null;
-  }
-
+const ForumLink = () => {
   return (
     <Button variant="ghost" asChild className="gap-2">
-      <a href="/secret-forum" target="_blank" rel="noopener noreferrer">
-        <Lock size={16} />
+      <Link to="/secret-forum">
+        <MessageSquare size={16} />
         Forum
-      </a>
+      </Link>
     </Button>
   );
 };
 
-export default SecretLink;
+export default ForumLink;

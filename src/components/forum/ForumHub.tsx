@@ -16,8 +16,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ForumCategoryList from "./ForumCategoryList";
-import { MessageSquareText, User, Settings, BookOpen, Award, Lock } from "lucide-react";
+import { MessageSquareText, User, Settings, BookOpen, Award, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const ForumHub = () => {
   const navigate = useNavigate();
@@ -33,10 +34,10 @@ const ForumHub = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <MessageSquareText className="h-8 w-8" />
-          LLB28 Forum Hub
+          Community Forum
         </h1>
         <p className="text-gray-600 mt-2">
-          A private space for LLB28 members to discuss topics, share knowledge, and collaborate.
+          A space for everyone to discuss topics, share knowledge, and collaborate on legal matters.
         </p>
       </div>
 
@@ -45,46 +46,35 @@ const ForumHub = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="categories">Categories</TabsTrigger>
-              <TabsTrigger value="access">Access & Settings</TabsTrigger>
+              <TabsTrigger value="community">Community</TabsTrigger>
             </TabsList>
             
             <TabsContent value="categories">
               <ForumCategoryList />
             </TabsContent>
             
-            <TabsContent value="access">
+            <TabsContent value="community">
               <Card className="mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Lock size={18} />
-                    Forum Access
+                    <Users size={18} />
+                    Community Space
                   </CardTitle>
                   <CardDescription>
-                    Manage your forum access settings and anonymous posting
+                    Connect with other members and participate in discussions
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p>You have full access to the LLB28 Secret Forum.</p>
-                  <Button onClick={() => handleNavigate("/forum/settings")}>
-                    Manage Forum Settings
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User size={18} />
-                    Your Profile
-                  </CardTitle>
-                  <CardDescription>
-                    Update your forum profile and preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => handleNavigate("/profile")}>
-                    Edit Profile
-                  </Button>
+                  <p>Join our vibrant community of legal professionals, students, and enthusiasts.</p>
+                  {user ? (
+                    <Button onClick={() => handleNavigate("/profile")}>
+                      View Your Profile
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleNavigate("/auth")}>
+                      Sign in to Participate
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -105,26 +95,37 @@ const ForumHub = () => {
                   <span className="text-gray-600">Status:</span>
                   <span className="font-medium text-green-600">Active</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Member since:</span>
-                  <span className="font-medium">{new Date().toLocaleDateString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Forum access:</span>
-                  <span className="font-medium">Full</span>
-                </div>
+                {user ? (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Member since:</span>
+                      <span className="font-medium">{new Date().toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Forum access:</span>
+                      <span className="font-medium">Full</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">User status:</span>
+                    <span className="font-medium">Guest</span>
+                  </div>
+                )}
               </div>
               
-              <div className="mt-4 pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
-                  onClick={() => handleNavigate("/forum/settings")}
-                >
-                  <Settings size={16} className="mr-2" />
-                  Forum Settings
-                </Button>
-              </div>
+              {user && (
+                <div className="mt-4 pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => handleNavigate("/forum/settings")}
+                  >
+                    <Settings size={16} className="mr-2" />
+                    Forum Settings
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
           

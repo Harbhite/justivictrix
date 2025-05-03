@@ -1,5 +1,6 @@
+
 import { motion } from "framer-motion";
-import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff, Edit, Trash } from "lucide-react";
+import { FileText, Download, Book, Video, Loader2, File, ExternalLink, BookOpen, List, LogIn, Pin, PinOff, Edit, Trash, Filter, X } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const Resources = () => {
   const navigate = useNavigate();
@@ -26,18 +29,42 @@ const Resources = () => {
   const resourcesContainerRef = useRef<HTMLDivElement>(null);
   const [resourceToDelete, setResourceToDelete] = useState<number | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
 
   // Check if user is admin (for pinning)
   const isAdmin = user?.email === "swisssunny1@gmail.com";
 
-  const { data: resources, isLoading } = useQuery({
-    queryKey: ["resources"],
+  // Fetch courses for filtering
+  const { data: courses, isLoading: coursesLoading } = useQuery({
+    queryKey: ["courses"],
     queryFn: async () => {
       const { data, error } = await supabase
+        .from("courses")
+        .select("id, code, title")
+        .order("code", { ascending: true });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
+
+  const { data: resources, isLoading } = useQuery({
+    queryKey: ["resources", selectedCourse],
+    queryFn: async () => {
+      let query = supabase
         .from("resources")
         .select("*")
         .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false });
+        
+      if (selectedCourse) {
+        query = query.eq("category", selectedCourse);
+      }
+      
+      const { data, error } = await query;
 
       if (error) {
         toast.error("Failed to load resources");
@@ -225,6 +252,11 @@ const Resources = () => {
     return null;
   };
 
+  // Clear course filter
+  const clearCourseFilter = () => {
+    setSelectedCourse(null);
+  };
+
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -262,6 +294,64 @@ const Resources = () => {
               </Link>
             </div>
           )}
+        </div>
+
+        {/* Course Filter */}
+        <div className="mb-8">
+          <motion.div
+            className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between">
+              <div>
+                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                  <Filter size={20} />
+                  Filter Resources by Course
+                </h3>
+                <p className="text-gray-600 mb-4">Select a course to view related resources</p>
+              </div>
+
+              <div className="flex gap-4 items-center w-full md:w-auto">
+                {coursesLoading ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                ) : (
+                  <Select value={selectedCourse || ""} onValueChange={setSelectedCourse}>
+                    <SelectTrigger className="w-full md:w-[250px] border-2 border-black">
+                      <SelectValue placeholder="Select a course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courses?.map((course) => (
+                        <SelectItem key={course.id} value={course.code}>
+                          {course.code} - {course.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {selectedCourse && (
+                  <button
+                    onClick={clearCourseFilter}
+                    className="p-2 bg-gray-200 rounded-full hover:bg-gray-300"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {selectedCourse && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 border border-blue-300">
+                    Filtered by: {selectedCourse}
+                  </Badge>
+                  <span className="text-sm text-gray-500">
+                    {resources?.length || 0} resources found
+                  </span>
+                </div>
+              </div>
+            )}
+          </motion.div>
         </div>
 
         {/* Course Catalog Card */}
@@ -347,7 +437,14 @@ const Resources = () => {
               className="p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">{selectedResource.title}</h2>
+                <div>
+                  <h2 className="text-2xl font-bold">{selectedResource.title}</h2>
+                  {selectedResource.category && (
+                    <Badge variant="outline" className="mt-1">
+                      {selectedResource.category}
+                    </Badge>
+                  )}
+                </div>
                 {isAdmin && (
                   <button
                     onClick={() => handleDeleteConfirmation(selectedResource.id)}
@@ -395,110 +492,138 @@ const Resources = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {resources?.map((resource) => {
-                const Icon = getIconForType(resource.type);
-                const preview = getPreviewComponent(resource);
-                
-                return (
-                  <motion.div
-                    key={resource.id}
-                    className={`p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all ${
-                      resource.is_pinned ? "ring-4 ring-amber-400" : ""
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => {
-                      if (resource.type === 'pdf') {
-                        setSelectedResource(resource);
-                        resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <Icon size={24} className="mt-1" />
-                      <div className="flex items-center gap-2">
-                        {resource.is_pinned && (
-                          <span className="p-1 bg-amber-200 border-2 border-black">
-                            <Pin size={16} />
-                          </span>
-                        )}
-                        <span className="px-2 py-1 bg-yellow-200 border-2 border-black text-sm font-bold">
-                          {resource.type}
-                        </span>
-                      </div>
-                    </div>
+            <>
+              {resources && resources.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {resources.map((resource) => {
+                    const Icon = getIconForType(resource.type);
+                    const preview = getPreviewComponent(resource);
                     
-                    {preview}
-
-                    <h3 className="text-xl font-bold mt-4 mb-2">
-                      {resource.title}
-                    </h3>
-                    <p className="text-law-neutral mb-4">{resource.category}</p>
-                    {resource.description && (
-                      <p className="text-sm text-gray-600 mb-4">
-                        {resource.description}
-                      </p>
-                    )}
-                    <div className="flex gap-2 flex-wrap">
-                      {resource.type === 'pdf' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                    return (
+                      <motion.div
+                        key={resource.id}
+                        className={`p-6 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all ${
+                          resource.is_pinned ? "ring-4 ring-amber-400" : ""
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => {
+                          if (resource.type === 'pdf') {
                             setSelectedResource(resource);
                             resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className="px-4 py-2 bg-blue-400 border-2 border-black hover:bg-blue-500 transition-colors flex items-center gap-2 inline-block"
-                        >
-                          <FileText size={20} />
-                          View PDF
-                        </button>
-                      )}
-                      <a
-                        href={resource.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
-                        download
-                        onClick={(e) => e.stopPropagation()}
+                          }
+                        }}
                       >
-                        <Download size={20} />
-                        Download {resource.file_type ? `.${resource.file_type}` : ''}
-                      </a>
-                      
-                      {isAdmin && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleTogglePin(resource);
-                            }}
-                            className={`px-4 py-2 border-2 border-black transition-colors flex items-center gap-2 inline-block ${
-                              resource.is_pinned 
-                                ? "bg-amber-400 hover:bg-amber-500" 
-                                : "bg-gray-200 hover:bg-gray-300"
-                            }`}
+                        <div className="flex items-start justify-between">
+                          <Icon size={24} className="mt-1" />
+                          <div className="flex items-center gap-2">
+                            {resource.is_pinned && (
+                              <span className="p-1 bg-amber-200 border-2 border-black">
+                                <Pin size={16} />
+                              </span>
+                            )}
+                            <Badge className="bg-yellow-200 text-black border-2 border-black px-2 py-1 font-bold">
+                              {resource.type}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        {preview}
+
+                        <h3 className="text-xl font-bold mt-4 mb-2">
+                          {resource.title}
+                        </h3>
+                        
+                        {resource.category && (
+                          <Badge variant="outline" className="mb-2">
+                            {resource.category}
+                          </Badge>
+                        )}
+                        
+                        {resource.description && (
+                          <p className="text-sm text-gray-600 mb-4">
+                            {resource.description}
+                          </p>
+                        )}
+                        <div className="flex gap-2 flex-wrap">
+                          {resource.type === 'pdf' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedResource(resource);
+                                resourcesContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="px-4 py-2 bg-blue-400 border-2 border-black hover:bg-blue-500 transition-colors flex items-center gap-2 inline-block"
+                            >
+                              <FileText size={20} />
+                              View PDF
+                            </button>
+                          )}
+                          <a
+                            href={resource.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-green-400 border-2 border-black hover:bg-green-500 transition-colors flex items-center gap-2 inline-block"
+                            download
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            {resource.is_pinned ? <PinOff size={20} /> : <Pin size={20} />}
-                            {resource.is_pinned ? "Unpin" : "Pin"}
-                          </button>
+                            <Download size={20} />
+                            Download {resource.file_type ? `.${resource.file_type}` : ''}
+                          </a>
                           
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteConfirmation(resource.id);
-                            }}
-                            className="px-4 py-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors flex items-center gap-2 inline-block"
-                          >
-                            <Trash size={20} />
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                          {isAdmin && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTogglePin(resource);
+                                }}
+                                className={`px-4 py-2 border-2 border-black transition-colors flex items-center gap-2 inline-block ${
+                                  resource.is_pinned 
+                                    ? "bg-amber-400 hover:bg-amber-500" 
+                                    : "bg-gray-200 hover:bg-gray-300"
+                                }`}
+                              >
+                                {resource.is_pinned ? <PinOff size={20} /> : <Pin size={20} />}
+                                {resource.is_pinned ? "Unpin" : "Pin"}
+                              </button>
+                              
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteConfirmation(resource.id);
+                                }}
+                                className="px-4 py-2 bg-red-400 border-2 border-black hover:bg-red-500 transition-colors flex items-center gap-2 inline-block"
+                              >
+                                <Trash size={20} />
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 border-4 border-black">
+                  <File size={48} className="mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-bold mb-2">No Resources Found</h3>
+                  {selectedCourse ? (
+                    <>
+                      <p className="text-gray-600 mb-4">No resources available for the selected course: {selectedCourse}</p>
+                      <button 
+                        onClick={clearCourseFilter}
+                        className="px-4 py-2 bg-blue-400 border-2 border-black hover:bg-blue-500 transition-colors"
+                      >
+                        Clear Filter
+                      </button>
+                    </>
+                  ) : (
+                    <p className="text-gray-600">Upload some resources to get started</p>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </motion.div>
