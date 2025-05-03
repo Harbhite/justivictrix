@@ -6,22 +6,19 @@ import { Image, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Default API key
+const DEFAULT_API_KEY = "AIzaSyDwhqdKe1vnH7g-WBVdUM6Vs0eLRAsBHQI";
+
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>(DEFAULT_API_KEY);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
 
   const generateImage = async () => {
     if (!prompt.trim()) {
       toast.error("Please enter a prompt");
-      return;
-    }
-
-    if (!apiKey) {
-      setShowApiKeyInput(true);
-      toast.error("Please enter your Google AI API key");
       return;
     }
 
@@ -69,7 +66,7 @@ const ImageGenerator = () => {
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your Google AI API key..."
+            placeholder="Enter custom Google AI API key..."
             className="flex-1"
           />
           <Button 
@@ -79,7 +76,7 @@ const ImageGenerator = () => {
             Save API Key
           </Button>
           <p className="text-xs text-gray-500">
-            You can get your API key from the{" "}
+            Using a custom key may provide better results. Get yours from the{" "}
             <a 
               href="https://ai.google.dev/" 
               target="_blank" 
@@ -123,7 +120,7 @@ const ImageGenerator = () => {
             variant="outline"
             className="text-xs w-full"
           >
-            Change API Key
+            Use Custom API Key
           </Button>
         </>
       )}
