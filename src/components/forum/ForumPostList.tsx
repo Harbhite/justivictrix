@@ -26,6 +26,7 @@ interface Post {
   created_at: string;
   updated_at: string;
   is_solution: boolean;
+  topic_id: string;
   user?: {
     username?: string;
     full_name?: string;
