@@ -37,8 +37,14 @@ const ImageGenerator = () => {
       // Generate the image
       const result = await model.generateContent([prompt]);
       const response = await result.response;
-      const imageData = response.candidates?.[0]?.content?.parts?.find(
-        part => part.mime_type?.startsWith("image/")
+      
+      // Safely check for parts that might contain image data
+      const parts = response.candidates?.[0]?.content?.parts || [];
+      const imageData = parts.find(
+        part => {
+          // Check if the part has mime_type property and it starts with "image/"
+          return 'mime_type' in part && typeof part.mime_type === 'string' && part.mime_type.startsWith("image/");
+        }
       )?.inlineData?.data;
       
       if (imageData) {

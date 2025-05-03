@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
@@ -76,10 +75,15 @@ const ForumPostList: React.FC<ForumPostListProps> = ({ topicId }) => {
             };
           }
           
-          return post;
+          return {
+            ...post,
+            isGuest: false,
+            guestName: "",
+          };
         });
         
         // Fetch user profiles separately for authenticated users
+        
         const postsWithUserDetails = await Promise.all(
           processedPosts.map(async (post) => {
             // Skip profile fetching for guest posts
