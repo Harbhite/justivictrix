@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, Briefcase } from "lucide-react";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -11,7 +11,8 @@ import ArgumentGenerator from "@/components/tools/ArgumentGenerator";
 import CitationGenerator from "@/components/tools/CitationGenerator";
 import IracGenerator from "@/components/tools/IracGenerator";
 import CaseBriefGenerator from "@/components/tools/CaseBriefGenerator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LegalResearchAssistant from "@/components/tools/LegalResearchAssistant";
+import ContractAnalyzer from "@/components/tools/ContractAnalyzer";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
@@ -117,116 +118,103 @@ const Tools = () => {
           </div>
         </div>
 
-        {/* AI Tools Section with Tabs */}
+        {/* Mind Map Generator */}
         <div className="p-8 bg-blue-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <Sparkles size={28} />
-            AI Legal Assistant Tools
+            <BrainCircuit size={28} />
+            Legal Mind Map Generator
           </h2>
+          <MindMapGenerator />
+        </div>
 
-          <Tabs defaultValue="mind-map" className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 mb-8">
-              <TabsTrigger value="mind-map" className="text-xs md:text-sm">Mind Map</TabsTrigger>
-              <TabsTrigger value="notes" className="text-xs md:text-sm">Study Notes</TabsTrigger>
-              <TabsTrigger value="dictionary" className="text-xs md:text-sm">Dictionary</TabsTrigger>
-              <TabsTrigger value="case-study" className="text-xs md:text-sm">Case Study</TabsTrigger>
-              <TabsTrigger value="flashcards" className="text-xs md:text-sm">Flashcards</TabsTrigger>
-              <TabsTrigger value="arguments" className="text-xs md:text-sm">Arguments</TabsTrigger>
-              <TabsTrigger value="citation" className="text-xs md:text-sm">Citation</TabsTrigger>
-              <TabsTrigger value="irac" className="text-xs md:text-sm">IRAC Guide</TabsTrigger>
-              <TabsTrigger value="brief" className="text-xs md:text-sm">Case Brief</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="mind-map">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <BrainCircuit size={20} />
-                  Legal Mind Map Generator
-                </h3>
-                <MindMapGenerator />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="notes">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <BookOpen size={20} />
-                  Legal Notes Generator
-                </h3>
-                <NotesGenerator />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="dictionary">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Book size={20} />
-                  Legal Dictionary
-                </h3>
-                <LegalDictionary />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="case-study">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <FileText size={20} />
-                  Legal Case Study Generator
-                </h3>
-                <LegalCaseGenerator />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="flashcards">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <List size={20} />
-                  Legal Flashcards Generator
-                </h3>
-                <LegalFlashcardGenerator />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="arguments">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <MessageSquare size={20} />
-                  Legal Arguments Generator
-                </h3>
-                <ArgumentGenerator />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="citation">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <BookTemplate size={20} />
-                  Legal Citation Generator
-                </h3>
-                <CitationGenerator />
-              </div>
-            </TabsContent>
+        {/* Notes Generator */}
+        <div className="p-8 bg-green-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <BookOpen size={28} />
+            Legal Notes Generator
+          </h2>
+          <NotesGenerator />
+        </div>
 
-            <TabsContent value="irac">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <GanttChart size={20} />
-                  AI IRAC Analysis Generator
-                </h3>
-                <IracGenerator />
-              </div>
-            </TabsContent>
+        {/* Legal Dictionary */}
+        <div className="p-8 bg-amber-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <Book size={28} />
+            Legal Dictionary
+          </h2>
+          <LegalDictionary />
+        </div>
 
-            <TabsContent value="brief">
-              <div className="rounded-lg bg-white p-6 shadow-md border-2 border-gray-200">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Gavel size={20} />
-                  Case Brief Generator
-                </h3>
-                <CaseBriefGenerator />
-              </div>
-            </TabsContent>
-          </Tabs>
+        {/* Legal Case Generator */}
+        <div className="p-8 bg-purple-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <FileText size={28} />
+            Legal Case Study Generator
+          </h2>
+          <LegalCaseGenerator />
+        </div>
+
+        {/* Legal Flashcard Generator */}
+        <div className="p-8 bg-pink-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <List size={28} />
+            Legal Flashcards Generator
+          </h2>
+          <LegalFlashcardGenerator />
+        </div>
+
+        {/* Legal Argument Generator */}
+        <div className="p-8 bg-indigo-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <MessageSquare size={28} />
+            Legal Arguments Generator
+          </h2>
+          <ArgumentGenerator />
+        </div>
+
+        {/* Citation Generator */}
+        <div className="p-8 bg-cyan-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <BookTemplate size={28} />
+            Legal Citation Generator
+          </h2>
+          <CitationGenerator />
+        </div>
+
+        {/* IRAC Generator */}
+        <div className="p-8 bg-emerald-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <GanttChart size={28} />
+            AI IRAC Analysis Generator
+          </h2>
+          <IracGenerator />
+        </div>
+
+        {/* Case Brief Generator */}
+        <div className="p-8 bg-orange-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <Gavel size={28} />
+            Case Brief Generator
+          </h2>
+          <CaseBriefGenerator />
+        </div>
+
+        {/* NEW TOOL: Legal Research Assistant */}
+        <div className="p-8 bg-teal-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <FileSearch size={28} />
+            Legal Research Assistant
+          </h2>
+          <LegalResearchAssistant />
+        </div>
+
+        {/* NEW TOOL: Contract Analyzer */}
+        <div className="p-8 bg-rose-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <Briefcase size={28} />
+            Contract Analyzer
+          </h2>
+          <ContractAnalyzer />
         </div>
 
         {/* Citation Reference Guide */}
