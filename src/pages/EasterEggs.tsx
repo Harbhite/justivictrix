@@ -1,12 +1,11 @@
 
-import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from "react";
 import ImageGenerator from "@/components/easter-eggs/ImageGenerator";
 import AIMotivator from "@/components/easter-eggs/AIMotivator";
 import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
-import ColorPalette from "@/components/easter-eggs/ColorPalette";
-import MemeGenerator from "@/components/easter-eggs/MemeGenerator";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
+import WordScramble from "@/components/easter-eggs/WordScramble";
+import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
 
 const EasterEggs = () => {
   return (
@@ -17,7 +16,7 @@ const EasterEggs = () => {
         {/* Image Generator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#9b87f5] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Creative Image Generator</h2>
+            <h2 className="text-xl font-bold mb-4">AI Image Creator</h2>
             <p className="text-gray-600 mb-4">Transform your ideas into stunning visuals with AI</p>
             <ImageGenerator />
           </div>
@@ -26,8 +25,8 @@ const EasterEggs = () => {
         {/* AI Motivator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#F97316] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Inspiration Boost</h2>
-            <p className="text-gray-600 mb-4">Get motivational support when you need it most</p>
+            <h2 className="text-xl font-bold mb-4">Motivational Boost</h2>
+            <p className="text-gray-600 mb-4">Get inspirational support when you need it most</p>
             <AIMotivator />
           </div>
         </div>
@@ -35,34 +34,34 @@ const EasterEggs = () => {
         {/* Fortune Cookie Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#D946EF] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Fortune Insights</h2>
+            <h2 className="text-xl font-bold mb-4">Legal Fortune Cookie</h2>
             <p className="text-gray-600 mb-4">Discover pearls of wisdom from virtual fortune cookies</p>
             <FortuneCookie />
           </div>
         </div>
 
-        {/* Color Palette Generator Card */}
+        {/* Word Scramble Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#8B5CF6] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Design Color Explorer</h2>
-            <p className="text-gray-600 mb-4">Discover perfect color combinations for your projects</p>
-            <ColorPalette />
+            <h2 className="text-xl font-bold mb-4">Legal Word Scramble</h2>
+            <p className="text-gray-600 mb-4">Test your knowledge with scrambled legal terms</p>
+            <WordScramble />
           </div>
         </div>
 
-        {/* Meme Generator Card */}
+        {/* Legal Trivia Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#1EAEDB] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Meme Studio</h2>
-            <p className="text-gray-600 mb-4">Create humorous law-themed visual content</p>
-            <MemeGenerator />
+            <h2 className="text-xl font-bold mb-4">Legal Trivia Challenge</h2>
+            <p className="text-gray-600 mb-4">Test your knowledge of law and legal concepts</p>
+            <LegalTrivia />
           </div>
         </div>
 
         {/* Quote Generator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#ea384c] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Wisdom Quote Dispenser</h2>
+            <h2 className="text-xl font-bold mb-4">Inspiring Quotes</h2>
             <p className="text-gray-600 mb-4">Discover profound quotes about law and justice</p>
             <QuoteGenerator />
           </div>
