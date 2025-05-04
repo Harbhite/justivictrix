@@ -11,7 +11,8 @@ import {
   UserCircle,
   Settings,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  FileText
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +46,7 @@ const Navbar = () => {
     { name: "Resources", path: "/resources", icon: Book },
     { name: "Events", path: "/events", icon: Calendar },
     { name: "Tools", path: "/tools", icon: Book },
+    { name: "Note Taker", path: "/note-taker", icon: FileText },
     { name: "Gallery", path: "/gallery", icon: GalleryHorizontal },
     { name: "About us", path: "/about", icon: Book },
     { name: "Mentors", path: "/people", icon: Book },

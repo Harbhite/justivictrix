@@ -5,8 +5,6 @@ import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
-import DictionaryLookup from "@/components/easter-eggs/DictionaryLookup";
-import CourtcaseSummarizer from "@/components/easter-eggs/CourtcaseSummarizer";
 
 const EasterEggs = () => {
   return (
@@ -47,24 +45,6 @@ const EasterEggs = () => {
             <h2 className="text-xl font-bold mb-4">Legal Trivia Challenge</h2>
             <p className="text-gray-600 mb-4">Test your knowledge of law and legal concepts</p>
             <LegalTrivia />
-          </div>
-        </div>
-
-        {/* Dictionary Lookup Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#0EA5E9] hover:shadow-xl transition-all">
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Dictionary</h2>
-            <p className="text-gray-600 mb-4">Look up definitions for legal terminology</p>
-            <DictionaryLookup />
-          </div>
-        </div>
-
-        {/* Court Case Summarizer */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#8B5CF6] hover:shadow-xl transition-all">
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Case Summarizer</h2>
-            <p className="text-gray-600 mb-4">Get AI-generated summaries of famous court cases</p>
-            <CourtcaseSummarizer />
           </div>
         </div>
 
