@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
@@ -31,6 +32,7 @@ import ForumCategory from './pages/ForumCategory';
 import ForumTopic from './pages/ForumTopic';
 import ForumSettings from './pages/ForumSettings';
 import EasterEggs from './pages/EasterEggs';
+import NoteTaker from './pages/NoteTaker';
 
 const queryClient = new QueryClient();
 
@@ -186,10 +188,15 @@ const router = createBrowserRouter([
         path: "forum/settings",
         element: <ForumSettings />,
       },
-      // New Easter Eggs route
+      // Easter Eggs route
       {
         path: "easter-eggs",
         element: <EasterEggs />,
+      },
+      // Note Taker route
+      {
+        path: "note-taker",
+        element: <NoteTaker />,
       },
       {
         path: "*",
