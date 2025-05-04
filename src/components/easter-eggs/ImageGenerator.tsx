@@ -28,24 +28,27 @@ const ImageGenerator = () => {
       // Initialize the Google Generative AI with the API key
       const genAI = new GoogleGenerativeAI(apiKey);
       
-      // Access the image generation model - Imagen 3
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+      // Access the image generation model - Gemini 1.5 Flash
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       // Generate the image
       const result = await model.generateContent([prompt]);
       const response = await result.response;
       
-      // Safely check for parts that might contain image data
+      // Check for parts that might contain image data
       const parts = response.candidates?.[0]?.content?.parts || [];
-      const imageData = parts.find(
-        part => {
-          // Check if the part has mime_type property and it starts with "image/"
-          return 'mime_type' in part && typeof part.mime_type === 'string' && part.mime_type.startsWith("image/");
+      const imagePart = parts.find(part => {
+        if (typeof part === 'object' && part !== null) {
+          return 'inlineData' in part && 
+                 typeof part.inlineData === 'object' && 
+                 part.inlineData !== null && 
+                 'data' in part.inlineData;
         }
-      )?.inlineData?.data;
+        return false;
+      });
       
-      if (imageData) {
-        setImage(`data:image/png;base64,${imageData}`);
+      if (imagePart && 'inlineData' in imagePart && imagePart.inlineData?.data) {
+        setImage(`data:image/png;base64,${imagePart.inlineData.data}`);
         toast.success("Image generated successfully!");
       } else {
         toast.error("Failed to generate image");
