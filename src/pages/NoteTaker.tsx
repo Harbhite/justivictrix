@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -12,19 +12,47 @@ import {
   ListOrdered,
   FileDown,
   Save,
-  FileText
+  FileText,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Heading1,
+  Heading2,
+  Link
 } from "lucide-react";
+import htmlDocx from 'html-to-docx';
+import jsPDF from 'jspdf';
+import TurndownService from 'turndown';
 
 const NoteTaker = () => {
   const [title, setTitle] = useState("Untitled Note");
   const [content, setContent] = useState<string>("");
   const editorRef = useRef<HTMLDivElement>(null);
   const [savedNotes, setSavedNotes] = useState<Array<{id: string; title: string; content: string}>>([]);
+
+  // Load saved notes from local storage on component mount
+  useEffect(() => {
+    const storedNotes = localStorage.getItem('notes');
+    if (storedNotes) {
+      try {
+        setSavedNotes(JSON.parse(storedNotes));
+      } catch (e) {
+        console.error('Failed to parse stored notes', e);
+      }
+    }
+  }, []);
+
+  // Save notes to local storage whenever they change
+  useEffect(() => {
+    localStorage.setItem('notes', JSON.stringify(savedNotes));
+  }, [savedNotes]);
   
   const formatText = (command: string, value: string = "") => {
     document.execCommand(command, false, value);
     if (editorRef.current) {
       editorRef.current.focus();
+      // Update content state after formatting
+      setContent(editorRef.current.innerHTML);
     }
   };
   
@@ -34,7 +62,19 @@ const NoteTaker = () => {
     }
   };
 
+  const insertLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) {
+      formatText('createLink', url);
+    }
+  };
+
   const saveNote = () => {
+    if (!content.trim()) {
+      toast.error("Cannot save empty note");
+      return;
+    }
+    
     const newNote = {
       id: Date.now().toString(),
       title,
@@ -46,6 +86,11 @@ const NoteTaker = () => {
   };
   
   const exportAsHTML = () => {
+    if (!content.trim()) {
+      toast.error("Cannot export empty note");
+      return;
+    }
+    
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -67,44 +112,80 @@ const NoteTaker = () => {
   };
   
   const exportAsMarkdown = () => {
-    // Simple HTML to Markdown conversion
+    if (!content.trim()) {
+      toast.error("Cannot export empty note");
+      return;
+    }
+    
+    // Use TurndownService to convert HTML to Markdown
+    const turndownService = new TurndownService();
     let markdown = `# ${title}\n\n`;
-    
-    let tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    
-    // Process paragraphs
-    const paragraphs = tempDiv.querySelectorAll('p');
-    paragraphs.forEach(p => {
-      markdown += p.textContent + '\n\n';
-    });
-    
-    // Process lists
-    const uls = tempDiv.querySelectorAll('ul');
-    uls.forEach(ul => {
-      ul.querySelectorAll('li').forEach(li => {
-        markdown += `- ${li.textContent}\n`;
-      });
-      markdown += '\n';
-    });
-    
-    const ols = tempDiv.querySelectorAll('ol');
-    ols.forEach(ol => {
-      let i = 1;
-      ol.querySelectorAll('li').forEach(li => {
-        markdown += `${i}. ${li.textContent}\n`;
-        i++;
-      });
-      markdown += '\n';
-    });
+    markdown += turndownService.turndown(content);
     
     downloadFile(markdown, `${title}.md`, 'text/markdown');
   };
+
+  const exportAsPDF = () => {
+    if (!content.trim()) {
+      toast.error("Cannot export empty note");
+      return;
+    }
+
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text(title, 20, 20);
+    doc.setFontSize(12);
+    
+    // Create a temp div to strip HTML and get plain text
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const text = tempDiv.textContent || tempDiv.innerText || "";
+    
+    // Split text into lines to fit on PDF
+    const splitText = doc.splitTextToSize(text, 170);
+    doc.text(splitText, 20, 30);
+    
+    doc.save(`${title}.pdf`);
+    toast.success(`Exported as ${title}.pdf`);
+  };
+
+  const exportAsDocx = async () => {
+    if (!content.trim()) {
+      toast.error("Cannot export empty note");
+      return;
+    }
+
+    try {
+      const docxBlob = await htmlDocx(content, {
+        title: title,
+        margin: { top: 720, right: 720, bottom: 720, left: 720 }
+      });
+      
+      const url = URL.createObjectURL(docxBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success(`Exported as ${title}.docx`);
+    } catch (error) {
+      console.error('Error exporting to DOCX:', error);
+      toast.error('Failed to export as DOCX');
+    }
+  };
   
   const exportAsText = () => {
+    if (!content.trim()) {
+      toast.error("Cannot export empty note");
+      return;
+    }
+    
     let tempDiv = document.createElement('div');
     tempDiv.innerHTML = content;
-    const text = `${title}\n\n${tempDiv.textContent}`;
+    const text = `${title}\n\n${tempDiv.textContent || tempDiv.innerText || ""}`;
     downloadFile(text, `${title}.txt`, 'text/plain');
   };
   
@@ -113,9 +194,26 @@ const NoteTaker = () => {
     const file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
     a.download = fileName;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
     toast.success(`Exported as ${fileName}`);
+  };
+
+  const loadNote = (note: {id: string; title: string; content: string}) => {
+    setTitle(note.title);
+    setContent(note.content);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = note.content;
+    }
+  };
+
+  const deleteNote = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updatedNotes = savedNotes.filter(note => note.id !== id);
+    setSavedNotes(updatedNotes);
+    toast.success("Note deleted");
   };
   
   return (
@@ -124,7 +222,7 @@ const NoteTaker = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">
-          <Card className="p-4 mb-6">
+          <Card className="p-4 mb-6 shadow-lg">
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -137,6 +235,7 @@ const NoteTaker = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={() => formatText('bold')}
+                title="Bold"
               >
                 <Bold size={16} />
               </Button>
@@ -145,6 +244,7 @@ const NoteTaker = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={() => formatText('italic')}
+                title="Italic"
               >
                 <Italic size={16} />
               </Button>
@@ -153,14 +253,43 @@ const NoteTaker = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={() => formatText('underline')}
+                title="Underline"
               >
                 <Underline size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => formatText('justifyLeft')}
+                title="Align Left"
+              >
+                <AlignLeft size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => formatText('justifyCenter')}
+                title="Center"
+              >
+                <AlignCenter size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => formatText('justifyRight')}
+                title="Align Right"
+              >
+                <AlignRight size={16} />
               </Button>
               
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => formatText('insertUnorderedList')}
+                title="Bullet List"
               >
                 <List size={16} />
               </Button>
@@ -169,8 +298,36 @@ const NoteTaker = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={() => formatText('insertOrderedList')}
+                title="Numbered List"
               >
                 <ListOrdered size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => formatText('formatBlock', '<h1>')}
+                title="Heading 1"
+              >
+                <Heading1 size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => formatText('formatBlock', '<h2>')}
+                title="Heading 2"
+              >
+                <Heading2 size={16} />
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={insertLink}
+                title="Insert Link"
+              >
+                <Link size={16} />
               </Button>
               
               <div className="ml-auto flex gap-1">
@@ -191,6 +348,7 @@ const NoteTaker = () => {
               className="min-h-[400px] border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               contentEditable
               onInput={handleContentChange}
+              onBlur={handleContentChange}
               dangerouslySetInnerHTML={{ __html: content }}
             />
             
@@ -215,6 +373,24 @@ const NoteTaker = () => {
               
               <Button 
                 variant="outline"
+                onClick={exportAsPDF}
+                className="text-red-600 border-red-600 hover:bg-red-50"
+              >
+                <FileDown size={16} className="mr-2" />
+                Export as PDF
+              </Button>
+
+              <Button 
+                variant="outline"
+                onClick={exportAsDocx}
+                className="text-blue-800 border-blue-800 hover:bg-blue-50"
+              >
+                <FileDown size={16} className="mr-2" />
+                Export as DOCX
+              </Button>
+              
+              <Button 
+                variant="outline"
                 onClick={exportAsText}
                 className="text-gray-600 border-gray-600 hover:bg-gray-50"
               >
@@ -226,7 +402,7 @@ const NoteTaker = () => {
         </div>
         
         <div className="lg:col-span-1">
-          <Card className="p-4">
+          <Card className="p-4 shadow-lg">
             <h2 className="text-lg font-bold mb-4 flex items-center">
               <FileText size={18} className="mr-2" />
               Saved Notes
@@ -239,19 +415,23 @@ const NoteTaker = () => {
                 {savedNotes.map(note => (
                   <div 
                     key={note.id} 
-                    className="p-2 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer"
-                    onClick={() => {
-                      setTitle(note.title);
-                      setContent(note.content);
-                      if (editorRef.current) {
-                        editorRef.current.innerHTML = note.content;
-                      }
-                    }}
+                    className="p-2 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer flex justify-between items-center"
+                    onClick={() => loadNote(note)}
                   >
-                    <h3 className="font-medium">{note.title}</h3>
-                    <p className="text-xs text-gray-500 truncate">
-                      {new Date(parseInt(note.id)).toLocaleString()}
-                    </p>
+                    <div>
+                      <h3 className="font-medium">{note.title}</h3>
+                      <p className="text-xs text-gray-500">
+                        {new Date(parseInt(note.id)).toLocaleString()}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => deleteNote(note.id, e)}
+                      className="text-red-500 hover:bg-red-50 hover:text-red-700"
+                    >
+                      ×
+                    </Button>
                   </div>
                 ))}
               </div>

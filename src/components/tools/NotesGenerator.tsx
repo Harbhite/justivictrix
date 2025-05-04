@@ -24,6 +24,7 @@ const NotesGenerator = () => {
     try {
       const result = await generateNotes(topic);
       setNotes(result);
+      toast.success("Notes generated successfully");
     } catch (error) {
       console.error("Error generating notes:", error);
       toast.error("Failed to generate notes");
@@ -33,14 +34,20 @@ const NotesGenerator = () => {
   };
 
   const handleCopy = () => {
-    if (!notes) return;
+    if (!notes) {
+      toast.error("No notes to copy");
+      return;
+    }
     
     navigator.clipboard.writeText(notes);
     toast.success("Notes copied to clipboard");
   };
 
   const handleExport = () => {
-    if (!notes) return;
+    if (!notes) {
+      toast.error("No notes to export");
+      return;
+    }
     
     const blob = new Blob([notes], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
