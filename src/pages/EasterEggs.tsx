@@ -5,7 +5,7 @@ import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
-import MemeGenerator from "@/components/easter-eggs/MemeGenerator";
+import CourtroomSimulator from "@/components/easter-eggs/CourtroomSimulator";
 import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
 import ColorPalette from "@/components/easter-eggs/ColorPalette";
 
@@ -60,12 +60,12 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* NEW: Meme Generator Card */}
+        {/* NEW: Courtroom Simulator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#9b87f5] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Meme Generator</h2>
-            <p className="text-gray-600 mb-4">Create fun memes with legal themes and captions</p>
-            <MemeGenerator />
+            <h2 className="text-xl font-bold mb-4">Courtroom Simulator</h2>
+            <p className="text-gray-600 mb-4">Simulate legal cases with prosecution, defense, and judgments</p>
+            <CourtroomSimulator />
           </div>
         </div>
 

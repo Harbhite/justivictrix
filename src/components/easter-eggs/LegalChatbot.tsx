@@ -19,7 +19,7 @@ const LegalChatbot = () => {
     {
       id: "welcome",
       type: "assistant",
-      content: "Hello! I'm your AI legal assistant. Ask me any legal question and I'll try to provide helpful information. Remember, I offer general information, not legal advice.",
+      content: "Hello! I'm your AI assistant. I can answer legal questions, especially about Nigerian law, but I'm also happy to discuss any other topics you're curious about. How can I help you today?",
       timestamp: new Date(),
     },
   ]);
@@ -54,7 +54,7 @@ const LegalChatbot = () => {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
       // Include both system prompt and conversation history
-      const systemPrompt = "You are a helpful legal assistant that provides general information about legal concepts, history, and principles. You do NOT provide legal advice and should clarify this in your responses when appropriate. Keep your responses concise and educational. If you don't know something, admit it rather than making up information.";
+      const systemPrompt = "You are a helpful assistant that can answer a wide range of questions in detail. You're especially knowledgeable about legal concepts and Nigerian law, but you can also provide information on history, science, culture, technology, and more. Your responses should be educational, accurate, and thorough. When discussing legal topics, clarify that you're providing general information, not legal advice. For questions about Nigerian law, include specific references to relevant legislation, cases, or legal principles when possible.";
       
       // Format the previous messages for context
       const conversationHistory = messages
@@ -68,7 +68,7 @@ const LegalChatbot = () => {
       const chat = model.startChat({
         history: conversationHistory,
         generationConfig: {
-          maxOutputTokens: 500,
+          maxOutputTokens: 1000, // Increased token limit for more detailed answers
         },
       });
       
@@ -137,7 +137,7 @@ const LegalChatbot = () => {
                     <Sparkles className="h-4 w-4 text-green-600" />
                   )}
                   <span className="text-xs font-medium">
-                    {message.type === "user" ? "You" : "Legal Assistant"}
+                    {message.type === "user" ? "You" : "AI Assistant"}
                   </span>
                 </div>
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -168,7 +168,7 @@ const LegalChatbot = () => {
           value={currentMessage}
           onChange={(e) => setCurrentMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a legal question..."
+          placeholder="Ask me anything..."
           disabled={isLoading}
           className="flex-1"
         />
@@ -182,7 +182,7 @@ const LegalChatbot = () => {
         </Button>
       </div>
       <div className="bg-gray-50 text-xs text-gray-500 p-2 text-center">
-        <p>Remember: This provides general information, not legal advice.</p>
+        <p>I can answer questions on many topics, including Nigerian law!</p>
       </div>
     </div>
   );

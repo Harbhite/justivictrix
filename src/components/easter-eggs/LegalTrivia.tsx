@@ -33,14 +33,14 @@ const LegalTrivia = () => {
       const genAI = new GoogleGenerativeAI("AIzaSyD6XDMt8pXaMBRm7ePwdXYf2eeut7mJlI0");
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       
-      const prompt = `Generate a challenging legal trivia question. Format the response as a JSON object with the following structure:
+      const prompt = `Generate a challenging Nigerian legal trivia question. The question should be about Nigerian law, legal system, constitution, case law, or legal history. Format the response as a JSON object with the following structure:
       {
-        "question": "The full question text",
+        "question": "The full question text about Nigerian law",
         "options": ["Option A", "Option B", "Option C", "Option D"],
         "correctAnswer": 0, // Index of the correct answer (0-3)
-        "explanation": "Detailed explanation of the correct answer"
+        "explanation": "Detailed explanation of the correct answer, with reference to relevant Nigerian legislation, case law, or legal principles"
       }
-      Make sure the question is challenging but fair, and the explanation is educational.`;
+      Make sure the question is challenging but fair, and the explanation is educational and specifically references Nigerian law.`;
       
       const result = await model.generateContent(prompt);
       const text = result.response.text();
@@ -57,10 +57,10 @@ const LegalTrivia = () => {
         console.error("Error parsing JSON:", e);
         // Fall back to a default question if parsing fails
         const fallbackQuestion = {
-          question: "Which constitutional amendment protects against unreasonable searches and seizures?",
-          options: ["First Amendment", "Fourth Amendment", "Fifth Amendment", "Eighth Amendment"],
+          question: "Which Nigerian constitution established the Federal Character Commission?",
+          options: ["1979 Constitution", "1999 Constitution", "1963 Constitution", "1989 Constitution"],
           correctAnswer: 1,
-          explanation: "The Fourth Amendment protects citizens from unreasonable searches and seizures by the government."
+          explanation: "The Federal Character Commission was established by the 1999 Constitution of Nigeria to enforce fairness and equity in the distribution of public posts and socio-economic infrastructure among the various federating units of Nigeria."
         };
         
         setQuestions([...questions, fallbackQuestion]);
@@ -71,10 +71,10 @@ const LegalTrivia = () => {
       console.error("Error fetching question:", error);
       // Fall back to a default question
       const fallbackQuestion = {
-        question: "Which constitutional amendment protects against unreasonable searches and seizures?",
-        options: ["First Amendment", "Fourth Amendment", "Fifth Amendment", "Eighth Amendment"],
+        question: "Which Nigerian constitution established the Federal Character Commission?",
+        options: ["1979 Constitution", "1999 Constitution", "1963 Constitution", "1989 Constitution"],
         correctAnswer: 1,
-        explanation: "The Fourth Amendment protects citizens from unreasonable searches and seizures by the government."
+        explanation: "The Federal Character Commission was established by the 1999 Constitution of Nigeria to enforce fairness and equity in the distribution of public posts and socio-economic infrastructure among the various federating units of Nigeria."
       };
       
       setQuestions([...questions, fallbackQuestion]);
@@ -117,7 +117,7 @@ const LegalTrivia = () => {
     return (
       <div className="flex flex-col items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
-        <p className="text-gray-600">Generating legal trivia question...</p>
+        <p className="text-gray-600">Generating Nigerian legal trivia question...</p>
       </div>
     );
   }
