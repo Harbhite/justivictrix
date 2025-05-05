@@ -5,6 +5,8 @@ import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
+import ImageGenerator from "@/components/easter-eggs/ImageGenerator";
+import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
 
 const EasterEggs = () => {
   return (
@@ -43,7 +45,7 @@ const EasterEggs = () => {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#1EAEDB] hover:shadow-xl transition-all">
           <div className="p-6">
             <h2 className="text-xl font-bold mb-4">Legal Trivia Challenge</h2>
-            <p className="text-gray-600 mb-4">Test your knowledge of law and legal concepts</p>
+            <p className="text-gray-600 mb-4">Test your knowledge with AI-generated legal questions</p>
             <LegalTrivia />
           </div>
         </div>
@@ -54,6 +56,24 @@ const EasterEggs = () => {
             <h2 className="text-xl font-bold mb-4">Inspiring Quotes</h2>
             <p className="text-gray-600 mb-4">Discover profound quotes about law and justice</p>
             <QuoteGenerator />
+          </div>
+        </div>
+
+        {/* NEW: Image Generator Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#9b87f5] hover:shadow-xl transition-all">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Legal Image Generator</h2>
+            <p className="text-gray-600 mb-4">Create AI-generated images related to law and justice</p>
+            <ImageGenerator />
+          </div>
+        </div>
+
+        {/* NEW: Legal Chatbot Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#22c55e] hover:shadow-xl transition-all">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Legal Assistant</h2>
+            <p className="text-gray-600 mb-4">Chat with an AI to get legal information and guidance</p>
+            <LegalChatbot />
           </div>
         </div>
       </div>
