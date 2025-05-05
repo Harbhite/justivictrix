@@ -5,8 +5,9 @@ import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
-import ImageGenerator from "@/components/easter-eggs/ImageGenerator";
+import MemeGenerator from "@/components/easter-eggs/MemeGenerator";
 import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
+import ColorPalette from "@/components/easter-eggs/ColorPalette";
 
 const EasterEggs = () => {
   return (
@@ -59,16 +60,25 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* NEW: Image Generator Card */}
+        {/* NEW: Meme Generator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#9b87f5] hover:shadow-xl transition-all">
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Image Generator</h2>
-            <p className="text-gray-600 mb-4">Create AI-generated images related to law and justice</p>
-            <ImageGenerator />
+            <h2 className="text-xl font-bold mb-4">Legal Meme Generator</h2>
+            <p className="text-gray-600 mb-4">Create fun memes with legal themes and captions</p>
+            <MemeGenerator />
           </div>
         </div>
 
-        {/* NEW: Legal Chatbot Card */}
+        {/* NEW: Color Palette Generator Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#f59e0b] hover:shadow-xl transition-all">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Color Palette Generator</h2>
+            <p className="text-gray-600 mb-4">Generate color schemes for your legal documents and presentations</p>
+            <ColorPalette />
+          </div>
+        </div>
+
+        {/* Legal Chatbot Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#22c55e] hover:shadow-xl transition-all">
           <div className="p-6">
             <h2 className="text-xl font-bold mb-4">Legal Assistant</h2>

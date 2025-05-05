@@ -54,7 +54,7 @@ const ColorPalette = () => {
       <Button 
         onClick={generatePalette} 
         disabled={isLoading}
-        className="w-full bg-[#8B5CF6] hover:bg-purple-700"
+        className="w-full bg-[#f59e0b] hover:bg-amber-600"
       >
         <RefreshCw className="mr-2" size={16} />
         {isLoading ? "Generating..." : "Generate New Palette"}
