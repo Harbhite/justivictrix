@@ -32,7 +32,6 @@ import ForumCategory from './pages/ForumCategory';
 import ForumTopic from './pages/ForumTopic';
 import ForumSettings from './pages/ForumSettings';
 import EasterEggs from './pages/EasterEggs';
-import NoteTaker from './pages/NoteTaker';
 
 const queryClient = new QueryClient();
 
@@ -193,10 +192,10 @@ const router = createBrowserRouter([
         path: "easter-eggs",
         element: <EasterEggs />,
       },
-      // Note Taker route
+      // Redirect old note-taker route to resources
       {
         path: "note-taker",
-        element: <NoteTaker />,
+        element: <Navigate to="/resources" replace />,
       },
       {
         path: "*",

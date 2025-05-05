@@ -18,7 +18,7 @@ import {
   AlignRight,
   Heading1,
   Heading2,
-  Link
+  Link as LinkIcon
 } from "lucide-react";
 import jsPDF from 'jspdf';
 import TurndownService from 'turndown';
@@ -179,8 +179,7 @@ const NoteTaker = () => {
       </html>
     `;
 
-    // Since html-to-docx is causing issues, we'll use a workaround
-    // We'll create a Blob with HTML content and add MS Word specific metadata
+    // Create a Blob with HTML content and Word-specific metadata
     const blob = new Blob([htmlContent], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     });
@@ -239,9 +238,7 @@ const NoteTaker = () => {
   };
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Note Taker</h1>
-      
+    <div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">
           <Card className="p-4 mb-6 shadow-lg">
@@ -349,7 +346,7 @@ const NoteTaker = () => {
                 onClick={insertLink}
                 title="Insert Link"
               >
-                <Link size={16} />
+                <LinkIcon size={16} />
               </Button>
               
               <div className="ml-auto flex gap-1">
