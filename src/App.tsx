@@ -35,6 +35,15 @@ import EasterEggs from './pages/EasterEggs';
 
 const queryClient = new QueryClient();
 
+// Create a context for authentication
+export const AuthContext = React.createContext<{
+  user: any | null;
+  isLoading: boolean;
+}>({
+  user: null,
+  isLoading: true,
+});
+
 // Layout component that includes Navbar and Outlet for nested routes
 const Layout = () => {
   return (
@@ -47,15 +56,6 @@ const Layout = () => {
     </>
   );
 };
-
-// Create a context for authentication
-export const AuthContext = React.createContext<{
-  user: any | null;
-  isLoading: boolean;
-}>({
-  user: null,
-  isLoading: true,
-});
 
 // AuthProvider component
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -97,7 +97,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const router = createBrowserRouter([
+// Define routes first, but don't create router yet
+const routes = [
   {
     path: "/",
     element: <Layout />,
@@ -203,14 +204,15 @@ const router = createBrowserRouter([
       }
     ],
   },
-]);
+];
 
 function App() {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RouterProvider router={router} />
+          {/* Create router here, after AuthProvider is defined */}
+          <RouterProvider router={createBrowserRouter(routes)} />
         </AuthProvider>
       </QueryClientProvider>
     </React.StrictMode>

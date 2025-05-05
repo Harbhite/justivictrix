@@ -5,7 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export function useAuth() {
-  const { user, isLoading } = useContext(AuthContext);
+  const context = useContext(AuthContext);
+  
+  // Make sure the context is being used within an AuthProvider
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  
+  const { user, isLoading } = context;
   const navigate = useNavigate();
   
   // Function to check auth and redirect if not authenticated

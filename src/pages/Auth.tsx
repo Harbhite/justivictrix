@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, Key, Mail, Eye, EyeOff } from "lucide-react";
@@ -10,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const Auth = () => {
+  // Define navigate here but use it safely inside useEffect to avoid null issues
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -22,15 +22,22 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkSession = async () => {
-      const { data: sessionData, error } = await supabase.auth.getSession();
-      console.log("Session check:", sessionData, error);
-      if (sessionData.session) {
-        navigate("/resources");
+      try {
+        const { data: sessionData, error } = await supabase.auth.getSession();
+        console.log("Session check:", sessionData, error);
+        if (sessionData.session) {
+          navigate("/resources");
+        }
+      } catch (err) {
+        console.error("Error checking session:", err);
       }
     };
     
-    checkSession();
-  }, [navigate]);
+    // Only run this effect if navigate is defined
+    if (navigate) {
+      checkSession();
+    }
+  }, [navigate]); // Add navigate as dependency
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +80,9 @@ const Auth = () => {
         if (signInError) throw signInError;
         
         toast.success("Logged in successfully!");
-        navigate("/resources");
+        if (navigate) {
+          navigate("/resources");
+        }
       }
     } catch (error: any) {
       console.error("Authentication error:", error);
