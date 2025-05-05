@@ -10,7 +10,6 @@ import {
   GalleryHorizontal, 
   UserCircle,
   Settings,
-  MessageSquare,
   Sparkles
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -49,11 +48,8 @@ const Navbar = () => {
     { name: "About us", path: "/about", icon: Book },
     { name: "Mentors", path: "/people", icon: Book },
     { name: "Blog", path: "/blog", icon: Book },
-    { name: "Forum", path: "/secret-forum", icon: MessageSquare },
     { name: "Easter Eggs", path: "/easter-eggs", icon: Sparkles },
   ];
-
-  const isForumPage = location.pathname.includes("/forum") || location.pathname === "/secret-forum";
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -88,16 +84,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            
-            {isForumPage && user && (
-              <Link
-                to="/forum/settings"
-                className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                <Settings size={16} />
-                Forum Settings
-              </Link>
-            )}
             
             {user ? (
               <Link
@@ -156,17 +142,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              
-              {isForumPage && user && (
-                <Link
-                  to="/forum/settings"
-                  className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Settings className="mr-3" size={20} />
-                  Forum Settings
-                </Link>
-              )}
               
               {user ? (
                 <Link
