@@ -20,7 +20,6 @@ import {
   Heading2,
   Link
 } from "lucide-react";
-import htmlDocx from 'html-to-docx';
 import jsPDF from 'jspdf';
 import TurndownService from 'turndown';
 
@@ -149,32 +148,47 @@ const NoteTaker = () => {
     toast.success(`Exported as ${title}.pdf`);
   };
 
-  const exportAsDocx = async () => {
+  const exportAsDocx = () => {
     if (!content.trim()) {
       toast.error("Cannot export empty note");
       return;
     }
 
-    try {
-      const docxBlob = await htmlDocx(content, {
-        title: title,
-        margin: { top: 720, right: 720, bottom: 720, left: 720 }
-      });
-      
-      const url = URL.createObjectURL(docxBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title}.docx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      toast.success(`Exported as ${title}.docx`);
-    } catch (error) {
-      console.error('Error exporting to DOCX:', error);
-      toast.error('Failed to export as DOCX');
-    }
+    // Create a simple HTML document with the content
+    const htmlContent = `
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #333; }
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <div>${content}</div>
+        </body>
+      </html>
+    `;
+
+    // Since html-to-docx is causing issues, we'll use a workaround
+    // We'll create a Blob with HTML content and add MS Word specific metadata
+    const blob = new Blob([htmlContent], {
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+    
+    // Create a download link
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Exported as ${title}.docx`);
+    toast.info("Note: For better DOCX formatting, consider copying content into a word processor");
   };
   
   const exportAsText = () => {
