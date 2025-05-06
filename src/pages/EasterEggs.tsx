@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import AIMotivator from "@/components/easter-eggs/AIMotivator";
 import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
@@ -7,6 +8,8 @@ import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
 
 const EasterEggs = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl md:text-3xl font-bold text-center mb-8">Interactive Tools & Fun Features</h1>
