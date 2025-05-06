@@ -4,10 +4,7 @@ import AIMotivator from "@/components/easter-eggs/AIMotivator";
 import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
-import LegalTrivia from "@/components/easter-eggs/LegalTrivia";
-import CourtroomSimulator from "@/components/easter-eggs/CourtroomSimulator";
 import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
-import ColorPalette from "@/components/easter-eggs/ColorPalette";
 
 const EasterEggs = () => {
   return (
@@ -42,39 +39,12 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Legal Trivia Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#1EAEDB] hover:shadow-xl transition-all">
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Legal Trivia Challenge</h2>
-            <p className="text-gray-600 mb-4">Test your knowledge with AI-generated legal questions</p>
-            <LegalTrivia />
-          </div>
-        </div>
-
         {/* Quote Generator Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#ea384c] hover:shadow-xl transition-all">
           <div className="p-6">
             <h2 className="text-xl font-bold mb-4">Inspiring Quotes</h2>
             <p className="text-gray-600 mb-4">Discover profound quotes about law and justice</p>
             <QuoteGenerator />
-          </div>
-        </div>
-
-        {/* NEW: Courtroom Simulator Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#9b87f5] hover:shadow-xl transition-all">
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Courtroom Simulator</h2>
-            <p className="text-gray-600 mb-4">Simulate legal cases with prosecution, defense, and judgments</p>
-            <CourtroomSimulator />
-          </div>
-        </div>
-
-        {/* NEW: Color Palette Generator Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#f59e0b] hover:shadow-xl transition-all">
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Color Palette Generator</h2>
-            <p className="text-gray-600 mb-4">Generate color schemes for your legal documents and presentations</p>
-            <ColorPalette />
           </div>
         </div>
 
