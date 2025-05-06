@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,23 +47,21 @@ const NoteTaker = () => {
   
   const formatText = (command: string, value: string = "") => {
     if (editorRef.current) {
-      // Save current selection before applying formatting
-      const selection = window.getSelection();
-      const range = selection?.getRangeAt(0);
-      
-      // Apply formatting command
       document.execCommand(command, false, value);
       
-      // Focus the editor to maintain cursor position
+      // Focus back to editor and update content state
       editorRef.current.focus();
       
-      // Update content state after formatting
-      setContent(editorRef.current.innerHTML);
+      // Important: Update the content state with the current HTML after formatting
+      if (editorRef.current) {
+        setContent(editorRef.current.innerHTML);
+      }
     }
   };
   
   const handleContentChange = () => {
     if (editorRef.current) {
+      // Directly update state with current innerHTML
       setContent(editorRef.current.innerHTML);
     }
   };
@@ -367,7 +364,7 @@ const NoteTaker = () => {
               className="min-h-[400px] border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               contentEditable
               onInput={handleContentChange}
-              onBlur={handleContentChange}
+              suppressContentEditableWarning={true}
               dangerouslySetInnerHTML={{ __html: content }}
             />
             
