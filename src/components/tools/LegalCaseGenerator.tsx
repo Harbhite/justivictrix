@@ -8,11 +8,13 @@ import { Copy, Download, FileText, FileCode } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const LegalCaseGenerator = () => {
   const [topic, setTopic] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedCase, setGeneratedCase] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -59,7 +61,7 @@ const LegalCaseGenerator = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}>
         <Input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -77,15 +79,15 @@ const LegalCaseGenerator = () => {
 
       {generatedCase && (
         <div className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopy}>
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-2`}>
+            <Button variant="outline" size="sm" onClick={handleCopy} className="w-full md:w-auto">
               <Copy className="mr-2" size={16} />
               Copy
             </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="w-full md:w-auto">
                   <Download className="mr-2" size={16} />
                   Download
                 </Button>
@@ -107,12 +109,12 @@ const LegalCaseGenerator = () => {
             </DropdownMenu>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border-2 border-black shadow-lg">
+          <div className="bg-white p-4 md:p-6 rounded-lg border-2 border-black shadow-lg">
             <div className="prose max-w-none">
               <Textarea 
                 value={generatedCase} 
                 readOnly 
-                className="min-h-[400px] font-mono text-sm border-none focus-visible:ring-0 p-4"
+                className="min-h-[300px] md:min-h-[400px] font-mono text-sm border-none focus-visible:ring-0 p-2 md:p-4"
               />
             </div>
           </div>

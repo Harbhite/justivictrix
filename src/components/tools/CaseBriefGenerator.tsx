@@ -11,12 +11,14 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CaseBriefGenerator = () => {
   const [caseName, setCaseName] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedBrief, setGeneratedBrief] = useState("");
+  const isMobile = useIsMobile();
 
   const handleGenerate = async () => {
     if (!caseName.trim()) {
@@ -133,7 +135,7 @@ const CaseBriefGenerator = () => {
             value={additionalInfo}
             onChange={(e) => setAdditionalInfo(e.target.value)}
             placeholder="Specify any particular aspects of the case you want emphasized"
-            className="min-h-[100px] border-2 border-green-200 focus:border-green-400"
+            className="min-h-[80px] md:min-h-[100px] border-2 border-green-200 focus:border-green-400"
           />
         </div>
 
@@ -148,20 +150,20 @@ const CaseBriefGenerator = () => {
 
       {generatedBrief && (
         <Card className="mt-4 border-2 border-green-300 shadow-lg overflow-hidden">
-          <div className="flex justify-between items-center p-3 bg-green-50 border-b border-green-200">
-            <div className="flex items-center gap-2">
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-between'} items-start md:items-center p-3 bg-green-50 border-b border-green-200`}>
+            <div className="flex items-center gap-2 mb-2 md:mb-0">
               <Gavel className="h-5 w-5 text-green-600" />
               <h3 className="font-bold text-green-800">Case Brief: {caseName}</h3>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCopy} className="border-green-300 hover:bg-green-50">
+            <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} gap-2`}>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-green-300 hover:bg-green-50 w-full md:w-auto">
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-green-300 hover:bg-green-50">
+                  <Button variant="outline" size="sm" className="border-green-300 hover:bg-green-50 w-full md:w-auto">
                     <Download className="mr-2" size={16} />
                     Export
                   </Button>
@@ -184,8 +186,8 @@ const CaseBriefGenerator = () => {
             </div>
           </div>
           
-          <CardContent className="p-6 max-h-[500px] overflow-y-auto bg-white">
-            <div className="prose max-w-none">
+          <CardContent className="p-4 md:p-6 max-h-[400px] md:max-h-[500px] overflow-y-auto bg-white">
+            <div className="prose max-w-none text-sm md:text-base">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {generatedBrief}
               </ReactMarkdown>

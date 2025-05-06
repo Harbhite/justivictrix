@@ -8,6 +8,7 @@ import { Copy, Download, FileText, FileCode } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Argument {
   pro: string[];
@@ -18,6 +19,7 @@ const ArgumentGenerator = () => {
   const [topic, setTopic] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [generatedArguments, setGeneratedArguments] = useState<Argument | null>(null);
+  const isMobile = useIsMobile();
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -99,7 +101,7 @@ const ArgumentGenerator = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}>
         <Input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -117,15 +119,15 @@ const ArgumentGenerator = () => {
 
       {generatedArguments && (
         <div className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleCopy('all')}>
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-2`}>
+            <Button variant="outline" size="sm" onClick={() => handleCopy('all')} className="w-full md:w-auto">
               <Copy className="mr-2" size={16} />
               Copy All
             </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="w-full md:w-auto">
                   <Download className="mr-2" size={16} />
                   Download
                 </Button>
@@ -154,9 +156,9 @@ const ArgumentGenerator = () => {
                 <TabsTrigger value="contra">Arguments Against</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="pro" className="p-6">
+              <TabsContent value="pro" className="p-4 md:p-6">
                 <div className="flex justify-end mb-4">
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('pro')}>
+                  <Button variant="ghost" size="sm" onClick={() => handleCopy('pro')} className="w-full md:w-auto">
                     <Copy className="mr-2" size={16} />
                     Copy
                   </Button>
@@ -165,15 +167,15 @@ const ArgumentGenerator = () => {
                 <ul className="space-y-4">
                   {generatedArguments.pro.map((arg, index) => (
                     <li key={index} className="border-l-4 border-green-500 pl-4 py-2">
-                      <p className="whitespace-pre-wrap">{arg}</p>
+                      <p className="whitespace-pre-wrap text-sm md:text-base">{arg}</p>
                     </li>
                   ))}
                 </ul>
               </TabsContent>
               
-              <TabsContent value="contra" className="p-6">
+              <TabsContent value="contra" className="p-4 md:p-6">
                 <div className="flex justify-end mb-4">
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('contra')}>
+                  <Button variant="ghost" size="sm" onClick={() => handleCopy('contra')} className="w-full md:w-auto">
                     <Copy className="mr-2" size={16} />
                     Copy
                   </Button>
@@ -182,7 +184,7 @@ const ArgumentGenerator = () => {
                 <ul className="space-y-4">
                   {generatedArguments.contra.map((arg, index) => (
                     <li key={index} className="border-l-4 border-red-500 pl-4 py-2">
-                      <p className="whitespace-pre-wrap">{arg}</p>
+                      <p className="whitespace-pre-wrap text-sm md:text-base">{arg}</p>
                     </li>
                   ))}
                 </ul>

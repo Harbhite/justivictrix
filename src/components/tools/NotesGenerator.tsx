@@ -10,11 +10,13 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const NotesGenerator = () => {
   const [topic, setTopic] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [notes, setNotes] = useState("");
+  const isMobile = useIsMobile();
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
@@ -68,7 +70,7 @@ const NotesGenerator = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}>
         <Input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
@@ -86,20 +88,20 @@ const NotesGenerator = () => {
 
       {notes && (
         <Card className="mt-4 border-2 border-gray-300 shadow-lg overflow-hidden">
-          <div className="flex justify-between items-center p-3 bg-blue-50 border-b">
-            <div className="flex items-center gap-2">
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-between'} items-start md:items-center p-3 bg-blue-50 border-b`}>
+            <div className="flex items-center gap-2 mb-2 md:mb-0">
               <BookOpen className="h-5 w-5 text-blue-600" />
               <h3 className="font-bold text-blue-800">Generated Notes: {topic}</h3>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCopy} className="border-blue-300 hover:bg-blue-50">
+            <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} gap-2`}>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-blue-300 hover:bg-blue-50 w-full md:w-auto">
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-blue-300 hover:bg-blue-50">
+                  <Button variant="outline" size="sm" className="border-blue-300 hover:bg-blue-50 w-full md:w-auto">
                     <Download className="mr-2" size={16} />
                     Export
                   </Button>
@@ -122,7 +124,7 @@ const NotesGenerator = () => {
             </div>
           </div>
           
-          <CardContent className="p-6 max-h-[400px] overflow-y-auto bg-white">
+          <CardContent className="p-4 md:p-6 max-h-[300px] md:max-h-[400px] overflow-y-auto bg-white">
             <div className="prose max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {notes}

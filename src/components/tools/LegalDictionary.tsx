@@ -10,11 +10,13 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const LegalDictionary = () => {
   const [term, setTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [definition, setDefinition] = useState("");
+  const isMobile = useIsMobile();
 
   const handleLookup = async () => {
     if (!term.trim()) {
@@ -61,7 +63,7 @@ const LegalDictionary = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}>
         <Input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
@@ -79,20 +81,20 @@ const LegalDictionary = () => {
 
       {definition && (
         <Card className="mt-4 border-2 border-amber-200 shadow-lg overflow-hidden">
-          <div className="flex justify-between items-center p-3 bg-amber-50 border-b border-amber-200">
-            <div className="flex items-center gap-2">
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-between'} items-start md:items-center p-3 bg-amber-50 border-b border-amber-200`}>
+            <div className="flex items-center gap-2 mb-2 md:mb-0">
               <Book className="h-5 w-5 text-amber-600" />
               <h3 className="font-bold text-amber-800">Definition: {term}</h3>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCopy} className="border-amber-300 hover:bg-amber-50">
+            <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} gap-2`}>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-amber-300 hover:bg-amber-50 w-full md:w-auto">
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-50">
+                  <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-50 w-full md:w-auto">
                     <Download className="mr-2" size={16} />
                     Export
                   </Button>
@@ -115,7 +117,7 @@ const LegalDictionary = () => {
             </div>
           </div>
           
-          <CardContent className="p-6 max-h-[400px] overflow-y-auto bg-white">
+          <CardContent className="p-4 md:p-6 max-h-[300px] md:max-h-[400px] overflow-y-auto bg-white">
             <div className="prose max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {definition}
