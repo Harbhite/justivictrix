@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Copy, Download, Gavel } from "lucide-react";
+import { Copy, Download, Gavel, FileText, FileCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
 
 const CaseBriefGenerator = () => {
   const [caseName, setCaseName] = useState("");
@@ -92,18 +94,22 @@ const CaseBriefGenerator = () => {
     toast.success("Case brief copied to clipboard");
   };
 
-  const handleDownload = () => {
+  const handleDownload = (format: 'txt' | 'pdf' | 'docx') => {
     if (!generatedBrief) return;
     
-    const element = document.createElement("a");
-    const file = new Blob([generatedBrief], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = `case-brief-${caseName.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "")}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    const fileName = `case-brief-${caseName.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "")}`;
     
-    toast.success("Case brief downloaded as text file");
+    switch (format) {
+      case 'txt':
+        downloadAsTxt(fileName, generatedBrief);
+        break;
+      case 'pdf':
+        downloadAsPDF(fileName, generatedBrief);
+        break;
+      case 'docx':
+        downloadAsDocx(fileName, generatedBrief);
+        break;
+    }
   };
 
   return (
@@ -152,10 +158,29 @@ const CaseBriefGenerator = () => {
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
-              <Button variant="outline" size="sm" onClick={handleDownload} className="border-green-300 hover:bg-green-50">
-                <Download className="mr-2" size={16} />
-                Download
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="border-green-300 hover:bg-green-50">
+                    <Download className="mr-2" size={16} />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Text (.txt)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                    <FileCode className="mr-2" size={16} />
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Word (.docx)</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           

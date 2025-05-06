@@ -4,8 +4,10 @@ import { generateArguments } from "@/utils/gemini";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, FileText, FileCode } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
 
 interface Argument {
   pro: string[];
@@ -59,29 +61,40 @@ const ArgumentGenerator = () => {
     toast.success(`${type === 'all' ? 'All arguments' : (type === 'pro' ? 'Arguments in favor' : 'Arguments against')} copied to clipboard`);
   };
 
-  const handleDownload = () => {
+  const prepareContent = () => {
+    if (!generatedArguments) return "";
+    
+    let content = `Arguments for "${topic}"\n\n`;
+    content += "ARGUMENTS IN FAVOR:\n\n";
+    generatedArguments.pro.forEach((arg, i) => {
+      content += `${i + 1}. ${arg}\n\n`;
+    });
+    
+    content += "\nARGUMENTS AGAINST:\n\n";
+    generatedArguments.contra.forEach((arg, i) => {
+      content += `${i + 1}. ${arg}\n\n`;
+    });
+    
+    return content;
+  };
+
+  const handleDownload = (format: 'txt' | 'pdf' | 'docx') => {
     if (!generatedArguments) return;
     
-    let textToDownload = `Arguments for "${topic}"\n\n`;
-    textToDownload += "ARGUMENTS IN FAVOR:\n\n";
-    generatedArguments.pro.forEach((arg, i) => {
-      textToDownload += `${i + 1}. ${arg}\n\n`;
-    });
+    const content = prepareContent();
+    const fileName = `arguments-${topic.toLowerCase().replace(/\s+/g, "-")}`;
     
-    textToDownload += "\nARGUMENTS AGAINST:\n\n";
-    generatedArguments.contra.forEach((arg, i) => {
-      textToDownload += `${i + 1}. ${arg}\n\n`;
-    });
-    
-    const element = document.createElement("a");
-    const file = new Blob([textToDownload], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = `arguments-${topic.toLowerCase().replace(/\s+/g, "-")}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    toast.success("Arguments downloaded as text file");
+    switch (format) {
+      case 'txt':
+        downloadAsTxt(fileName, content);
+        break;
+      case 'pdf':
+        downloadAsPDF(fileName, content);
+        break;
+      case 'docx':
+        downloadAsDocx(fileName, content);
+        break;
+    }
   };
 
   return (
@@ -109,10 +122,29 @@ const ArgumentGenerator = () => {
               <Copy className="mr-2" size={16} />
               Copy All
             </Button>
-            <Button variant="outline" size="sm" onClick={handleDownload}>
-              <Download className="mr-2" size={16} />
-              Download
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Download className="mr-2" size={16} />
+                  Download
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                  <FileText className="mr-2" size={16} />
+                  <span>Text (.txt)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                  <FileCode className="mr-2" size={16} />
+                  <span>PDF (.pdf)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                  <FileText className="mr-2" size={16} />
+                  <span>Word (.docx)</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="bg-white rounded-lg border-2 border-black shadow-lg overflow-hidden">

@@ -4,10 +4,12 @@ import { getLegalDefinition } from "@/utils/gemini";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Copy, Download, Book } from "lucide-react";
+import { Copy, Download, Book, FileText, FileCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
 
 const LegalDictionary = () => {
   const [term, setTerm] = useState("");
@@ -39,20 +41,22 @@ const LegalDictionary = () => {
     toast.success("Definition copied to clipboard");
   };
 
-  const handleExport = () => {
+  const handleDownload = (format: 'txt' | 'pdf' | 'docx') => {
     if (!definition) return;
     
-    const blob = new Blob([definition], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `legal-definition-${term.toLowerCase().replace(/\s+/g, '-')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const fileName = `legal-definition-${term.toLowerCase().replace(/\s+/g, '-')}`;
     
-    toast.success("Definition exported as text file");
+    switch (format) {
+      case 'txt':
+        downloadAsTxt(fileName, definition);
+        break;
+      case 'pdf':
+        downloadAsPDF(fileName, definition);
+        break;
+      case 'docx':
+        downloadAsDocx(fileName, definition);
+        break;
+    }
   };
 
   return (
@@ -85,10 +89,29 @@ const LegalDictionary = () => {
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} className="border-amber-300 hover:bg-amber-50">
-                <Download className="mr-2" size={16} />
-                Export
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-50">
+                    <Download className="mr-2" size={16} />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Text (.txt)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                    <FileCode className="mr-2" size={16} />
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Word (.docx)</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           

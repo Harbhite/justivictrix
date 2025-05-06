@@ -4,10 +4,12 @@ import { generateNotes } from "@/utils/gemini";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Copy, Download, BookOpen } from "lucide-react";
+import { Copy, Download, BookOpen, FileText, FileCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const NotesGenerator = () => {
   const [topic, setTopic] = useState("");
@@ -43,23 +45,25 @@ const NotesGenerator = () => {
     toast.success("Notes copied to clipboard");
   };
 
-  const handleExport = () => {
+  const handleDownload = (format: 'txt' | 'pdf' | 'docx') => {
     if (!notes) {
       toast.error("No notes to export");
       return;
     }
     
-    const blob = new Blob([notes], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `legal-notes-${topic.toLowerCase().replace(/\s+/g, '-')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const fileName = `legal-notes-${topic.toLowerCase().replace(/\s+/g, '-')}`;
     
-    toast.success("Notes exported as text file");
+    switch (format) {
+      case 'txt':
+        downloadAsTxt(fileName, notes);
+        break;
+      case 'pdf':
+        downloadAsPDF(fileName, notes);
+        break;
+      case 'docx':
+        downloadAsDocx(fileName, notes);
+        break;
+    }
   };
 
   return (
@@ -92,10 +96,29 @@ const NotesGenerator = () => {
                 <Copy className="mr-2" size={16} />
                 Copy
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} className="border-blue-300 hover:bg-blue-50">
-                <Download className="mr-2" size={16} />
-                Export
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="border-blue-300 hover:bg-blue-50">
+                    <Download className="mr-2" size={16} />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Text (.txt)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                    <FileCode className="mr-2" size={16} />
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Word (.docx)</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           
