@@ -27,6 +27,7 @@ const NoteTaker = () => {
   const [content, setContent] = useState<string>("");
   const editorRef = useRef<HTMLDivElement>(null);
   const [savedNotes, setSavedNotes] = useState<Array<{id: string; title: string; content: string}>>([]);
+  const [selectionRange, setSelectionRange] = useState<Range | null>(null);
 
   // Load saved notes from local storage on component mount
   useEffect(() => {
@@ -45,14 +46,42 @@ const NoteTaker = () => {
     localStorage.setItem('notes', JSON.stringify(savedNotes));
   }, [savedNotes]);
   
+  // Store the selection before any command execution
+  const saveSelection = () => {
+    if (window.getSelection) {
+      const sel = window.getSelection();
+      if (sel && sel.getRangeAt && sel.rangeCount) {
+        setSelectionRange(sel.getRangeAt(0));
+      }
+    }
+  };
+
+  // Restore selection after command execution
+  const restoreSelection = () => {
+    if (selectionRange && window.getSelection) {
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(selectionRange);
+      }
+    }
+  };
+  
   const formatText = (command: string, value: string = "") => {
     if (editorRef.current) {
-      document.execCommand(command, false, value);
+      // Save the current selection
+      saveSelection();
       
-      // Focus back to editor and update content state
+      // Focus the editor to ensure commands apply correctly
       editorRef.current.focus();
       
-      // Important: Update the content state with the current HTML after formatting
+      // Restore selection before applying command
+      restoreSelection();
+      
+      // Execute command
+      document.execCommand(command, false, value);
+      
+      // Update content state after formatting
       if (editorRef.current) {
         setContent(editorRef.current.innerHTML);
       }
@@ -61,14 +90,33 @@ const NoteTaker = () => {
   
   const handleContentChange = () => {
     if (editorRef.current) {
-      // Directly update state with current innerHTML
       setContent(editorRef.current.innerHTML);
     }
   };
 
+  // Track selection changes
+  const handleSelectionChange = () => {
+    if (window.getSelection && document.activeElement === editorRef.current) {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount) {
+        setSelectionRange(sel.getRangeAt(0));
+      }
+    }
+  };
+
+  // Add selection change listener
+  useEffect(() => {
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, []);
+
   const insertLink = () => {
+    saveSelection();
     const url = prompt('Enter URL:');
     if (url) {
+      restoreSelection();
       formatText('createLink', url);
     }
   };
@@ -223,6 +271,7 @@ const NoteTaker = () => {
   const loadNote = (note: {id: string; title: string; content: string}) => {
     setTitle(note.title);
     setContent(note.content);
+    // Set the content without dangerouslySetInnerHTML to avoid interference
     if (editorRef.current) {
       editorRef.current.innerHTML = note.content;
     }
@@ -367,8 +416,7 @@ const NoteTaker = () => {
               className="min-h-[400px] border border-gray-300 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               contentEditable
               onInput={handleContentChange}
-              suppressContentEditableWarning={true}
-              dangerouslySetInnerHTML={{ __html: content }}
+              onBlur={handleContentChange}
             />
             
             <div className="mt-4 flex flex-wrap gap-2">
