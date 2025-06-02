@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -162,7 +161,10 @@ const MemberBio = () => {
                 <p className="text-xs text-gray-400">www.lawstudents.org</p>
               </div>
               
-              <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-xl text-sm font-medium hover:bg-blue-50 transition-colors">
+              <button 
+                onClick={() => navigate('/courses')}
+                className="px-4 py-2 border border-blue-500 text-blue-500 rounded-xl text-sm font-medium hover:bg-blue-50 transition-colors"
+              >
                 Explore
               </button>
             </div>
@@ -188,6 +190,54 @@ const MemberBio = () => {
             transition={{ delay: 0.3 }}
             className="space-y-3"
           >
+            <button 
+              onClick={() => navigate('/courses')}
+              className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <Route size={20} className="text-gray-600" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Courses</p>
+                  <p className="text-sm text-gray-500">Current semester</p>
+                </div>
+              </div>
+              <ArrowLeft size={16} className="text-gray-400 rotate-180" />
+            </button>
+
+            <button 
+              onClick={() => navigate('/timetable')}
+              className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <Clock size={20} className="text-gray-600" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Study Time</p>
+                  <p className="text-sm text-gray-500">Show all</p>
+                </div>
+              </div>
+              <ArrowLeft size={16} className="text-gray-400 rotate-180" />
+            </button>
+
+            <button 
+              onClick={() => navigate('/resources')}
+              className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <Dumbbell size={20} className="text-gray-600" />
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-gray-900">Resources</p>
+                  <p className="text-sm text-gray-500">Notes, PDFs: 3000+ files</p>
+                </div>
+              </div>
+              <ArrowLeft size={16} className="text-gray-400 rotate-180" />
+            </button>
+
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
@@ -216,16 +266,28 @@ const MemberBio = () => {
           </motion.div>
         </div>
 
-        {/* Bottom Navigation Placeholder */}
+        {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm">
           <div className="bg-black mx-4 mb-4 rounded-3xl p-3">
             <div className="flex justify-around items-center">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <button 
+                onClick={() => navigate('/')}
+                className="w-10 h-10 bg-white rounded-full flex items-center justify-center"
+              >
                 <div className="w-6 h-6 bg-black rounded"></div>
-              </div>
-              <div className="w-6 h-6 bg-gray-600 rounded"></div>
-              <div className="w-6 h-6 bg-gray-600 rounded"></div>
-              <div className="w-6 h-6 bg-gray-600 rounded"></div>
+              </button>
+              <button 
+                onClick={() => navigate('/people')}
+                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
+              ></button>
+              <button 
+                onClick={() => navigate('/events')}
+                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
+              ></button>
+              <button 
+                onClick={() => navigate('/profile')}
+                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
+              ></button>
             </div>
           </div>
         </div>
