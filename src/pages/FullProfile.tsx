@@ -1,7 +1,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, ExternalLink, Activity, BarChart3, Route, Clock, Dumbbell } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink, Activity, BarChart3, Route, Clock, Dumbbell, Home, Users, Calendar, User } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -250,20 +250,26 @@ const FullProfile = () => {
                 onClick={() => navigate('/')}
                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center"
               >
-                <div className="w-6 h-6 bg-black rounded"></div>
+                <Home size={20} className="text-black" />
               </button>
               <button 
                 onClick={() => navigate('/people')}
-                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
-              ></button>
+                className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors"
+              >
+                <Users size={16} className="text-white" />
+              </button>
               <button 
                 onClick={() => navigate('/events')}
-                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
-              ></button>
+                className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors"
+              >
+                <Calendar size={16} className="text-white" />
+              </button>
               <button 
                 onClick={() => navigate('/profile')}
-                className="w-6 h-6 bg-gray-600 rounded hover:bg-gray-500 transition-colors"
-              ></button>
+                className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors"
+              >
+                <User size={16} className="text-white" />
+              </button>
             </div>
           </div>
         </div>
