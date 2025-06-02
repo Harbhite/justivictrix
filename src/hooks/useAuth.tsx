@@ -1,6 +1,6 @@
 
 import { useContext } from 'react';
-import { AuthContext } from '@/App';
+import { AuthContext } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
