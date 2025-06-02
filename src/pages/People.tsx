@@ -99,8 +99,7 @@ const People = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.5 }}
-                className="bg-white rounded-lg p-6 hover:shadow-md transition-all cursor-pointer border border-gray-100"
-                onClick={() => navigate(`/people/${member.id}`)}
+                className="bg-white rounded-lg p-6 hover:shadow-md transition-all border border-gray-100"
               >
                 <div className="flex items-center gap-4">
                   <Avatar className="w-12 h-12">
@@ -120,6 +119,21 @@ const People = () => {
                     <p className="text-gray-600 text-sm">
                       {member.post_held ? member.post_held : member.matric_number}
                     </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/people/${member.id}`)}
+                      className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+                    >
+                      Standard
+                    </button>
+                    <button
+                      onClick={() => navigate(`/alternative-profile/${member.id}`)}
+                      className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+                    >
+                      Alternative
+                    </button>
                   </div>
                 </div>
               </motion.div>
