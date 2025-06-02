@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -13,12 +12,8 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// Add animations and enhanced visual experience
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Remove React.StrictMode from here since it's already in App.tsx
+root.render(<App />);
 
 // Redirect from study-groups to home if accessed directly
 if (window.location.pathname === '/study-groups') {

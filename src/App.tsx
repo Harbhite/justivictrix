@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
@@ -208,14 +207,12 @@ const routes = [
 
 function App() {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          {/* Create router here, after AuthProvider is defined */}
-          <RouterProvider router={createBrowserRouter(routes)} />
-        </AuthProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        {/* Create router here, after AuthProvider is defined */}
+        <RouterProvider router={createBrowserRouter(routes)} />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
