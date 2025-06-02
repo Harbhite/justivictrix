@@ -1,11 +1,10 @@
-
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Loader2, FileText, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthContext } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ResourceManagement() {
-  const { user, isLoading: authLoading } = useContext(AuthContext);
+  const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [formOpen, setFormOpen] = useState(false);

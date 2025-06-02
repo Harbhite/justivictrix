@@ -1,11 +1,10 @@
-
 import { motion } from "framer-motion";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar } from "lucide-react";
-import { AuthContext } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TimetableForm from "@/components/timetable/TimetableForm";
 import TimetableGrid from "@/components/timetable/TimetableGrid";
@@ -13,7 +12,7 @@ import TimetableExport from "@/components/timetable/TimetableExport";
 import TimetableDataManager from "@/components/timetable/TimetableDataManager";
 
 const Timetable = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = user?.email === "swisssunny1@gmail.com";
   const timetableRef = useRef<HTMLDivElement>(null);

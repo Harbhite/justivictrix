@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Plus, Edit, Trash, Download } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AuthContext } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Card, 
   CardContent, 
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 
 const Events = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = user?.email === "swisssunny1@gmail.com";
   

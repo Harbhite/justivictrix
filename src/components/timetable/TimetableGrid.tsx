@@ -1,8 +1,7 @@
-
 import { motion } from "framer-motion";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Edit, Trash, MapPin, Info, X } from "lucide-react";
-import { AuthContext } from "@/App";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Table,
   TableBody,
@@ -37,7 +36,7 @@ const TimetableGrid = ({
   handleDeleteClass,
   timetableRef
 }: TimetableGridProps) => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const isAdmin = user?.email === "swisssunny1@gmail.com";
   const [selectedClass, setSelectedClass] = useState<any>(null);
 
