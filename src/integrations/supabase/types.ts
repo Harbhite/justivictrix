@@ -48,6 +48,47 @@ export type Database = {
         }
         Relationships: []
       }
+      course_progress: {
+        Row: {
+          course_id: number | null
+          created_at: string
+          id: string
+          last_studied_at: string | null
+          notes: string | null
+          progress_percentage: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          course_id?: number | null
+          created_at?: string
+          id?: string
+          last_studied_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          course_id?: number | null
+          created_at?: string
+          id?: string
+          last_studied_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           code: string
@@ -461,6 +502,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      study_group_members: {
+        Row: {
+          id: string
+          is_admin: boolean | null
+          joined_at: string
+          study_group_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string
+          study_group_id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string
+          study_group_id?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_group_members_study_group_id_fkey"
+            columns: ["study_group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       study_groups: {
         Row: {

@@ -1,170 +1,147 @@
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Menu, 
-  X, 
-  Search, 
-  Calendar, 
-  Book, 
-  GalleryHorizontal, 
-  UserCircle,
-  Settings,
-  Sparkles
-} from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/hooks/useAuth";
+import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Target, UserGroup } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const isMobile = useIsMobile();
   const { user } = useAuth();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const links = [
-    { name: "Timetable", path: "/timetable", icon: Calendar },
-    { name: "Resources", path: "/resources", icon: Book },
-    { name: "Events", path: "/events", icon: Calendar },
-    { name: "Tools", path: "/tools", icon: Book },
-    { name: "Gallery", path: "/gallery", icon: GalleryHorizontal },
-    { name: "About us", path: "/about", icon: Book },
-    { name: "Mentors", path: "/people", icon: Book },
-    { name: "Blog", path: "/blog", icon: Book },
-    { name: "Easter Eggs", path: "/easter-eggs", icon: Sparkles },
+  const navigationItems = [
+    { name: "About", href: "/about", icon: BookOpen },
+    { name: "Resources", href: "/resources", icon: FileText },
+    { name: "Courses", href: "/courses", icon: BookOpen },
+    { name: "People", href: "/people", icon: Users },
+    { name: "Events", href: "/events", icon: Calendar },
+    { name: "Blog", href: "/blog", icon: FileText },
+    { name: "Gallery", href: "/gallery", icon: Image },
+    { name: "Tools", href: "/tools", icon: Wrench },
+    { name: "Timetable", href: "/timetable", icon: Clock },
+    { name: "Study Groups", href: "/study-groups", icon: UserGroup },
+    { name: "Course Progress", href: "/course-progress", icon: Target },
   ];
 
-  return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? "bg-white shadow-md" : "bg-[#f8f6f3]"
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-gray-900 font-bold text-xl tracking-tight mr-8">
-              LLB28
-            </Link>
+  const isActive = (path: string) => location.pathname === path;
 
-            <div className="hidden md:block relative">
-              <input
-                type="text"
-                placeholder="Search any course"
-                className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm w-64"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            </div>
+  return (
+    <nav className="bg-white border-b-4 border-black shadow-lg sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <span className="text-2xl font-black text-law-dark">
+                LAW<span className="text-law-gold">PORTAL</span>
+              </span>
+            </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
-            {links.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-gray-600 ${
-                  location.pathname === link.path ? "text-gray-900" : "text-gray-600"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1 ${
+                    isActive(item.href)
+                      ? "bg-law-dark text-white border-2 border-black"
+                      : "text-gray-700 hover:bg-gray-100 border-2 border-transparent hover:border-gray-300"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
             
             {user ? (
               <Link
                 to="/profile"
-                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1 ${
+                  isActive("/profile")
+                    ? "bg-law-dark text-white border-2 border-black"
+                    : "text-gray-700 hover:bg-gray-100 border-2 border-transparent hover:border-gray-300"
+                }`}
               >
-                <UserCircle size={20} />
-                Profile
+                <User className="w-4 h-4" />
+                <span>Profile</span>
               </Link>
             ) : (
-              <Link to="/auth">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
+              <Link
+                to="/auth"
+                className="bg-law-gold text-law-dark px-4 py-2 rounded-md text-sm font-bold border-2 border-black hover:bg-yellow-400 transition-colors duration-200"
+              >
+                Sign In
               </Link>
             )}
           </div>
 
-          <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="text-gray-900 hover:text-gray-600 transition-colors p-2"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-700"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
-
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg animate-fadeIn">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <div className="px-3 py-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search any course"
-                    className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm w-full"
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                </div>
-              </div>
-              
-              {links.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    location.pathname === link.path
-                      ? "text-gray-900 bg-gray-100"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <link.icon className="mr-3" size={20} />
-                  {link.name}
-                </Link>
-              ))}
-              
-              {user ? (
-                <Link
-                  to="/profile"
-                  className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <UserCircle className="mr-3" size={20} />
-                  Profile
-                </Link>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Navigation */}
+      {isOpen && (
+        <div className="md:hidden border-t-2 border-black">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 flex items-center space-x-2 ${
+                    isActive(item.href)
+                      ? "bg-law-dark text-white border-2 border-black"
+                      : "text-gray-700 hover:bg-gray-100 border-2 border-transparent"
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+            
+            {user ? (
+              <Link
+                to="/profile"
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 flex items-center space-x-2 ${
+                  isActive("/profile")
+                    ? "bg-law-dark text-white border-2 border-black"
+                    : "text-gray-700 hover:bg-gray-100 border-2 border-transparent"
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                <User className="w-5 h-5" />
+                <span>Profile</span>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="block w-full text-center bg-law-gold text-law-dark px-4 py-2 rounded-md text-base font-bold border-2 border-black hover:bg-yellow-400 transition-colors duration-200 mt-4"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
