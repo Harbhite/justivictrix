@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileEditor from "@/components/profile/ProfileEditor";
+import ProfileDashboard from "@/components/profile/ProfileDashboard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 const Profile = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -34,9 +35,9 @@ const Profile = () => {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
+    <div className="container max-w-6xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Profile Settings</h1>
+        <h1 className="text-3xl font-bold">Profile</h1>
         <Button variant="outline" onClick={handleSignOut}>
           Sign Out
         </Button>
@@ -44,18 +45,23 @@ const Profile = () => {
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full mb-8">
-          <TabsTrigger value="profile" className="flex-1">Profile Information</TabsTrigger>
+          <TabsTrigger value="dashboard" className="flex-1">Dashboard</TabsTrigger>
+          <TabsTrigger value="profile" className="flex-1">Edit Profile</TabsTrigger>
           <TabsTrigger value="account" className="flex-1">Account Settings</TabsTrigger>
         </TabsList>
         
+        <TabsContent value="dashboard">
+          <ProfileDashboard />
+        </TabsContent>
+        
         <TabsContent value="profile">
-          <div className="bg-white p-6 rounded-lg border-4 border-black shadow-lg">
+          <div className="bg-white p-6 rounded-lg border shadow-sm">
             <ProfileEditor />
           </div>
         </TabsContent>
         
         <TabsContent value="account">
-          <div className="bg-white p-6 rounded-lg border-4 border-black shadow-lg">
+          <div className="bg-white p-6 rounded-lg border shadow-sm">
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl font-bold mb-4">Account Information</h2>
