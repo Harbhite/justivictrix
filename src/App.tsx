@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "@/components/Navbar";
+import EnhancedNavbar from "@/components/EnhancedNavbar";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import People from "./pages/People";
@@ -36,42 +37,44 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <BrowserRouter>
-            <div className="min-h-screen bg-background">
-              <Navbar />
-              <div className="pt-16">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/people" element={<People />} />
-                  <Route path="/people/:id" element={<FullProfile />} />
-                  <Route path="/member-bio/:id" element={<MemberBio />} />
-                  <Route path="/alternative-profile/:id" element={<AlternativeProfile />} />
-                  <Route path="/courses" element={<Courses />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/resources" element={<Resources />} />
-                  <Route path="/tools" element={<Tools />} />
-                  <Route path="/timetable" element={<Timetable />} />
-                  <Route path="/easter-eggs" element={<EasterEggs />} />
-                  <Route path="/gallery" element={<Gallery />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:id" element={<BlogPost />} />
-                  <Route path="/blog-editor" element={<BlogEditor />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/notes" element={<NoteTaker />} />
-                  <Route path="/secret-forum" element={<SecretForum />} />
-                  <Route path="/forum/:category" element={<ForumCategory />} />
-                  <Route path="/forum/:category/:topicId" element={<ForumTopic />} />
-                  <Route path="/forum-settings" element={<ForumSettings />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+        <ThemeProvider>
+          <AuthProvider>
+            <Toaster />
+            <BrowserRouter>
+              <div className="min-h-screen bg-background">
+                <EnhancedNavbar />
+                <div className="pt-16">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/people" element={<People />} />
+                    <Route path="/people/:id" element={<FullProfile />} />
+                    <Route path="/member-bio/:id" element={<MemberBio />} />
+                    <Route path="/alternative-profile/:id" element={<AlternativeProfile />} />
+                    <Route path="/courses" element={<Courses />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/resources" element={<Resources />} />
+                    <Route path="/tools" element={<Tools />} />
+                    <Route path="/timetable" element={<Timetable />} />
+                    <Route path="/easter-eggs" element={<EasterEggs />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:id" element={<BlogPost />} />
+                    <Route path="/blog-editor" element={<BlogEditor />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/notes" element={<NoteTaker />} />
+                    <Route path="/secret-forum" element={<SecretForum />} />
+                    <Route path="/forum/:category" element={<ForumCategory />} />
+                    <Route path="/forum/:category/:topicId" element={<ForumTopic />} />
+                    <Route path="/forum-settings" element={<ForumSettings />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </AuthProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
