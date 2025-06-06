@@ -54,7 +54,8 @@ function App() {
                 <Route path="/events" element={<Events />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogPost />} />
-                <Route path="/blog/editor" element={<BlogEditor />} />
+                <Route path="/blog/new" element={<BlogEditor />} />
+                <Route path="/blog/edit/:id" element={<BlogEditor />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/tools" element={<Tools />} />
                 <Route path="/timetable" element={<Timetable />} />
