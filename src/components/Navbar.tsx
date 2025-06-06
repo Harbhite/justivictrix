@@ -27,7 +27,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="bg-white border-b-4 border-black shadow-lg sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -96,8 +96,8 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden border-t-2 border-black">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/80 backdrop-blur-md">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
