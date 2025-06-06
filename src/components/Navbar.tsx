@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Target } from "lucide-react";
+import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Target, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -31,10 +31,22 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-black text-law-dark">
-                LLB28<span className="text-law-gold">HUB</span>
-              </span>
+            <Link to="/" className="flex-shrink-0 flex items-center group">
+              <div className="flex items-center space-x-3">
+                {/* Custom Logo Icon */}
+                <div className="bg-law-dark p-2 rounded-lg border-2 border-black transform group-hover:rotate-3 transition-transform duration-300">
+                  <Scale className="w-6 h-6 text-law-gold" />
+                </div>
+                {/* Fancy Text Logo */}
+                <div className="flex flex-col">
+                  <span className="text-2xl font-serif font-black text-law-dark tracking-tight leading-none">
+                    LLB28<span className="text-law-gold">HUB</span>
+                  </span>
+                  <span className="text-xs font-serif text-gray-600 italic tracking-widest -mt-1">
+                    LEGAL EXCELLENCE
+                  </span>
+                </div>
+              </div>
             </Link>
           </div>
 
