@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Target } from "lucide-react";
@@ -20,7 +19,6 @@ const Navbar = () => {
     { name: "Gallery", href: "/gallery", icon: Image },
     { name: "Tools", href: "/tools", icon: Wrench },
     { name: "Timetable", href: "/timetable", icon: Clock },
-    { name: "Study Groups", href: "/study-groups", icon: Users },
     { name: "Course Progress", href: "/course-progress", icon: Target },
   ];
 
