@@ -20,11 +20,11 @@ const FeatureCard = ({ title, description, icon: Icon, href, delay }: {
     whileHover={{ y: -5 }}
     className="group"
   >
-    <Card className="h-full border border-gray-200 hover:border-law-primary transition-all duration-300 shadow-sm hover:shadow-lg">
+    <Card className="h-full border border-gray-200 hover:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-lg">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-law-primary/10 rounded-lg group-hover:bg-law-primary/20 transition-colors duration-300">
-            <Icon className="w-6 h-6 text-law-primary" />
+          <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors duration-300">
+            <Icon className="w-6 h-6 text-blue-600" />
           </div>
           <CardTitle className="text-lg">{title}</CardTitle>
         </div>
@@ -32,7 +32,7 @@ const FeatureCard = ({ title, description, icon: Icon, href, delay }: {
       <CardContent>
         <p className="text-gray-600 mb-4">{description}</p>
         <Link to={href}>
-          <Button variant="outline" size="sm" className="group-hover:bg-law-primary/5 transition-colors duration-300">
+          <Button variant="outline" size="sm" className="group-hover:bg-blue-500/5 transition-colors duration-300">
             Explore
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
@@ -104,7 +104,7 @@ const Index = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-4xl md:text-6xl font-bold text-law-dark mb-6"
+            className="text-4xl md:text-6xl font-bold text-gray-800 mb-6"
           >
             Welcome to LLB28HUB
           </motion.h1>
@@ -119,7 +119,7 @@ const Index = () => {
             <TypewriterEffect 
               words={typewriterWords}
               delay={150}
-              className="text-law-primary font-bold"
+              className="text-blue-600 font-bold"
             />
             <span className="ml-3">Connect</span>
           </motion.div>
@@ -140,7 +140,7 @@ const Index = () => {
             transition={{ delay: 1, duration: 0.6 }}
           >
             <Link to="/about">
-              <Button size="lg" className="bg-law-primary hover:bg-law-secondary text-white">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                 Learn More About Us
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -154,7 +154,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <h2 className="text-3xl font-bold text-center text-law-dark mb-12">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
             Explore Our Platform
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -176,7 +176,7 @@ const Index = () => {
           className="text-center mt-16"
         >
           <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-law-dark mb-4">Ready to Begin?</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Begin?</h3>
             <p className="text-gray-600 mb-6">
               Join our community and start your journey towards legal excellence today.
             </p>
