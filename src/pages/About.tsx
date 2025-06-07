@@ -1,195 +1,126 @@
 
 import { motion } from "framer-motion";
-import { BookOpen, Users, Trophy, Scale, Brain, Gavel, Heart, Star, Target, Lightbulb } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen, Users, Trophy, Scale, Brain, Gavel } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-const StatCard = ({ number, label, icon: Icon }: { number: string; label: string; icon: any }) => (
-  <motion.div
-    initial={{ scale: 0.8, opacity: 0 }}
-    whileInView={{ scale: 1, opacity: 1 }}
-    transition={{ duration: 0.5 }}
-    className="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 text-center group hover:shadow-xl transition-all duration-300"
-  >
-    <div className="bg-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-      <Icon className="w-8 h-8 text-white" />
-    </div>
-    <div className="text-3xl font-bold text-gray-800 mb-2">{number}</div>
-    <div className="text-gray-600 font-medium">{label}</div>
-  </motion.div>
-);
-
-const FeatureCard = ({ title, description, icon: Icon, color, delay }: {
+const BentoCard = ({ title, description, icon: Icon, color, expandedContent }: {
   title: string;
   description: string;
   icon: any;
   color: string;
-  delay: number;
-}) => (
-  <motion.div
-    initial={{ y: 50, opacity: 0 }}
-    whileInView={{ y: 0, opacity: 1 }}
-    transition={{ delay, duration: 0.6 }}
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="group cursor-pointer"
-  >
-    <Card className={`${color} border-2 border-transparent group-hover:border-purple-300 transition-all duration-300 shadow-lg hover:shadow-xl`}>
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-white rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300">
-            <Icon size={28} className="text-gray-700" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold mb-3 text-gray-800 group-hover:text-purple-700 transition-colors duration-300">{title}</h3>
-            <p className="text-gray-600 leading-relaxed">{description}</p>
+  expandedContent?: string;
+}) => {
+  return (
+    <Collapsible className="relative group">
+      <CollapsibleTrigger className="w-full text-left">
+        <div className={`${color} p-6 rounded-3xl transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px]`}>
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-white/90 backdrop-blur-sm rounded-2xl">
+              <Icon size={24} className="text-gray-700" />
+            </div>
+            <div>
+              <h3 className="text-xl font-medium mb-2 text-gray-800">{title}</h3>
+              <p className="text-sm text-gray-600/90">{description}</p>
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
+      </CollapsibleTrigger>
+      {expandedContent && (
+        <CollapsibleContent className="absolute inset-x-0 top-full mt-2 z-10">
+          <div className="p-4 rounded-2xl bg-white/95 backdrop-blur-sm shadow-lg border border-gray-100">
+            <p className="text-sm text-gray-700">{expandedContent}</p>
+          </div>
+        </CollapsibleContent>
+      )}
+    </Collapsible>
+  );
+};
 
 const About = () => {
-  const stats = [
-    { number: "28", label: "Dedicated Students", icon: Users },
-    { number: "12", label: "Core Subjects", icon: BookOpen },
-    { number: "100%", label: "Success Rate", icon: Trophy },
-    { number: "24/7", label: "Study Support", icon: Heart }
-  ];
-
-  const features = [
+  const bentoItems = [
     {
-      title: "Collaborative Learning",
-      description: "We believe in the power of learning together. Our community thrives on sharing knowledge, supporting each other, and growing as future legal professionals.",
+      title: "Our Studies",
+      description: "Core legal subjects and methodologies",
+      icon: BookOpen,
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
+      expandedContent: "Dive deep into Constitutional Law, Criminal Law, and Legal Methods with our comprehensive curriculum designed for future legal professionals."
+    },
+    {
+      title: "Community",
+      description: "Supporting each other through law school",
       icon: Users,
-      color: "bg-blue-100",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
+      expandedContent: "Join our vibrant community of law students who share resources, study together, and support each other throughout their legal education journey."
     },
     {
-      title: "Comprehensive Curriculum",
-      description: "From Constitutional Law to Criminal Procedure, we cover all essential legal subjects with depth and practical application to prepare for real-world practice.",
+      title: "Activities",
+      description: "Engaging in practical legal exercises",
+      icon: Trophy,
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
+      expandedContent: "Participate in moot courts, legal writing workshops, and various law school competitions to gain practical experience."
+    },
+    {
+      title: "Study Groups",
+      description: "Collaborative learning sessions",
       icon: Scale,
-      color: "bg-purple-100",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
+      expandedContent: "Regular study groups and discussion sessions help everyone understand complex legal concepts through peer learning."
     },
     {
-      title: "Practical Experience",
-      description: "Through moot courts, legal research projects, and court visits, we gain hands-on experience that bridges theory with practice.",
+      title: "Projects",
+      description: "Hands-on legal research",
+      icon: Brain,
+      color: "bg-gradient-to-br from-purple-50 to-purple-100",
+      expandedContent: "Work on collaborative legal research projects and case studies that prepare you for real-world legal practice."
+    },
+    {
+      title: "Court Visits",
+      description: "Learning from real proceedings",
       icon: Gavel,
-      color: "bg-amber-100",
-    },
-    {
-      title: "Academic Excellence",
-      description: "Our commitment to academic excellence drives us to continuously improve, challenge ourselves, and achieve outstanding results in our legal education.",
-      icon: Star,
-      color: "bg-green-100",
-    },
-    {
-      title: "Future-Focused",
-      description: "We're not just studying law; we're preparing to shape the future of justice, advocacy, and legal practice in our communities and beyond.",
-      icon: Target,
-      color: "bg-rose-100",
-    },
-    {
-      title: "Innovation & Growth",
-      description: "Embracing new technologies and methodologies in legal education, we stay ahead of the curve in an evolving legal landscape.",
-      icon: Lightbulb,
-      color: "bg-cyan-100",
+      color: "bg-gradient-to-br from-amber-50 to-amber-100",
+      expandedContent: "Regular visits to courts allow students to observe real legal proceedings and learn from practicing lawyers."
     }
   ];
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      {/* Hero Section */}
-      <motion.section 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="relative py-20 px-4 text-center"
+    <div className="container mx-auto px-4 py-16 bg-gradient-to-br from-purple-50/50 to-amber-50/50">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-6xl mx-auto"
       >
-        <div className="max-w-4xl mx-auto">
-          <motion.h1 
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-purple-800 mb-6"
-          >
-            LLB 28 Class
-          </motion.h1>
-          <motion.p 
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-xl md:text-2xl text-gray-700 mb-8 leading-relaxed"
-          >
-            Where future legal minds unite to learn, grow, and shape tomorrow's justice system
-          </motion.p>
-        </div>
-      </motion.section>
+        <h1 className="text-4xl font-medium text-gray-800 mb-8">
+          About Our Class
+        </h1>
 
-      {/* Stats Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl font-bold text-center text-gray-800 mb-12"
-          >
-            Our Impact in Numbers
-          </motion.h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <StatCard key={index} {...stat} />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {bentoItems.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <BentoCard {...item} />
+            </motion.div>
+          ))}
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl font-bold text-center text-gray-800 mb-12"
-          >
-            What Makes Us Special
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {features.map((feature, index) => (
-              <FeatureCard 
-                key={index} 
-                {...feature} 
-                delay={index * 0.1}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Statement */}
-      <motion.section 
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="py-16 px-4"
-      >
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-purple-600 p-1 rounded-3xl">
-            <div className="bg-white rounded-3xl p-8 md:p-12 text-center">
-              <Brain className="w-16 h-16 text-purple-600 mx-auto mb-6" />
-              <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Our Mission</h3>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                We are more than just a class – we are a community of passionate individuals dedicated to excellence in legal education. 
-                Our collaborative approach ensures that every member grows both academically and personally, preparing us to become 
-                ethical, competent, and compassionate legal professionals.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                Together, we're not just studying law; we're building the foundation for a more just and equitable society.
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-sm"
+        >
+          <p className="text-lg mb-4 text-gray-700">
+            We are LLB 28, a dynamic class of law students passionate about legal education and professional growth. Our website serves as a central hub for sharing resources, coordinating activities, and fostering collaboration among peers.
+          </p>
+          <p className="text-lg text-gray-700">
+            Together, we navigate through various law subjects, from Constitutional Law to Criminal Law, Civil Procedure, and more. We believe in collaborative learning and helping each other succeed in our legal education journey.
+          </p>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
