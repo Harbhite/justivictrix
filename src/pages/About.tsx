@@ -8,9 +8,9 @@ const StatCard = ({ number, label, icon: Icon }: { number: string; label: string
     initial={{ scale: 0.8, opacity: 0 }}
     whileInView={{ scale: 1, opacity: 1 }}
     transition={{ duration: 0.5 }}
-    className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-purple-100 text-center group hover:shadow-xl transition-all duration-300"
+    className="bg-white p-6 rounded-2xl shadow-lg border border-purple-100 text-center group hover:shadow-xl transition-all duration-300"
   >
-    <div className="bg-gradient-to-br from-purple-500 to-amber-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+    <div className="bg-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
       <Icon className="w-8 h-8 text-white" />
     </div>
     <div className="text-3xl font-bold text-gray-800 mb-2">{number}</div>
@@ -35,7 +35,7 @@ const FeatureCard = ({ title, description, icon: Icon, color, delay }: {
     <Card className={`${color} border-2 border-transparent group-hover:border-purple-300 transition-all duration-300 shadow-lg hover:shadow-xl`}>
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300">
+          <div className="p-3 bg-white rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300">
             <Icon size={28} className="text-gray-700" />
           </div>
           <div>
@@ -61,42 +61,42 @@ const About = () => {
       title: "Collaborative Learning",
       description: "We believe in the power of learning together. Our community thrives on sharing knowledge, supporting each other, and growing as future legal professionals.",
       icon: Users,
-      color: "bg-gradient-to-br from-blue-50 to-indigo-100",
+      color: "bg-blue-100",
     },
     {
       title: "Comprehensive Curriculum",
       description: "From Constitutional Law to Criminal Procedure, we cover all essential legal subjects with depth and practical application to prepare for real-world practice.",
       icon: Scale,
-      color: "bg-gradient-to-br from-purple-50 to-pink-100",
+      color: "bg-purple-100",
     },
     {
       title: "Practical Experience",
       description: "Through moot courts, legal research projects, and court visits, we gain hands-on experience that bridges theory with practice.",
       icon: Gavel,
-      color: "bg-gradient-to-br from-amber-50 to-orange-100",
+      color: "bg-amber-100",
     },
     {
       title: "Academic Excellence",
       description: "Our commitment to academic excellence drives us to continuously improve, challenge ourselves, and achieve outstanding results in our legal education.",
       icon: Star,
-      color: "bg-gradient-to-br from-green-50 to-emerald-100",
+      color: "bg-green-100",
     },
     {
       title: "Future-Focused",
       description: "We're not just studying law; we're preparing to shape the future of justice, advocacy, and legal practice in our communities and beyond.",
       icon: Target,
-      color: "bg-gradient-to-br from-rose-50 to-red-100",
+      color: "bg-rose-100",
     },
     {
       title: "Innovation & Growth",
       description: "Embracing new technologies and methodologies in legal education, we stay ahead of the curve in an evolving legal landscape.",
       icon: Lightbulb,
-      color: "bg-gradient-to-br from-cyan-50 to-blue-100",
+      color: "bg-cyan-100",
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-amber-50/80">
+    <div className="min-h-screen bg-purple-50">
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0 }}
@@ -109,7 +109,7 @@ const About = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-amber-600 mb-6"
+            className="text-5xl md:text-6xl font-black text-purple-800 mb-6"
           >
             LLB 28 Class
           </motion.h1>
@@ -174,7 +174,7 @@ const About = () => {
         className="py-16 px-4"
       >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-500 to-amber-500 p-1 rounded-3xl">
+          <div className="bg-purple-600 p-1 rounded-3xl">
             <div className="bg-white rounded-3xl p-8 md:p-12 text-center">
               <Brain className="w-16 h-16 text-purple-600 mx-auto mb-6" />
               <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Our Mission</h3>

@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BookOpen, Users, Calendar, FileText, Image, Wrench, ArrowRight, Star, Trophy, Target, Scale } from "lucide-react";
+import { BookOpen, Users, Calendar, FileText, Image, Wrench, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TypewriterEffect from "@/components/TypewriterEffect";
@@ -14,56 +14,31 @@ const FeatureCard = ({ title, description, icon: Icon, href, delay }: {
   delay: number;
 }) => (
   <motion.div
-    initial={{ y: 50, opacity: 0, scale: 0.9 }}
-    animate={{ y: 0, opacity: 1, scale: 1 }}
-    transition={{ delay, duration: 0.6, ease: "easeOut" }}
-    whileHover={{ 
-      y: -8, 
-      scale: 1.02,
-      transition: { duration: 0.2 }
-    }}
+    initial={{ y: 50, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay, duration: 0.6 }}
+    whileHover={{ y: -5 }}
     className="group"
   >
-    <Card className="h-full border-2 border-gray-100 hover:border-purple-300 transition-all duration-300 shadow-md hover:shadow-xl bg-white/80 backdrop-blur-sm">
+    <Card className="h-full border border-gray-200 hover:border-law-primary transition-all duration-300 shadow-sm hover:shadow-lg">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-purple-500 to-amber-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
-            <Icon className="w-6 h-6 text-white" />
+          <div className="p-2 bg-law-primary/10 rounded-lg group-hover:bg-law-primary/20 transition-colors duration-300">
+            <Icon className="w-6 h-6 text-law-primary" />
           </div>
-          <CardTitle className="text-lg group-hover:text-purple-700 transition-colors duration-300">{title}</CardTitle>
+          <CardTitle className="text-lg">{title}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-gray-600 mb-4 leading-relaxed">{description}</p>
+        <p className="text-gray-600 mb-4">{description}</p>
         <Link to={href}>
-          <Button variant="outline" size="sm" className="group-hover:bg-purple-50 group-hover:border-purple-300 transition-all duration-300">
+          <Button variant="outline" size="sm" className="group-hover:bg-law-primary/5 transition-colors duration-300">
             Explore
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
         </Link>
       </CardContent>
     </Card>
-  </motion.div>
-);
-
-const FloatingIcon = ({ icon: Icon, delay, position }: { icon: any; delay: number; position: string }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0 }}
-    animate={{ 
-      opacity: 0.1, 
-      scale: 1,
-      y: [0, -20, 0],
-      rotate: [0, 10, -10, 0]
-    }}
-    transition={{ 
-      opacity: { delay, duration: 1 },
-      scale: { delay, duration: 0.5 },
-      y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-      rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
-    }}
-    className={`absolute ${position} text-purple-300 pointer-events-none`}
-  >
-    <Icon size={48} />
   </motion.div>
 );
 
@@ -116,15 +91,8 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/80 via-white to-purple-50/80 relative overflow-hidden">
-      {/* Floating Background Icons */}
-      <FloatingIcon icon={BookOpen} delay={0.5} position="top-20 left-10" />
-      <FloatingIcon icon={Scale} delay={1} position="top-40 right-20" />
-      <FloatingIcon icon={Trophy} delay={1.5} position="bottom-40 left-20" />
-      <FloatingIcon icon={Target} delay={2} position="bottom-20 right-10" />
-      <FloatingIcon icon={Star} delay={2.5} position="top-60 left-1/3" />
-
-      <div className="container mx-auto px-4 py-16 relative z-10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0 }}
@@ -136,7 +104,7 @@ const Index = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-amber-600 mb-6"
+            className="text-4xl md:text-6xl font-bold text-law-dark mb-6"
           >
             Welcome to LLB28HUB
           </motion.h1>
@@ -145,13 +113,13 @@ const Index = () => {
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-xl md:text-3xl text-gray-700 mb-8 min-h-[2.5rem] flex items-center justify-center"
+            className="text-xl md:text-2xl text-gray-700 mb-8 min-h-[2.5rem] flex items-center justify-center"
           >
             <span className="mr-3">Where</span>
             <TypewriterEffect 
               words={typewriterWords}
               delay={150}
-              className="text-purple-600 font-bold"
+              className="text-law-primary font-bold"
             />
             <span className="ml-3">Connect</span>
           </motion.div>
@@ -160,7 +128,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed"
+            className="text-lg text-gray-600 max-w-2xl mx-auto mb-8"
           >
             Your central hub for academic excellence, collaboration, and growth in legal education. 
             Join our vibrant community of law students as we navigate through our legal journey together.
@@ -170,12 +138,10 @@ const Index = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
           >
             <Link to="/about">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-amber-600 hover:from-purple-700 hover:to-amber-700 text-white font-bold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-                Discover Our Story
+              <Button size="lg" className="bg-law-primary hover:bg-law-secondary text-white">
+                Learn More About Us
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
@@ -188,7 +154,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          <h2 className="text-3xl font-bold text-center text-law-dark mb-12">
             Explore Our Platform
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -209,23 +175,16 @@ const Index = () => {
           transition={{ delay: 1.4, duration: 0.8 }}
           className="text-center mt-16"
         >
-          <div className="bg-gradient-to-r from-purple-500 to-amber-500 p-1 rounded-2xl max-w-2xl mx-auto">
-            <div className="bg-white rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Begin?</h3>
-              <p className="text-gray-600 mb-6">
-                Join our community and start your journey towards legal excellence today.
-              </p>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link to="/auth">
-                  <Button variant="outline" size="lg" className="font-semibold border-2 hover:bg-purple-50 hover:border-purple-300">
-                    Get Started
-                  </Button>
-                </Link>
-              </motion.div>
-            </div>
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold text-law-dark mb-4">Ready to Begin?</h3>
+            <p className="text-gray-600 mb-6">
+              Join our community and start your journey towards legal excellence today.
+            </p>
+            <Link to="/auth">
+              <Button variant="outline" size="lg">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </div>
