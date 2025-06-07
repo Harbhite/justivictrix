@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { BookOpen, Users, Calendar, FileText, Image, Wrench, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import TypewriterEffect from "@/components/TypewriterEffect";
 
 const FeatureCard = ({ title, description, icon: Icon, href, delay }: {
   title: string;
@@ -82,14 +81,6 @@ const Index = () => {
     },
   ];
 
-  const typewriterWords = [
-    "Future Lawyers",
-    "Legal Scholars", 
-    "Justice Seekers",
-    "Law Students",
-    "Legal Minds"
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       <div className="container mx-auto px-4 py-16">
@@ -109,20 +100,14 @@ const Index = () => {
             Welcome to LLB28HUB
           </motion.h1>
           
-          <motion.div
+          <motion.p 
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-xl md:text-2xl text-gray-700 mb-8 min-h-[2.5rem] flex items-center justify-center"
+            className="text-xl md:text-2xl text-gray-700 mb-8"
           >
-            <span className="mr-3">Where</span>
-            <TypewriterEffect 
-              words={typewriterWords}
-              delay={150}
-              className="text-blue-600 font-bold"
-            />
-            <span className="ml-3">Connect</span>
-          </motion.div>
+            Your central hub for academic excellence and collaboration
+          </motion.p>
 
           <motion.p 
             initial={{ opacity: 0 }}
@@ -130,8 +115,8 @@ const Index = () => {
             transition={{ delay: 0.8, duration: 0.8 }}
             className="text-lg text-gray-600 max-w-2xl mx-auto mb-8"
           >
-            Your central hub for academic excellence, collaboration, and growth in legal education. 
-            Join our vibrant community of law students as we navigate through our legal journey together.
+            Join our vibrant community of law students as we navigate through our legal journey together. 
+            Access resources, connect with peers, and excel in your studies.
           </motion.p>
 
           <motion.div
