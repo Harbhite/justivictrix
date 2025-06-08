@@ -1,36 +1,34 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Copy, Download, GanttChart } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Copy, Download, GanttChart, FileText, FileCode } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-interface IracAnalysis {
-  issue: string;
-  rule: string;
-  analysis: string;
-  conclusion: string;
-}
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { downloadAsPDF, downloadAsTxt, downloadAsDocx } from "@/utils/downloadUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const IracGenerator = () => {
   const [legalIssue, setLegalIssue] = useState("");
+  const [factualBackground, setFactualBackground] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [iracAnalysis, setIracAnalysis] = useState<IracAnalysis | null>(null);
+  const [generatedIrac, setGeneratedIrac] = useState("");
+  const isMobile = useIsMobile();
 
   const handleGenerate = async () => {
     if (!legalIssue.trim()) {
-      toast.error("Please enter a legal issue to analyze");
+      toast.error("Please enter a legal issue");
       return;
     }
 
     setIsLoading(true);
     try {
-      // Use Gemini API to generate an IRAC analysis
+      // Use Gemini API to generate IRAC analysis
       const model = await fetch("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent", {
         method: "POST",
         headers: {
@@ -40,189 +38,150 @@ const IracGenerator = () => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Generate a comprehensive IRAC (Issue, Rule, Analysis, Conclusion) analysis for the following legal issue: ${legalIssue}. 
-              
-              Format the response as a JSON object with the following structure:
-              {
-                "issue": "Detailed statement of the legal issue",
-                "rule": "Explanation of relevant legal rules, statutes, and precedents",
-                "analysis": "Thorough application of the rules to the facts",
-                "conclusion": "Clear legal conclusion"
-              }
-              
-              Make each section detailed and professionally written as if for a law student or legal professional.`
+              text: `Generate a comprehensive IRAC analysis for the following legal issue:
+
+              Legal Issue: ${legalIssue}
+              ${factualBackground ? `Factual Background: ${factualBackground}` : ''}
+
+              Please structure your response using the IRAC format with clear Markdown headings:
+
+              # IRAC Analysis: ${legalIssue}
+
+              ## Issue
+              [Clearly state the legal question(s) presented]
+
+              ## Rule
+              [Identify and explain the applicable legal rules, statutes, and precedents]
+
+              ## Application/Analysis
+              [Apply the legal rules to the specific facts, discussing both sides of the argument]
+
+              ## Conclusion
+              [Provide a reasoned conclusion based on your analysis]
+
+              Make the analysis thorough, well-reasoned, and properly formatted for legal study purposes.`
             }]
           }]
         }),
       });
 
-      const data = await model.json();
-      const text = data.candidates[0].content.parts[0].text;
+      const data = await response.json();
+      const iracText = data.candidates[0].content.parts[0].text;
       
-      // Parse JSON response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const jsonText = jsonMatch ? jsonMatch[0] : text;
-      const parsedResult = JSON.parse(jsonText);
-      
-      setIracAnalysis(parsedResult);
+      setGeneratedIrac(iracText);
       toast.success("IRAC analysis generated successfully");
     } catch (error) {
-      console.error("Error generating IRAC analysis:", error);
+      console.error("Error generating IRAC:", error);
       toast.error("Failed to generate IRAC analysis");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCopy = (section?: 'issue' | 'rule' | 'analysis' | 'conclusion') => {
-    if (!iracAnalysis) return;
+  const handleCopy = () => {
+    if (!generatedIrac) return;
     
-    let textToCopy = '';
-    
-    if (!section) {
-      // Copy all sections
-      textToCopy = `IRAC Analysis for "${legalIssue}"\n\n`;
-      textToCopy += "ISSUE:\n" + iracAnalysis.issue + "\n\n";
-      textToCopy += "RULE:\n" + iracAnalysis.rule + "\n\n";
-      textToCopy += "ANALYSIS:\n" + iracAnalysis.analysis + "\n\n";
-      textToCopy += "CONCLUSION:\n" + iracAnalysis.conclusion;
-    } else {
-      // Copy specific section
-      const sectionTitle = section.charAt(0).toUpperCase() + section.slice(1);
-      textToCopy = `${sectionTitle}:\n${iracAnalysis[section]}`;
-    }
-    
-    navigator.clipboard.writeText(textToCopy);
-    toast.success(`${section ? `${section.toUpperCase()} section` : 'Complete IRAC analysis'} copied to clipboard`);
+    navigator.clipboard.writeText(generatedIrac);
+    toast.success("IRAC analysis copied to clipboard");
   };
 
-  const handleDownload = () => {
-    if (!iracAnalysis) return;
+  const handleDownload = (format: 'txt' | 'pdf' | 'docx') => {
+    if (!generatedIrac) return;
     
-    let textToDownload = `IRAC Analysis for "${legalIssue}"\n\n`;
-    textToDownload += "ISSUE:\n" + iracAnalysis.issue + "\n\n";
-    textToDownload += "RULE:\n" + iracAnalysis.rule + "\n\n";
-    textToDownload += "ANALYSIS:\n" + iracAnalysis.analysis + "\n\n";
-    textToDownload += "CONCLUSION:\n" + iracAnalysis.conclusion;
+    const fileName = `irac-analysis-${legalIssue.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "")}`;
     
-    const element = document.createElement("a");
-    const file = new Blob([textToDownload], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = `irac-analysis-${legalIssue.toLowerCase().replace(/\s+/g, "-")}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    toast.success("IRAC analysis downloaded as text file");
+    switch (format) {
+      case 'txt':
+        downloadAsTxt(fileName, generatedIrac);
+        break;
+      case 'pdf':
+        downloadAsPDF(fileName, generatedIrac);
+        break;
+      case 'docx':
+        downloadAsDocx(fileName, generatedIrac);
+        break;
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3">
-        <Textarea
-          value={legalIssue}
-          onChange={(e) => setLegalIssue(e.target.value)}
-          placeholder="Enter a legal issue or scenario for IRAC analysis..."
-          className="min-h-[100px] border-2 border-purple-200 focus:border-purple-400"
-        />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="legal-issue">Legal Issue</Label>
+          <Input
+            id="legal-issue"
+            value={legalIssue}
+            onChange={(e) => setLegalIssue(e.target.value)}
+            placeholder="e.g., Whether a contract is valid under duress"
+            className="border-2 border-blue-200 focus:border-blue-400"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="factual-background">Factual Background (Optional)</Label>
+          <Textarea
+            id="factual-background"
+            value={factualBackground}
+            onChange={(e) => setFactualBackground(e.target.value)}
+            placeholder="Provide relevant facts and context for the legal issue"
+            className="min-h-[100px] md:min-h-[120px] border-2 border-blue-200 focus:border-blue-400"
+          />
+        </div>
+
         <Button 
           onClick={handleGenerate} 
           disabled={isLoading}
-          className="bg-purple-600 hover:bg-purple-700 text-white self-end"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           {isLoading ? "Generating..." : "Generate IRAC Analysis"}
         </Button>
       </div>
 
-      {iracAnalysis && (
-        <Card className="mt-4 border-2 border-purple-300 shadow-lg overflow-hidden">
-          <div className="flex justify-between items-center p-3 bg-purple-50 border-b border-purple-200">
-            <div className="flex items-center gap-2">
-              <GanttChart className="h-5 w-5 text-purple-600" />
-              <h3 className="font-bold text-purple-800">IRAC Analysis</h3>
+      {generatedIrac && (
+        <Card className="mt-4 border-2 border-blue-300 shadow-lg overflow-hidden">
+          <div className={`flex ${isMobile ? 'flex-col' : 'justify-between'} items-start md:items-center p-3 bg-blue-50 border-b border-blue-200`}>
+            <div className="flex items-center gap-2 mb-2 md:mb-0">
+              <GanttChart className="h-5 w-5 text-blue-600" />
+              <h3 className="font-bold text-blue-800">IRAC Analysis</h3>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleCopy()} className="border-purple-300 hover:bg-purple-50">
+            <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} gap-2`}>
+              <Button variant="outline" size="sm" onClick={handleCopy} className="border-blue-300 hover:bg-blue-50 w-full md:w-auto">
                 <Copy className="mr-2" size={16} />
-                Copy All
+                Copy
               </Button>
-              <Button variant="outline" size="sm" onClick={handleDownload} className="border-purple-300 hover:bg-purple-50">
-                <Download className="mr-2" size={16} />
-                Download
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="border-blue-300 hover:bg-blue-50 w-full md:w-auto">
+                    <Download className="mr-2" size={16} />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleDownload('txt')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Text (.txt)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('pdf')}>
+                    <FileCode className="mr-2" size={16} />
+                    <span>PDF (.pdf)</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload('docx')}>
+                    <FileText className="mr-2" size={16} />
+                    <span>Word (.docx)</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-
-          <div className="bg-white">
-            <Tabs defaultValue="issue" className="w-full">
-              <TabsList className="grid grid-cols-4 w-full bg-purple-100">
-                <TabsTrigger value="issue" className="data-[state=active]:bg-white data-[state=active]:text-purple-700">Issue</TabsTrigger>
-                <TabsTrigger value="rule" className="data-[state=active]:bg-white data-[state=active]:text-purple-700">Rule</TabsTrigger>
-                <TabsTrigger value="analysis" className="data-[state=active]:bg-white data-[state=active]:text-purple-700">Analysis</TabsTrigger>
-                <TabsTrigger value="conclusion" className="data-[state=active]:bg-white data-[state=active]:text-purple-700">Conclusion</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="issue" className="p-6 border-t border-purple-100">
-                <div className="flex justify-between mb-4">
-                  <h3 className="text-xl font-bold text-purple-700">Issue</h3>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('issue')} className="text-purple-600 hover:bg-purple-50">
-                    <Copy className="mr-2" size={16} />
-                    Copy
-                  </Button>
-                </div>
-                <div className="prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {iracAnalysis.issue}
-                  </ReactMarkdown>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="rule" className="p-6 border-t border-purple-100">
-                <div className="flex justify-between mb-4">
-                  <h3 className="text-xl font-bold text-purple-700">Rule</h3>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('rule')} className="text-purple-600 hover:bg-purple-50">
-                    <Copy className="mr-2" size={16} />
-                    Copy
-                  </Button>
-                </div>
-                <div className="prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {iracAnalysis.rule}
-                  </ReactMarkdown>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="analysis" className="p-6 border-t border-purple-100">
-                <div className="flex justify-between mb-4">
-                  <h3 className="text-xl font-bold text-purple-700">Analysis</h3>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('analysis')} className="text-purple-600 hover:bg-purple-50">
-                    <Copy className="mr-2" size={16} />
-                    Copy
-                  </Button>
-                </div>
-                <div className="prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {iracAnalysis.analysis}
-                  </ReactMarkdown>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="conclusion" className="p-6 border-t border-purple-100">
-                <div className="flex justify-between mb-4">
-                  <h3 className="text-xl font-bold text-purple-700">Conclusion</h3>
-                  <Button variant="ghost" size="sm" onClick={() => handleCopy('conclusion')} className="text-purple-600 hover:bg-purple-50">
-                    <Copy className="mr-2" size={16} />
-                    Copy
-                  </Button>
-                </div>
-                <div className="prose max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {iracAnalysis.conclusion}
-                  </ReactMarkdown>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+          
+          <CardContent className="p-4 md:p-6 max-h-[400px] md:max-h-[500px] overflow-y-auto bg-white">
+            <div className="prose max-w-none text-sm md:text-base">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {generatedIrac}
+              </ReactMarkdown>
+            </div>
+          </CardContent>
         </Card>
       )}
     </div>

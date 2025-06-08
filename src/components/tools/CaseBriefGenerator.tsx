@@ -29,7 +29,7 @@ const CaseBriefGenerator = () => {
     setIsLoading(true);
     try {
       // Use Gemini API to generate a case brief
-      const model = await fetch("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent", {
+      const response = await fetch("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +76,7 @@ const CaseBriefGenerator = () => {
         }),
       });
 
-      const data = await model.json();
+      const data = await response.json();
       const briefText = data.candidates[0].content.parts[0].text;
       
       setGeneratedBrief(briefText);
