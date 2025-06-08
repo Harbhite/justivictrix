@@ -123,7 +123,7 @@ const People = () => {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => navigate(`/people/${member.id}`)}
+                      onClick={() => navigate(`/member/${member.id}`)}
                       className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
                     >
                       Standard
@@ -133,6 +133,12 @@ const People = () => {
                       className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
                     >
                       Alternative
+                    </button>
+                    <button
+                      onClick={() => navigate(`/full-profile/${member.id}`)}
+                      className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+                    >
+                      Full
                     </button>
                   </div>
                 </div>

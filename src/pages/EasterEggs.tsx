@@ -6,6 +6,9 @@ import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
 import WordScramble from "@/components/easter-eggs/WordScramble";
 import LegalChatbot from "@/components/easter-eggs/LegalChatbot";
+import StudyMoodTracker from "@/components/easter-eggs/StudyMoodTracker";
+import PomodoroTimer from "@/components/easter-eggs/PomodoroTimer";
+import LegalJokeGenerator from "@/components/easter-eggs/LegalJokeGenerator";
 
 const EasterEggs = () => {
   const isMobile = useIsMobile();
@@ -57,6 +60,33 @@ const EasterEggs = () => {
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Assistant</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Chat with an AI to get legal information and guidance</p>
             <LegalChatbot />
+          </div>
+        </div>
+
+        {/* Study Mood Tracker Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#3b82f6] hover:shadow-xl transition-all">
+          <div className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Study Mood Tracker</h2>
+            <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Track your study mood and get personalized advice</p>
+            <StudyMoodTracker />
+          </div>
+        </div>
+
+        {/* Pomodoro Timer Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#ef4444] hover:shadow-xl transition-all">
+          <div className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Pomodoro Study Timer</h2>
+            <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Stay focused with the proven Pomodoro technique</p>
+            <PomodoroTimer />
+          </div>
+        </div>
+
+        {/* Legal Joke Generator Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#fbbf24] hover:shadow-xl transition-all">
+          <div className="p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Joke Generator</h2>
+            <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Take a break with some legal humor and jokes</p>
+            <LegalJokeGenerator />
           </div>
         </div>
       </div>

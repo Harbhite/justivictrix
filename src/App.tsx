@@ -62,8 +62,8 @@ function App() {
                 <Route path="/note-taker" element={<NoteTaker />} />
                 <Route path="/easter-eggs" element={<EasterEggs />} />
                 <Route path="/member/:id" element={<MemberBio />} />
-                <Route path="/alternative-profile" element={<AlternativeProfile />} />
-                <Route path="/full-profile" element={<FullProfile />} />
+                <Route path="/alternative-profile/:id" element={<AlternativeProfile />} />
+                <Route path="/full-profile/:id" element={<FullProfile />} />
                 <Route path="/secret-forum" element={<SecretForum />} />
                 <Route path="/forum/settings" element={<ForumSettings />} />
                 <Route path="/forum/category/:slug" element={<ForumCategory />} />
