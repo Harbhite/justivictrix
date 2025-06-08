@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowDown, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";

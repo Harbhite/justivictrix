@@ -20,8 +20,6 @@ import Timetable from "./pages/Timetable";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import StudyGroups from "./pages/StudyGroups";
-import CourseProgress from "./pages/CourseProgress";
 import NoteTaker from "./pages/NoteTaker";
 import EasterEggs from "./pages/EasterEggs";
 import MemberBio from "./pages/MemberBio";
@@ -59,8 +57,6 @@ function App() {
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/tools" element={<Tools />} />
                 <Route path="/timetable" element={<Timetable />} />
-                <Route path="/study-groups" element={<StudyGroups />} />
-                <Route path="/course-progress" element={<CourseProgress />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/note-taker" element={<NoteTaker />} />
