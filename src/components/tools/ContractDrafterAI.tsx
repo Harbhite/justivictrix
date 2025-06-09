@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Copy, Download, FileContract, FileText } from "lucide-react";
+import { Copy, Download, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -224,7 +223,7 @@ const ContractDrafterAI = () => {
         <Card className="mt-4 border-2 border-indigo-300 shadow-lg overflow-hidden">
           <div className={`flex ${isMobile ? 'flex-col' : 'justify-between'} items-start md:items-center p-3 bg-indigo-50 border-b border-indigo-200`}>
             <div className="flex items-center gap-2 mb-2 md:mb-0">
-              <FileContract className="h-5 w-5 text-indigo-600" />
+              <FileText className="h-5 w-5 text-indigo-600" />
               <h3 className="font-bold text-indigo-800">Contract Draft</h3>
             </div>
             <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} gap-2`}>

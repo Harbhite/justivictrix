@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, ChevronDown, ChevronUp, Scroll, FileContract, Mail, HelpCircle } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, ChevronDown, ChevronUp, Scroll, Mail, HelpCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -285,7 +285,7 @@ const Tools = () => {
         {/* NEW TOOL 2: Contract Drafter AI */}
         <div className="p-4 md:p-8 bg-indigo-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
-            <FileContract size={isMobile ? 24 : 28} />
+            <FileText size={isMobile ? 24 : 28} />
             AI Contract Drafter
           </h2>
           <ContractDrafterAI />
