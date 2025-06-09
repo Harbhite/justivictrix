@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, ChevronDown, ChevronUp } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, ChevronDown, ChevronUp, Scroll, FileContract, Mail, HelpCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,6 +15,11 @@ import CitationGenerator from "@/components/tools/CitationGenerator";
 import IracGenerator from "@/components/tools/IracGenerator";
 import CaseBriefGenerator from "@/components/tools/CaseBriefGenerator";
 import LegalResearchAssistant from "@/components/tools/LegalResearchAssistant";
+import LegalMemoGenerator from "@/components/tools/LegalMemoGenerator";
+import ContractDrafterAI from "@/components/tools/ContractDrafterAI";
+import LegalLetterGenerator from "@/components/tools/LegalLetterGenerator";
+import LegalQAGenerator from "@/components/tools/LegalQAGenerator";
+import LegalOutlineGenerator from "@/components/tools/LegalOutlineGenerator";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
@@ -267,6 +271,51 @@ const Tools = () => {
             Legal Research Assistant
           </h2>
           <LegalResearchAssistant />
+        </div>
+
+        {/* NEW TOOL 1: Legal Memo Generator */}
+        <div className="p-4 md:p-8 bg-violet-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+            <Scroll size={isMobile ? 24 : 28} />
+            Legal Memo Generator
+          </h2>
+          <LegalMemoGenerator />
+        </div>
+
+        {/* NEW TOOL 2: Contract Drafter AI */}
+        <div className="p-4 md:p-8 bg-indigo-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+            <FileContract size={isMobile ? 24 : 28} />
+            AI Contract Drafter
+          </h2>
+          <ContractDrafterAI />
+        </div>
+
+        {/* NEW TOOL 3: Legal Letter Generator */}
+        <div className="p-4 md:p-8 bg-red-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+            <Mail size={isMobile ? 24 : 28} />
+            Legal Letter Generator
+          </h2>
+          <LegalLetterGenerator />
+        </div>
+
+        {/* NEW TOOL 4: Legal Q&A Generator */}
+        <div className="p-4 md:p-8 bg-yellow-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+            <HelpCircle size={isMobile ? 24 : 28} />
+            Legal Q&A Generator
+          </h2>
+          <LegalQAGenerator />
+        </div>
+
+        {/* NEW TOOL 5: Legal Outline Generator */}
+        <div className="p-4 md:p-8 bg-slate-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+            <List size={isMobile ? 24 : 28} />
+            Legal Outline Generator
+          </h2>
+          <LegalOutlineGenerator />
         </div>
 
         {/* Citation Reference Guide */}

@@ -29,7 +29,7 @@ const IracGenerator = () => {
     setIsLoading(true);
     try {
       // Use Gemini API to generate IRAC analysis
-      const model = await fetch("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent", {
+      const response = await fetch("https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
