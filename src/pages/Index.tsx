@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowDown, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb, Users, Trophy, Scale, Brain, Gavel, GraduationCap, Clock, Target, Award } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -160,6 +159,7 @@ const Index = () => {
 
       {/* About Us - Mission Statement */}
       <motion.section 
+        id="about"
         className="py-16 bg-white border-t-4 border-black"
         initial="hidden"
         whileInView="visible"

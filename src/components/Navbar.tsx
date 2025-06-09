@@ -11,7 +11,6 @@ const Navbar = () => {
   const { user } = useAuth();
 
   const navigationItems = [
-    { name: "About", href: "/about", icon: BookOpen },
     { name: "Resources", href: "/resources", icon: FileText },
     { name: "Courses", href: "/courses", icon: BookOpen },
     { name: "People", href: "/people", icon: Users },
@@ -24,6 +23,20 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const scrollToAbout = () => {
+    if (location.pathname !== '/') {
+      // If not on homepage, navigate to homepage first then scroll
+      window.location.href = '/#about';
+    } else {
+      // If on homepage, scroll to about section
+      const aboutSection = document.getElementById('about');
+      if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav className="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
@@ -39,6 +52,14 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <button
+              onClick={scrollToAbout}
+              className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1 text-gray-700 hover:bg-gray-100 border-2 border-transparent hover:border-gray-300"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>About</span>
+            </button>
+            
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -97,6 +118,14 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/80 backdrop-blur-md">
+            <button
+              onClick={scrollToAbout}
+              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 flex items-center space-x-2 text-gray-700 hover:bg-gray-100 border-2 border-transparent"
+            >
+              <BookOpen className="w-5 h-5" />
+              <span>About</span>
+            </button>
+            
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
