@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,12 +79,26 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setIsUploading(true);
+      setError(null);
       
       if (!event.target.files || event.target.files.length === 0) {
         return;
       }
       
       const file = event.target.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select a valid image file");
+        return;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      
       setImageFile(file);
       
       const previewUrl = URL.createObjectURL(file);
@@ -105,16 +120,20 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       
-      const { data: buckets, error: bucketsError } = await supabase.storage
-        .listBuckets();
-        
-      if (bucketsError) {
-        console.error("Error checking for buckets:", bucketsError);
-        throw new Error("Storage system is not properly configured");
-      }
+      // Check if blog-images bucket exists, if not create it
+      const { data: buckets } = await supabase.storage.listBuckets();
       
-      if (!buckets.some(bucket => bucket.name === 'blog-images')) {
-        throw new Error("Blog image storage is not set up correctly");
+      if (!buckets?.some(bucket => bucket.name === 'blog-images')) {
+        const { error: bucketError } = await supabase.storage.createBucket('blog-images', {
+          public: true,
+          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+          fileSizeLimit: 5242880 // 5MB
+        });
+        
+        if (bucketError) {
+          console.error("Error creating bucket:", bucketError);
+          throw new Error("Failed to set up image storage");
+        }
       }
       
       const { error: uploadError, data } = await supabase.storage
@@ -133,27 +152,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       return urlData.publicUrl;
     } catch (error: any) {
       console.error("Error uploading image:", error);
-      setError(error.message || "Failed to upload image");
-      return null;
-    }
-  };
-
-  const checkBlogTableExists = async () => {
-    try {
-      const { error } = await supabase
-        .from("blog_posts")
-        .select("id")
-        .limit(1);
-        
-      if (error) {
-        console.error("Error accessing blog posts table:", error);
-        throw new Error("Blog system is not properly set up. Please contact administrator");
-      }
-      
-      return true;
-    } catch (error: any) {
-      setError(error.message);
-      return false;
+      throw new Error(error.message || "Failed to upload image");
     }
   };
 
@@ -163,8 +162,13 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       return;
     }
 
-    if (!title.trim() || !content.trim()) {
-      toast.error("Title and content are required");
+    if (!title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.error("Content is required");
       return;
     }
 
@@ -172,26 +176,25 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     setError(null);
 
     try {
-      const isTableReady = await checkBlogTableExists();
-      if (!isTableReady) {
-        toast.error("Blog system is not properly set up");
-        setIsSaving(false);
-        return;
-      }
-      
       let finalImageUrl = imageUrl;
       
       if (imageFile) {
-        const uploadedUrl = await uploadImageToStorage();
-        if (uploadedUrl) {
-          finalImageUrl = uploadedUrl;
-        } else if (error) {
-          if (!imageUrl) {
-            setIsSaving(false);
-            toast.error(error);
-            return;
+        try {
+          const uploadedUrl = await uploadImageToStorage();
+          if (uploadedUrl) {
+            finalImageUrl = uploadedUrl;
           }
+        } catch (uploadError: any) {
+          console.error("Image upload failed:", uploadError);
+          toast.error("Image upload failed, but continuing with post");
+          // Continue without the image rather than failing the entire post
+          finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
         }
+      }
+      
+      // Fallback image if no image provided
+      if (!finalImageUrl) {
+        finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
       }
       
       const postData = {
@@ -201,7 +204,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         author_id: user.id,
         is_anonymous: isAnonymous,
         category,
-        image_url: finalImageUrl || null,
+        image_url: finalImageUrl,
       };
 
       if (postId) {
@@ -226,12 +229,12 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
           throw error;
         }
         toast.success("Blog post published successfully");
-        console.log("Published post:", data);
       }
 
       navigate("/blog");
     } catch (error: any) {
       console.error("Error saving blog post:", error);
+      setError(error.message);
       toast.error(error.message || "Failed to save blog post");
     } finally {
       setIsSaving(false);
@@ -314,13 +317,14 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       )}
     
       <div className="space-y-2">
-        <Label htmlFor="title">Blog Title</Label>
+        <Label htmlFor="title">Blog Title *</Label>
         <Input
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter a compelling title"
           className="text-lg"
+          required
         />
       </div>
 
@@ -371,7 +375,15 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         </div>
         {imageUrl && (
           <div className="mt-2 border rounded-md overflow-hidden h-40">
-            <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+            <img 
+              src={imageUrl} 
+              alt="Preview" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+              }}
+            />
           </div>
         )}
       </div>
@@ -389,7 +401,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
 
       <div className="space-y-2">
         <div className="flex justify-between items-center mb-2">
-          <Label htmlFor="content">Content</Label>
+          <Label htmlFor="content">Content *</Label>
           <div className="flex gap-1 border rounded p-1 flex-wrap">
             <Button
               type="button"
@@ -480,6 +492,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
           placeholder="Write your blog post content here (supports markdown formatting)"
           rows={15}
           className="font-mono"
+          required
         />
       </div>
 
@@ -498,7 +511,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         <Button
           type="button"
           onClick={saveBlogPost}
-          disabled={isSaving}
+          disabled={isSaving || !title.trim() || !content.trim()}
           className="flex-1 bg-purple-500 hover:bg-purple-600"
         >
           {isSaving ? "Saving..." : (postId ? "Update Post" : "Publish Post")}

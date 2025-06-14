@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Calendar, User, ArrowLeft, Edit, Trash } from "lucide-react";
+import { Calendar, User, ArrowLeft, Edit, Trash, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ const BlogPost = () => {
   const { user } = useAuth();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -24,6 +26,8 @@ const BlogPost = () => {
 
   const fetchPost = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       const { data, error } = await supabase
         .from("blog_posts")
@@ -48,9 +52,15 @@ const BlogPost = () => {
         }
       }
       
+      // Ensure valid image URL
+      if (!blogPost.image_url || blogPost.image_url.includes('blob:')) {
+        blogPost.image_url = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+      }
+      
       setPost(blogPost);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching blog post:", error);
+      setError(error.message || "Failed to load blog post");
       toast.error("Failed to load blog post");
     } finally {
       setIsLoading(false);
@@ -83,6 +93,11 @@ const BlogPost = () => {
     }
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+  };
+
   if (isLoading) {
     return (
       <div className="container max-w-3xl mx-auto px-4 py-16">
@@ -100,10 +115,16 @@ const BlogPost = () => {
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
       <div className="container max-w-3xl mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Blog post not found</h1>
+        <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
+        <h1 className="text-2xl font-bold mb-4">
+          {error ? "Error loading blog post" : "Blog post not found"}
+        </h1>
+        <p className="text-gray-600 mb-6">
+          {error || "The blog post you're looking for doesn't exist or may have been deleted."}
+        </p>
         <Button onClick={() => navigate("/blog")}>
           <ArrowLeft className="mr-2" size={16} />
           Back to Blog
@@ -126,36 +147,33 @@ const BlogPost = () => {
         <article className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
             <img 
-              src={post?.image_url || "/placeholder.svg"} 
-              alt={post?.title}
+              src={post.image_url} 
+              alt={post.title}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg"; 
-              }}
+              onError={handleImageError}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
-              <div className="inline-block bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-gray-700 mb-3">
-                {post?.category}
+              <div className="inline-block bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-gray-700 mb-3 self-start">
+                {post.category}
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">{post?.title}</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">{post.title}</h1>
               <div className="flex items-center text-white/90">
                 <Calendar size={16} className="mr-2" />
                 <span className="text-sm mr-4">
-                  {post?.created_at ? new Date(post.created_at).toLocaleDateString() : ''}
+                  {new Date(post.created_at).toLocaleDateString()}
                 </span>
                 <User size={16} className="mr-2" />
                 <span className="text-sm">
-                  {post?.is_anonymous 
+                  {post.is_anonymous 
                     ? "Anonymous" 
-                    : (post?.author?.full_name || post?.author?.username || "Unknown")}
+                    : (post.author?.full_name || post.author?.username || "Unknown")}
                 </span>
               </div>
             </div>
           </div>
 
           <div className="p-6 sm:p-8">
-            {user && post?.author_id === user.id && (
+            {user && post.author_id === user.id && (
               <div className="flex justify-end mb-6 gap-2">
                 <Button
                   variant="outline"
@@ -179,7 +197,7 @@ const BlogPost = () => {
             )}
 
             <div className="prose max-w-none">
-              {post?.content && (
+              {post.content && (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {post.content}
                 </ReactMarkdown>

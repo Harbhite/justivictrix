@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Calendar, User, ArrowRight, Plus, Edit, Trash } from 'lucide-react';
+import { Search, Calendar, User, ArrowRight, Plus, Edit, Trash, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ const Blog = () => {
   const [category, setCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(null);
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
   
@@ -35,6 +36,8 @@ const Blog = () => {
 
   const fetchBlogPosts = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       // Get all blog posts without joining with profiles
       const { data: postsData, error: postsError } = await supabase
@@ -53,49 +56,66 @@ const Blog = () => {
             .map(post => post.author_id)
         )];
         
-        // Fetch author details for these IDs
-        const { data: authorsData } = await supabase
-          .from('profiles')
-          .select('id, username, full_name, avatar_url')
-          .in('id', authorIds);
+        // Fetch author details for these IDs if we have any
+        let authorsMap = {};
+        if (authorIds.length > 0) {
+          const { data: authorsData } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url')
+            .in('id', authorIds);
+            
+          // Create a map of author details by ID
+          authorsMap = authorsData ? 
+            authorsData.reduce((map: any, author) => {
+              map[author.id] = author;
+              return map;
+            }, {}) : {};
+        }
           
-        // Create a map of author details by ID
-        const authorsMap = authorsData ? 
-          authorsData.reduce((map: any, author) => {
-            map[author.id] = author;
-            return map;
-          }, {}) : {};
+        // Add author details to each post and ensure valid image URLs
+        const processedPosts = postsData.map((post: BlogPost) => {
+          const processedPost = { ...post };
           
-        // Add author details to each post
-        postsData.forEach((post: BlogPost) => {
+          // Add author details for non-anonymous posts
           if (!post.is_anonymous && post.author_id && authorsMap[post.author_id]) {
-            post.author = authorsMap[post.author_id];
+            processedPost.author = authorsMap[post.author_id];
           }
+          
+          // Ensure valid image URL with fallback
+          if (!processedPost.image_url || processedPost.image_url.includes('blob:')) {
+            processedPost.image_url = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+          }
+          
+          return processedPost;
         });
 
         // Update category counts
         const newCategories = [...categories];
-        const categoryCounts = postsData.reduce((acc: any, post) => {
+        const categoryCounts = processedPosts.reduce((acc: any, post) => {
           acc[post.category] = (acc[post.category] || 0) + 1;
           return acc;
         }, {});
         
         newCategories.forEach(cat => {
           if (cat.name === 'All') {
-            cat.count = postsData.length;
+            cat.count = processedPosts.length;
           } else {
             cat.count = categoryCounts[cat.name] || 0;
           }
         });
         
         // Set the featured post to the most recent one
-        setFeaturedPost(postsData[0]);
+        setFeaturedPost(processedPosts[0] || null);
         
         // Set the recent posts to the rest
-        setRecentPosts(postsData.slice(1));
+        setRecentPosts(processedPosts.slice(1));
+      } else {
+        setFeaturedPost(null);
+        setRecentPosts([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching blog posts:', error);
+      setError('Failed to load blog posts. Please try again later.');
       toast.error('Failed to load blog posts');
     } finally {
       setIsLoading(false);
@@ -124,6 +144,11 @@ const Blog = () => {
     }
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+  };
+
   // Filter posts by category
   const filteredPosts = category === 'All' 
     ? recentPosts 
@@ -135,6 +160,21 @@ const Blog = () => {
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()))
     : filteredPosts;
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#f8f6f3] flex items-center justify-center">
+        <div className="text-center p-8">
+          <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load blog</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={fetchBlogPosts} className="bg-purple-500 hover:bg-purple-600">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f6f3]">
@@ -193,6 +233,7 @@ const Blog = () => {
                       src={featuredPost.image_url} 
                       alt={featuredPost.title}
                       className="h-64 w-full object-cover md:h-full"
+                      onError={handleImageError}
                     />
                   </div>
                   <div className="p-6 md:w-1/2 flex flex-col justify-between">
@@ -307,6 +348,7 @@ const Blog = () => {
                           src={post.image_url} 
                           alt={post.title}
                           className="h-48 w-full object-cover"
+                          onError={handleImageError}
                         />
                         <div className="p-5">
                           <div className="inline-block bg-gray-100 px-2 py-1 rounded-full text-xs font-medium text-gray-700 mb-2">
@@ -367,8 +409,10 @@ const Blog = () => {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No blog posts found</p>
-                    {user && (
+                    <p className="text-gray-500 mb-4">
+                      {searchTerm ? `No blog posts found for "${searchTerm}"` : "No blog posts found"}
+                    </p>
+                    {user && !searchTerm && (
                       <Button 
                         onClick={() => navigate('/blog/new')}
                         className="bg-purple-500 hover:bg-purple-600 text-white"
