@@ -9,22 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { 
-  Image as ImageIcon, 
-  Heading2, 
-  List, 
-  Bold, 
-  Italic, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  Link 
-} from "lucide-react";
+import { Calendar, Save, Eye, X } from "lucide-react";
 
 const BLOG_CATEGORIES = [
   "Law Updates",
-  "Student Life",
+  "Student Life", 
   "Case Studies",
   "Academic Tips",
   "Faculty News",
@@ -35,16 +26,27 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Post data
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [category, setCategory] = useState(BLOG_CATEGORIES[0]);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [status, setStatus] = useState<'draft' | 'published'>('draft');
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("");
+  
+  // Tags
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  
+  // State
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
     if (postId) {
@@ -69,6 +71,9 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         setCategory(data.category);
         setIsAnonymous(data.is_anonymous || false);
         setImageUrl(data.image_url || "");
+        setStatus(data.status || 'draft');
+        setIsFeatured(data.is_featured || false);
+        setTags(data.tags || []);
       }
     } catch (error) {
       console.error("Error fetching post:", error);
@@ -87,23 +92,19 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       
       const file = event.target.files[0];
       
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast.error("Please select a valid image file");
         return;
       }
       
-      // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size should be less than 5MB");
         return;
       }
       
       setImageFile(file);
-      
       const previewUrl = URL.createObjectURL(file);
       setImageUrl(previewUrl);
-      
       toast.success("Image selected for upload");
     } catch (error) {
       console.error("Error selecting image:", error);
@@ -113,52 +114,29 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
-  const uploadImageToStorage = async () => {
-    if (!imageFile || !user) return null;
-    
-    try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      
-      // Check if blog-images bucket exists, if not create it
-      const { data: buckets } = await supabase.storage.listBuckets();
-      
-      if (!buckets?.some(bucket => bucket.name === 'blog-images')) {
-        const { error: bucketError } = await supabase.storage.createBucket('blog-images', {
-          public: true,
-          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-          fileSizeLimit: 5242880 // 5MB
-        });
-        
-        if (bucketError) {
-          console.error("Error creating bucket:", bucketError);
-          throw new Error("Failed to set up image storage");
-        }
-      }
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('blog-images')
-        .upload(fileName, imageFile);
-        
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
-      
-      const { data: urlData } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(fileName);
-        
-      return urlData.publicUrl;
-    } catch (error: any) {
-      console.error("Error uploading image:", error);
-      throw new Error(error.message || "Failed to upload image");
+  const addTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag("");
     }
   };
 
-  const saveBlogPost = async () => {
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const saveBlogPost = async (publishStatus: 'draft' | 'published' = status) => {
     if (!user) {
-      toast.error("You must be logged in to publish a blog post");
+      toast.error("You must be logged in to save a blog post");
       return;
     }
 
@@ -178,57 +156,71 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     try {
       let finalImageUrl = imageUrl;
       
+      // Upload image if a file is selected
       if (imageFile) {
         try {
-          const uploadedUrl = await uploadImageToStorage();
-          if (uploadedUrl) {
-            finalImageUrl = uploadedUrl;
+          const fileExt = imageFile.name.split('.').pop();
+          const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('blog-images')
+            .upload(fileName, imageFile);
+            
+          if (uploadError) {
+            console.error("Upload error:", uploadError);
+            throw uploadError;
           }
+          
+          const { data: urlData } = supabase.storage
+            .from('blog-images')
+            .getPublicUrl(fileName);
+            
+          finalImageUrl = urlData.publicUrl;
         } catch (uploadError: any) {
           console.error("Image upload failed:", uploadError);
-          toast.error("Image upload failed, but continuing with post");
-          // Continue without the image rather than failing the entire post
+          toast.error("Image upload failed, using fallback");
           finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
         }
       }
       
-      // Fallback image if no image provided
       if (!finalImageUrl) {
         finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
       }
       
+      const slug = generateSlug(title);
+      const now = new Date().toISOString();
+      
       const postData = {
         title: title.trim(),
+        slug,
         content,
         excerpt: excerpt.trim() || content.substring(0, 150) + "...",
         author_id: user.id,
         is_anonymous: isAnonymous,
         category,
         image_url: finalImageUrl,
+        tags,
+        status: publishStatus,
+        is_featured: isFeatured,
+        published_at: publishStatus === 'published' ? now : null,
+        view_count: 0
       };
 
       if (postId) {
         const { error } = await supabase
           .from("blog_posts")
-          .update({...postData, updated_at: new Date().toISOString()})
+          .update({...postData, updated_at: now})
           .eq("id", postId);
 
-        if (error) {
-          console.error("Update error:", error);
-          throw error;
-        }
-        toast.success("Blog post updated successfully");
+        if (error) throw error;
+        toast.success(`Blog post ${publishStatus === 'published' ? 'published' : 'saved'} successfully`);
       } else {
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from("blog_posts")
-          .insert([postData])
-          .select();
+          .insert([postData]);
 
-        if (error) {
-          console.error("Insert error:", error);
-          throw error;
-        }
-        toast.success("Blog post published successfully");
+        if (error) throw error;
+        toast.success(`Blog post ${publishStatus === 'published' ? 'published' : 'saved'} successfully`);
       }
 
       navigate("/blog");
@@ -241,73 +233,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
     }
   };
 
-  const formatText = (format: string) => {
-    const textArea = document.getElementById('content') as HTMLTextAreaElement;
-    if (!textArea) return;
-    
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-    const selectedText = textArea.value.substring(start, end);
-    
-    let formattedText = "";
-    let cursorPosition = 0;
-    
-    switch (format) {
-      case 'bold':
-        formattedText = `**${selectedText}**`;
-        cursorPosition = start + 2;
-        break;
-      case 'italic':
-        formattedText = `*${selectedText}*`;
-        cursorPosition = start + 1;
-        break;
-      case 'heading':
-        formattedText = `## ${selectedText}`;
-        cursorPosition = start + 3;
-        break;
-      case 'list':
-        formattedText = selectedText.split('\n')
-          .map(line => `- ${line}`)
-          .join('\n');
-        cursorPosition = start + 2;
-        break;
-      case 'link':
-        formattedText = `[${selectedText}](url)`;
-        cursorPosition = end + 3;
-        break;
-      case 'align-left':
-        formattedText = `<div style="text-align: left">${selectedText}</div>`;
-        cursorPosition = start + 30;
-        break;
-      case 'align-center':
-        formattedText = `<div style="text-align: center">${selectedText}</div>`;
-        cursorPosition = start + 32;
-        break;
-      case 'align-right':
-        formattedText = `<div style="text-align: right">${selectedText}</div>`;
-        cursorPosition = start + 31;
-        break;
-      default:
-        return;
-    }
-    
-    const textBefore = content.substring(0, start);
-    const textAfter = content.substring(end);
-    
-    setContent(textBefore + formattedText + textAfter);
-    
-    setTimeout(() => {
-      textArea.focus();
-      if (selectedText.length > 0) {
-        textArea.selectionStart = start;
-        textArea.selectionEnd = start + formattedText.length;
-      } else {
-        textArea.selectionStart = cursorPosition;
-        textArea.selectionEnd = cursorPosition;
-      }
-    }, 0);
-  };
-
   return (
     <div className="space-y-6">
       {error && (
@@ -315,216 +240,257 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
           {error}
         </div>
       )}
-    
-      <div className="space-y-2">
-        <Label htmlFor="title">Blog Title *</Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter a compelling title"
-          className="text-lg"
-          required
-        />
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {BLOG_CATEGORIES.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="featured-image">Featured Image</Label>
-        <div className="flex gap-4 items-center">
-          <div className="flex-1">
-            <Input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="Image URL or upload an image"
-              disabled={!!imageFile}
-            />
-          </div>
-          <div>
-            <Label 
-              htmlFor="image-upload" 
-              className="flex items-center gap-2 px-4 py-2 border bg-gray-100 hover:bg-gray-200 rounded-md cursor-pointer"
-            >
-              <ImageIcon size={16} />
-              <span>{isUploading ? "Uploading..." : "Upload"}</span>
-            </Label>
-            <Input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={uploadImage}
-              disabled={isUploading}
-              className="hidden"
-            />
-          </div>
+      {/* Header Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPreviewMode(!previewMode)}
+          >
+            <Eye size={16} className="mr-1" />
+            {previewMode ? 'Edit' : 'Preview'}
+          </Button>
+          <span className={`text-xs px-2 py-1 rounded-full ${
+            status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+          }`}>
+            {status}
+          </span>
         </div>
-        {imageUrl && (
-          <div className="mt-2 border rounded-md overflow-hidden h-40">
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => saveBlogPost('draft')}
+            disabled={isSaving}
+          >
+            <Save size={16} className="mr-1" />
+            Save Draft
+          </Button>
+          <Button
+            onClick={() => saveBlogPost('published')}
+            disabled={isSaving || !title.trim() || !content.trim()}
+            className="bg-gray-900 hover:bg-gray-800"
+          >
+            {isSaving ? "Saving..." : (postId ? "Update Post" : "Publish Post")}
+          </Button>
+        </div>
+      </div>
+
+      {!previewMode ? (
+        <>
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a compelling title"
+              className="text-lg font-medium"
+              required
+            />
+          </div>
+
+          {/* Meta Settings */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BLOG_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={(value: 'draft' | 'published') => setStatus(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="scheduled-date">Schedule (optional)</Label>
+              <Input
+                id="scheduled-date"
+                type="datetime-local"
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Featured Image */}
+          <div className="space-y-2">
+            <Label htmlFor="image-url">Featured Image</Label>
+            <div className="flex gap-4 items-center">
+              <Input
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Image URL or upload an image"
+                disabled={!!imageFile}
+                className="flex-1"
+              />
+              <Label className="flex items-center gap-2 px-4 py-2 border bg-gray-100 hover:bg-gray-200 rounded-md cursor-pointer">
+                <span>{isUploading ? "Uploading..." : "Upload"}</span>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={uploadImage}
+                  disabled={isUploading}
+                  className="hidden"
+                />
+              </Label>
+            </div>
+            {imageUrl && (
+              <div className="mt-2 border rounded-md overflow-hidden h-40">
+                <img 
+                  src={imageUrl} 
+                  alt="Preview" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Excerpt */}
+          <div className="space-y-2">
+            <Label htmlFor="excerpt">Excerpt</Label>
+            <Textarea
+              id="excerpt"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              placeholder="Brief summary (auto-generated if empty)"
+              rows={3}
+            />
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2 mb-2">
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Add a tag"
+                onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                className="flex-1"
+              />
+              <Button type="button" onClick={addTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, index) => (
+                <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  {tag}
+                  <X 
+                    size={12} 
+                    className="cursor-pointer hover:text-red-500"
+                    onClick={() => removeTag(tag)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-2">
+            <Label htmlFor="content">Content *</Label>
+            <Textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your blog post content here (supports markdown)"
+              rows={20}
+              className="font-mono"
+              required
+            />
+          </div>
+
+          {/* Settings */}
+          <div className="flex flex-wrap items-center gap-6 pt-4 border-t">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="anonymous"
+                checked={isAnonymous}
+                onCheckedChange={(checked) => setIsAnonymous(checked === true)}
+              />
+              <Label htmlFor="anonymous" className="cursor-pointer">
+                Publish anonymously
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="featured"
+                checked={isFeatured}
+                onCheckedChange={(checked) => setIsFeatured(checked === true)}
+              />
+              <Label htmlFor="featured" className="cursor-pointer">
+                Mark as featured
+              </Label>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Preview Mode */
+        <div className="bg-white p-8 rounded-lg border">
+          <div className="mb-6">
+            <Badge className="mb-2">{category}</Badge>
+            <h1 className="text-3xl font-bold mb-4">{title || "Your Title Here"}</h1>
+            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+              <div className="flex items-center gap-1">
+                <Calendar size={14} />
+                <span>{new Date().toLocaleDateString()}</span>
+              </div>
+              <span>By {isAnonymous ? "Anonymous" : (user?.user_metadata?.full_name || user?.email)}</span>
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {tags.map((tag, index) => (
+                  <Badge key={index} variant="outline">#{tag}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {imageUrl && (
             <img 
               src={imageUrl} 
-              alt="Preview" 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
-              }}
+              alt={title}
+              className="w-full h-64 object-cover rounded-lg mb-6"
             />
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="excerpt">Excerpt (optional)</Label>
-        <Textarea
-          id="excerpt"
-          value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
-          placeholder="Brief summary of your post (will be auto-generated if left empty)"
-          rows={2}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex justify-between items-center mb-2">
-          <Label htmlFor="content">Content *</Label>
-          <div className="flex gap-1 border rounded p-1 flex-wrap">
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('bold')}
-              className="h-8 w-8 p-0"
-              title="Bold"
-            >
-              <Bold size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('italic')}
-              className="h-8 w-8 p-0"
-              title="Italic"
-            >
-              <Italic size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('heading')}
-              className="h-8 w-8 p-0"
-              title="Heading"
-            >
-              <Heading2 size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('list')}
-              className="h-8 w-8 p-0"
-              title="Bullet List"
-            >
-              <List size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('link')}
-              className="h-8 w-8 p-0"
-              title="Insert Link"
-            >
-              <Link size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('align-left')}
-              className="h-8 w-8 p-0"
-              title="Align Left"
-            >
-              <AlignLeft size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('align-center')}
-              className="h-8 w-8 p-0"
-              title="Align Center"
-            >
-              <AlignCenter size={16} />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => formatText('align-right')}
-              className="h-8 w-8 p-0"
-              title="Align Right"
-            >
-              <AlignRight size={16} />
-            </Button>
+          )}
+          
+          <div className="prose max-w-none">
+            {content ? content.split('\n').map((paragraph, index) => (
+              <p key={index} className="mb-4">{paragraph}</p>
+            )) : (
+              <p className="text-gray-500 italic">Your content will appear here...</p>
+            )}
           </div>
         </div>
-        <Textarea
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your blog post content here (supports markdown formatting)"
-          rows={15}
-          className="font-mono"
-          required
-        />
-      </div>
-
-      <div className="flex items-center space-x-2 pt-4">
-        <Checkbox
-          id="anonymous"
-          checked={isAnonymous}
-          onCheckedChange={(checked) => setIsAnonymous(checked === true)}
-        />
-        <Label htmlFor="anonymous" className="cursor-pointer">
-          Publish anonymously
-        </Label>
-      </div>
-
-      <div className="flex gap-4 pt-4">
-        <Button
-          type="button"
-          onClick={saveBlogPost}
-          disabled={isSaving || !title.trim() || !content.trim()}
-          className="flex-1 bg-purple-500 hover:bg-purple-600"
-        >
-          {isSaving ? "Saving..." : (postId ? "Update Post" : "Publish Post")}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate("/blog")}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
-      </div>
+      )}
     </div>
   );
 };
