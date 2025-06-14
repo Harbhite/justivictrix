@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Scale, BookOpen, Book, MessageSquare, BookTemplate, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, ChevronDown, ChevronUp, Scroll, Mail, HelpCircle } from "lucide-react";
+import { Scale, BookOpen, Book, MessageSquare, Plus, Minus, Sparkles, List, BrainCircuit, FileText, GanttChart, Gavel, FileSearch, Scroll, Mail, HelpCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +11,6 @@ import LegalDictionary from "@/components/tools/LegalDictionary";
 import LegalCaseGenerator from "@/components/tools/LegalCaseGenerator";
 import LegalFlashcardGenerator from "@/components/tools/LegalFlashcardGenerator";
 import ArgumentGenerator from "@/components/tools/ArgumentGenerator";
-import CitationGenerator from "@/components/tools/CitationGenerator";
 import IracGenerator from "@/components/tools/IracGenerator";
 import CaseBriefGenerator from "@/components/tools/CaseBriefGenerator";
 import LegalResearchAssistant from "@/components/tools/LegalResearchAssistant";
@@ -23,7 +22,6 @@ import LegalOutlineGenerator from "@/components/tools/LegalOutlineGenerator";
 
 const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
-  const [referenceOpen, setReferenceOpen] = useState(false);
   const [gradeScale, setGradeScale] = useState<"4.0" | "5.0">("4.0");
   const isMobile = useIsMobile();
 
@@ -237,15 +235,6 @@ const Tools = () => {
           <ArgumentGenerator />
         </div>
 
-        {/* Citation Generator */}
-        <div className="p-4 md:p-8 bg-cyan-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
-            <BookTemplate size={isMobile ? 24 : 28} />
-            Legal Citation Generator
-          </h2>
-          <CitationGenerator />
-        </div>
-
         {/* IRAC Generator */}
         <div className="p-4 md:p-8 bg-emerald-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
@@ -273,7 +262,7 @@ const Tools = () => {
           <LegalResearchAssistant />
         </div>
 
-        {/* NEW TOOL 1: Legal Memo Generator */}
+        {/* Legal Memo Generator */}
         <div className="p-4 md:p-8 bg-violet-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
             <Scroll size={isMobile ? 24 : 28} />
@@ -282,7 +271,7 @@ const Tools = () => {
           <LegalMemoGenerator />
         </div>
 
-        {/* NEW TOOL 2: Contract Drafter AI */}
+        {/* Contract Drafter AI */}
         <div className="p-4 md:p-8 bg-indigo-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
             <FileText size={isMobile ? 24 : 28} />
@@ -291,7 +280,7 @@ const Tools = () => {
           <ContractDrafterAI />
         </div>
 
-        {/* NEW TOOL 3: Legal Letter Generator */}
+        {/* Legal Letter Generator */}
         <div className="p-4 md:p-8 bg-red-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
             <Mail size={isMobile ? 24 : 28} />
@@ -300,7 +289,7 @@ const Tools = () => {
           <LegalLetterGenerator />
         </div>
 
-        {/* NEW TOOL 4: Legal Q&A Generator */}
+        {/* Legal Q&A Generator */}
         <div className="p-4 md:p-8 bg-yellow-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
             <HelpCircle size={isMobile ? 24 : 28} />
@@ -309,65 +298,13 @@ const Tools = () => {
           <LegalQAGenerator />
         </div>
 
-        {/* NEW TOOL 5: Legal Outline Generator */}
+        {/* Legal Outline Generator */}
         <div className="p-4 md:p-8 bg-slate-50 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center gap-2">
             <List size={isMobile ? 24 : 28} />
             Legal Outline Generator
           </h2>
           <LegalOutlineGenerator />
-        </div>
-
-        {/* Citation Reference Guide */}
-        <div className="p-4 md:p-8 bg-amber-100 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <BookTemplate className={`w-${isMobile ? '6' : '8'} h-${isMobile ? '6' : '8'}`} />
-              Citation Reference Guide
-            </span>
-            <button
-              onClick={() => setReferenceOpen(!referenceOpen)}
-              className="text-sm md:text-xl border-2 border-black px-2 md:px-4 py-1 md:py-2 hover:bg-amber-200 flex items-center gap-1 md:gap-2"
-            >
-              {referenceOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              {referenceOpen ? "Close" : "Open"} Guide
-            </button>
-          </h2>
-
-          {referenceOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-4 md:space-y-6"
-            >
-              <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
-                <div className="p-3 md:p-4 bg-white border-2 border-black">
-                  <h3 className="text-base md:text-lg font-bold mb-2">Case Citation</h3>
-                  <p className="mb-2 text-sm md:text-base">Format: [Year] Volume Law Report Page</p>
-                  <p className="text-xs md:text-sm text-gray-600">Example: [2015] 2 NWLR (Pt. 1443) 1</p>
-                </div>
-                
-                <div className="p-3 md:p-4 bg-white border-2 border-black">
-                  <h3 className="text-base md:text-lg font-bold mb-2">Statute Citation</h3>
-                  <p className="mb-2 text-sm md:text-base">Format: Name of Act, Year, Section</p>
-                  <p className="text-xs md:text-sm text-gray-600">Example: Constitution of the Federal Republic of Nigeria, 1999, s.1</p>
-                </div>
-                
-                <div className="p-3 md:p-4 bg-white border-2 border-black">
-                  <h3 className="text-base md:text-lg font-bold mb-2">Journal Articles</h3>
-                  <p className="mb-2 text-sm md:text-base">Format: Author, "Title" (Year) Volume Journal Page</p>
-                  <p className="text-xs md:text-sm text-gray-600">Example: Smith J, "Legal Theory" (2020) 15 LLR 45</p>
-                </div>
-                
-                <div className="p-3 md:p-4 bg-white border-2 border-black">
-                  <h3 className="text-base md:text-lg font-bold mb-2">Books</h3>
-                  <p className="mb-2 text-sm md:text-base">Format: Author, Title (Edition, Publisher Year) Page</p>
-                  <p className="text-xs md:text-sm text-gray-600">Example: John Doe, Law of Contract (3rd edn, Sweet & Maxwell 2019) 156</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
       </motion.div>
     </div>
