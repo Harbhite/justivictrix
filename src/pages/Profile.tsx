@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,11 +34,16 @@ const Profile = () => {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
-        <Button variant="outline" onClick={handleSignOut}>
-          Sign Out
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="secondary" onClick={() => navigate("/secret-forum")}>
+            Access Secret Forum
+          </Button>
+          <Button variant="outline" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        </div>
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
