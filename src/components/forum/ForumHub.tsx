@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ForumCategoryList from "./ForumCategoryList";
+import ForumMicroblogFeed from "./ForumMicroblogFeed";
 import { MessageSquareText, User, Settings, BookOpen, Award, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
@@ -40,7 +40,6 @@ const ForumHub = () => {
           A space for everyone to discuss topics, share knowledge, and collaborate on legal matters.
         </p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -48,39 +47,15 @@ const ForumHub = () => {
               <TabsTrigger value="categories">Categories</TabsTrigger>
               <TabsTrigger value="community">Community</TabsTrigger>
             </TabsList>
-            
             <TabsContent value="categories">
               <ForumCategoryList />
             </TabsContent>
-            
             <TabsContent value="community">
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users size={18} />
-                    Community Space
-                  </CardTitle>
-                  <CardDescription>
-                    Connect with other members and participate in discussions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p>Join our vibrant community of legal professionals, students, and enthusiasts.</p>
-                  {user ? (
-                    <Button onClick={() => handleNavigate("/profile")}>
-                      View Your Profile
-                    </Button>
-                  ) : (
-                    <Button onClick={() => handleNavigate("/auth")}>
-                      Sign in to Participate
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+              {/* MICROBLOG FEED */}
+              <ForumMicroblogFeed />
             </TabsContent>
           </Tabs>
         </div>
-        
         <div className="space-y-6">
           <Card>
             <CardHeader>
