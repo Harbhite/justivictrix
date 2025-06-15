@@ -1,4 +1,3 @@
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { X, Loader2, Trash2, ChevronLeft, ChevronRight, Camera, Image as ImageIcon } from "lucide-react";
@@ -14,6 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import BentoGrid from "@/components/BentoGrid";
 
 interface GalleryImage {
   id: number;
@@ -202,16 +202,15 @@ const Gallery = () => {
           {!isLoading && !error && galleryImages.length > 0 && (
             <div className="space-y-8 sm:space-y-12">
               {/* Featured Carousel */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 sm:p-6 lg:p-8">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border">
+                <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
                     Featured Photos
                   </h2>
-                  <p className="text-purple-100 text-sm sm:text-base">
+                  <p className="text-gray-600 text-sm sm:text-base">
                     Swipe through our latest memories
                   </p>
                 </div>
-                
                 <div className="p-4 sm:p-6 lg:p-8">
                   <Carousel className="w-full">
                     <CarouselContent>
@@ -226,12 +225,11 @@ const Gallery = () => {
                                 loading="lazy"
                               />
                             </div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-                            <div className="absolute bottom-4 left-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {/* Title overlay, no gradient */}
+                            <div className="absolute bottom-4 left-4 right-4 text-white bg-black/40 rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                               <h3 className="font-semibold text-sm sm:text-base lg:text-lg">{image.title}</h3>
-                              <p className="text-xs sm:text-sm text-gray-200">{new Date(image.date).toLocaleDateString()}</p>
+                              <p className="text-xs sm:text-sm">{new Date(image.date).toLocaleDateString()}</p>
                             </div>
-                            
                             {user && (
                               <Button
                                 size="sm"
@@ -254,48 +252,19 @@ const Gallery = () => {
                 </div>
               </div>
               
-              {/* All Photos Grid */}
+              {/* All Photos Bento Grid */}
               <div className="space-y-4 sm:space-y-6">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 text-center sm:text-left">
                   All Photos
                 </h2>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-                  {galleryImages.map((image, index) => (
-                    <motion.div
-                      key={image.id}
-                      className="aspect-square cursor-pointer overflow-hidden rounded-lg shadow-md group relative bg-gray-100"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => openModal(image.image_url, index)}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.03 }}
-                    >
-                      <img 
-                        src={image.image_url} 
-                        alt={image.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <p className="text-white font-medium text-xs sm:text-sm line-clamp-2">{image.title}</p>
-                        <p className="text-gray-200 text-xs">{new Date(image.date).toLocaleDateString()}</p>
-                      </div>
-                      
-                      {user && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="absolute top-1 right-1 sm:top-2 sm:right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 sm:p-1.5 h-auto"
-                          onClick={(e) => handleDeleteImage(image.id, e)}
-                        >
-                          <Trash2 size={12} className="sm:w-4 sm:h-4" />
-                        </Button>
-                      )}
-                    </motion.div>
-                  ))}
+                <div>
+                  {/* Use BentoGrid */}
+                  <BentoGrid
+                    images={galleryImages}
+                    onImageClick={(img, i) => openModal(img.image_url, i)}
+                    user={user}
+                    onDelete={handleDeleteImage}
+                  />
                 </div>
               </div>
             </div>
