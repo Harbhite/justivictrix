@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Calendar, Save, Eye, X } from "lucide-react";
 import type { BlogPost } from "@/types/blog";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const BLOG_CATEGORIES = [
   "Law Updates",
@@ -427,14 +428,11 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
           {/* Content */}
           <div className="space-y-2">
             <Label htmlFor="content">Content *</Label>
-            <Textarea
-              id="content"
+            <RichTextEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your blog post content here (supports markdown)"
-              rows={20}
-              className="font-mono"
-              required
+              onChange={setContent}
+              placeholder="Write your blog post content here (WYSIWYG supported)"
+              className="rounded-md border border-gray-300"
             />
           </div>
 
@@ -493,13 +491,7 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
             />
           )}
           
-          <div className="prose max-w-none">
-            {content ? content.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4">{paragraph}</p>
-            )) : (
-              <p className="text-gray-500 italic">Your content will appear here...</p>
-            )}
-          </div>
+          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-500 italic'>Your content will appear here...</p>" }} />
         </div>
       )}
     </div>
