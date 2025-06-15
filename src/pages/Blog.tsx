@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Grid, List, Filter } from 'lucide-react';
@@ -44,10 +43,10 @@ const Blog = () => {
     setError(null);
     
     try {
-      // Fetch all blog posts
+      // Fetch all blog posts - select all required columns
       const { data: postsData, error: postsError } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select("id, title, content, excerpt, slug, image_url, author_id, created_at, updated_at, published_at, status, category, tags, is_anonymous, is_featured, view_count")
         .eq('status', 'published')
         .order('created_at', { ascending: false });
 
@@ -76,24 +75,24 @@ const Blog = () => {
         }
           
         // Process posts with WordPress-like features
-        const processedPosts = postsData.map((post: any) => {
-          const processedPost = { 
+        const processedPosts = (postsData as BlogPost[]).map((post: any) => {
+          const processed: BlogPost = {
             ...post,
             tags: post.tags || [],
-            view_count: post.view_count || 0,
-            comments_count: 0, // Will be calculated from comments table
-            status: post.status || 'published'
+            view_count: post.view_count ?? 0,
+            comments_count: post.comments_count ?? 0,
+            status: post.status as 'draft' | 'published' | 'private',
           };
           
           if (!post.is_anonymous && post.author_id && authorsMap[post.author_id]) {
-            processedPost.author = authorsMap[post.author_id];
+            processed.author = authorsMap[post.author_id];
           }
           
-          if (!processedPost.image_url || processedPost.image_url.includes('blob:')) {
-            processedPost.image_url = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
+          if (!processed.image_url || processed.image_url.includes('blob:')) {
+            processed.image_url = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
           }
           
-          return processedPost;
+          return processed;
         });
 
         // Separate featured and regular posts

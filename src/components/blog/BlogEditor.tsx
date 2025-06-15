@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Calendar, Save, Eye, X } from "lucide-react";
+import type { BlogPost } from "@/types/blog";
 
 const BLOG_CATEGORIES = [
   "Law Updates",
@@ -60,18 +61,17 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         .from("blog_posts")
         .select("*")
         .eq("id", postId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-
       if (data) {
-        setTitle(data.title);
-        setContent(data.content);
+        setTitle(data.title || "");
+        setContent(data.content || "");
         setExcerpt(data.excerpt || "");
-        setCategory(data.category);
+        setCategory(data.category || BLOG_CATEGORIES[0]);
         setIsAnonymous(data.is_anonymous || false);
         setImageUrl(data.image_url || "");
-        setStatus(data.status || 'draft');
+        setStatus((data.status as 'draft' | 'published') || 'draft');
         setIsFeatured(data.is_featured || false);
         setTags(data.tags || []);
       }
@@ -189,8 +189,9 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       
       const slug = generateSlug(title);
       const now = new Date().toISOString();
-      
-      const postData = {
+
+      // Compose blog post data to match BlogPost type
+      const postData: Partial<BlogPost> = {
         title: title.trim(),
         slug,
         content,
@@ -203,13 +204,13 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         status: publishStatus,
         is_featured: isFeatured,
         published_at: publishStatus === 'published' ? now : null,
-        view_count: 0
+        view_count: postId ? undefined : 0,
       };
 
       if (postId) {
         const { error } = await supabase
           .from("blog_posts")
-          .update({...postData, updated_at: now})
+          .update({ ...postData, updated_at: now })
           .eq("id", postId);
 
         if (error) throw error;

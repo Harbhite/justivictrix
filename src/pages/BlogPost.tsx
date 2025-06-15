@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Edit, Trash, AlertCircle, Eye, Share2, Bookmark, Heart } from "lucide-react";
@@ -34,51 +33,44 @@ const BlogPostPage = () => {
   const fetchPost = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
+      // Select all required fields for single blog post
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id, title, content, excerpt, slug, image_url, author_id, created_at, updated_at, published_at, status, category, tags, is_anonymous, is_featured, view_count")
         .eq("id", Number(id))
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      
-      const blogPost: BlogPost = data;
-
+      if (!data) throw new Error("No post found.");
+      const blogPost: BlogPost = {
+        ...data,
+        tags: data.tags || [],
+        view_count: data.view_count ?? 0,
+        comments_count: 0,
+        status: data.status as 'draft' | 'published' | 'private',
+      };
       // Fetch author details if not anonymous
-      if (blogPost && !blogPost.is_anonymous && blogPost.author_id) {
-        const { data: authorData, error: authorError } = await supabase
+      if (!blogPost.is_anonymous && blogPost.author_id) {
+        const { data: authorData } = await supabase
           .from("profiles")
           .select("username, full_name, avatar_url, bio")
           .eq("id", blogPost.author_id)
-          .single();
-          
-        if (!authorError && authorData) {
-          blogPost.author = authorData;
-        }
+          .maybeSingle();
+        if (authorData) blogPost.author = authorData;
       }
-      
-      // Ensure valid image URL
       if (!blogPost.image_url || blogPost.image_url.includes('blob:')) {
         blogPost.image_url = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
       }
-      
-      // Add WordPress-like features
-      blogPost.tags = blogPost.tags || [];
+      // Add view (persist to db if you want, omitted for safety)
       blogPost.view_count = (blogPost.view_count || 0) + 1;
-      
-      // Update view count
       await supabase
         .from("blog_posts")
         .update({ view_count: blogPost.view_count })
         .eq("id", Number(id));
-      
       setPost(blogPost);
-      
-      // Fetch related posts
       fetchRelatedPosts(blogPost.category, Number(id));
-      
     } catch (error: any) {
       console.error("Error fetching blog post:", error);
       setError(error.message || "Failed to load blog post");
@@ -120,6 +112,7 @@ const BlogPostPage = () => {
 
   const fetchRelatedPosts = async (category: string, currentPostId: number) => {
     try {
+      // Select all columns needed for BlogPostCard/Preview display
       const { data, error } = await supabase
         .from("blog_posts")
         .select("id, title, excerpt, image_url, created_at, category, view_count")
@@ -129,11 +122,13 @@ const BlogPostPage = () => {
         .limit(3);
 
       if (!error && data) {
-        setRelatedPosts(data.map(post => ({
-          ...post,
-          tags: [],
-          view_count: post.view_count || 0
-        })));
+        setRelatedPosts(
+          data.map(post => ({
+            ...post,
+            tags: [],
+            view_count: post.view_count ?? 0,
+          }))
+        );
       }
     } catch (error) {
       console.error("Error fetching related posts:", error);

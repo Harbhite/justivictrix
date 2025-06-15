@@ -19,8 +19,14 @@ export type Database = {
           id: number
           image_url: string | null
           is_anonymous: boolean | null
+          is_featured: boolean
+          published_at: string | null
+          slug: string | null
+          status: string
+          tags: string[] | null
           title: string
           updated_at: string
+          view_count: number
         }
         Insert: {
           author_id: string
@@ -31,8 +37,14 @@ export type Database = {
           id?: number
           image_url?: string | null
           is_anonymous?: boolean | null
+          is_featured?: boolean
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          tags?: string[] | null
           title: string
           updated_at?: string
+          view_count?: number
         }
         Update: {
           author_id?: string
@@ -43,8 +55,14 @@ export type Database = {
           id?: number
           image_url?: string | null
           is_anonymous?: boolean | null
+          is_featured?: boolean
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
+          view_count?: number
         }
         Relationships: []
       }
