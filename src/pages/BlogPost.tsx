@@ -11,13 +11,23 @@ import remarkGfm from "remark-gfm";
 import BlogComments from "@/components/blog/BlogComments";
 import type { BlogPost, BlogComment } from "@/types/blog";
 
+type RelatedPost = {
+  id: number;
+  title: string;
+  excerpt: string;
+  image_url: string;
+  created_at: string;
+  category: string;
+  view_count: number;
+};
+
 const BlogPostPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [comments, setComments] = useState<BlogComment[]>([]);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -112,7 +122,7 @@ const BlogPostPage = () => {
 
   const fetchRelatedPosts = async (category: string, currentPostId: number) => {
     try {
-      // Select all columns needed for BlogPostCard/Preview display
+      // Select minimal columns for preview (matching RelatedPost type)
       const { data, error } = await supabase
         .from("blog_posts")
         .select("id, title, excerpt, image_url, created_at, category, view_count")
@@ -124,8 +134,12 @@ const BlogPostPage = () => {
       if (!error && data) {
         setRelatedPosts(
           data.map(post => ({
-            ...post,
-            tags: [],
+            id: post.id,
+            title: post.title,
+            excerpt: post.excerpt,
+            image_url: post.image_url,
+            created_at: post.created_at,
+            category: post.category,
             view_count: post.view_count ?? 0,
           }))
         );

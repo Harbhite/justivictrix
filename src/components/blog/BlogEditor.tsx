@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -155,26 +154,26 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
 
     try {
       let finalImageUrl = imageUrl;
-      
+
       // Upload image if a file is selected
       if (imageFile) {
         try {
           const fileExt = imageFile.name.split('.').pop();
           const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-          
+
           const { error: uploadError } = await supabase.storage
             .from('blog-images')
             .upload(fileName, imageFile);
-            
+
           if (uploadError) {
             console.error("Upload error:", uploadError);
             throw uploadError;
           }
-          
+
           const { data: urlData } = supabase.storage
             .from('blog-images')
             .getPublicUrl(fileName);
-            
+
           finalImageUrl = urlData.publicUrl;
         } catch (uploadError: any) {
           console.error("Image upload failed:", uploadError);
@@ -182,18 +181,19 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
           finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
         }
       }
-      
+
       if (!finalImageUrl) {
         finalImageUrl = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
       }
-      
+
       const slug = generateSlug(title);
       const now = new Date().toISOString();
 
-      // Compose blog post data to match BlogPost type
-      const postData: Partial<BlogPost> = {
+      // Compose the postData object with correct types for insert/update
+      // (Using only the exact fields required by the Supabase types)
+      const postData = {
         title: title.trim(),
-        slug,
+        slug: slug,
         content,
         excerpt: excerpt.trim() || content.substring(0, 150) + "...",
         author_id: user.id,
@@ -203,19 +203,29 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         tags,
         status: publishStatus,
         is_featured: isFeatured,
-        published_at: publishStatus === 'published' ? now : null,
+        published_at: publishStatus === 'published'
+          ? scheduledDate
+            ? new Date(scheduledDate).toISOString()
+            : now
+          : null,
         view_count: postId ? undefined : 0,
+        updated_at: now,
+        created_at: postId ? undefined : now,
       };
 
       if (postId) {
+        // For update, remove keys that shouldn't be updated if postId exists
+        const { created_at, ...updateData } = postData;
         const { error } = await supabase
           .from("blog_posts")
-          .update({ ...postData, updated_at: now })
+          .update(updateData)
           .eq("id", postId);
 
         if (error) throw error;
         toast.success(`Blog post ${publishStatus === 'published' ? 'published' : 'saved'} successfully`);
       } else {
+        // For insert, remove keys that are not part of Insert type if needed
+        // Insert expects an array of valid post objects
         const { error } = await supabase
           .from("blog_posts")
           .insert([postData]);
