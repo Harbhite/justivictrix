@@ -4,6 +4,8 @@ import { Calendar, User, Eye, MessageCircle, Edit, Trash } from "lucide-react";
 import { BlogPost } from "@/types/blog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
 interface BlogPostCardProps {
   post: BlogPost;
@@ -60,9 +62,9 @@ const BlogPostCard = ({
               </Link>
             </h2>
             
-            <p className="text-gray-600 mb-4 line-clamp-3">
-              {post.excerpt}
-            </p>
+            <div className="text-gray-600 mb-4 line-clamp-3">
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>{post.excerpt || ""}</ReactMarkdown>
+            </div>
             
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
               <div className="flex items-center gap-1">
@@ -136,9 +138,9 @@ const BlogPostCard = ({
           </Link>
         </h2>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-          {post.excerpt}
-        </p>
+        <div className="text-gray-600 text-sm mb-4 line-clamp-3">
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{post.excerpt || ""}</ReactMarkdown>
+        </div>
         
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">

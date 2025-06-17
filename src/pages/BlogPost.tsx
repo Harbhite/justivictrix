@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import BlogComments from "@/components/blog/BlogComments";
 import type { BlogPost, BlogComment } from "@/types/blog";
 
@@ -342,7 +343,7 @@ const BlogPostPage = () => {
             {/* Content */}
             <div className="prose max-w-none prose-lg">
               {post.content && (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                   {post.content}
                 </ReactMarkdown>
               )}
@@ -405,9 +406,9 @@ const BlogPostPage = () => {
                         {relatedPost.title}
                       </button>
                     </h3>
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {relatedPost.excerpt}
-                    </p>
+                    <div className="text-xs text-gray-600 line-clamp-2">
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>{relatedPost.excerpt || ""}</ReactMarkdown>
+                    </div>
                     <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
                       <span>{new Date(relatedPost.created_at).toLocaleDateString()}</span>
                       <span>•</span>

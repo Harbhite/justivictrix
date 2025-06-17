@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Calendar, User, Eye, MessageCircle } from "lucide-react";
 import { BlogPost } from "@/types/blog";
 import { Badge } from "@/components/ui/badge";
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
 interface FeaturedPostProps {
   post: BlogPost;
@@ -43,9 +45,9 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
         
         <div className="md:w-2/5 p-6 md:p-8 flex flex-col justify-between">
           <div>
-            <p className="text-gray-600 mb-4 line-clamp-4">
-              {post.excerpt}
-            </p>
+            <div className="text-gray-600 mb-4 line-clamp-4">
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>{post.excerpt || ""}</ReactMarkdown>
+            </div>
             
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
               <div className="flex items-center gap-1">
