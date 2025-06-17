@@ -27,19 +27,6 @@ const BlogSidebar = ({
 
   return (
     <div className="space-y-6">
-      {/* Search on Mobile */}
-      <Card className="md:hidden">
-        <CardContent className="pt-6">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Search articles..."
-              className="w-full"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Categories */}
       <Card>
         <CardHeader>
