@@ -6,9 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import BlogComments from "@/components/blog/BlogComments";
+import DOMPurify from "dompurify";
 import type { BlogPost, BlogComment } from "@/types/blog";
 
 type RelatedPost = {
@@ -342,9 +341,11 @@ const BlogPostPage = () => {
             {/* Content */}
             <div className="prose max-w-none prose-lg">
               {post.content && (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {post.content}
-                </ReactMarkdown>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(post.content),
+                  }}
+                />
               )}
             </div>
 
