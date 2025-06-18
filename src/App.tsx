@@ -28,6 +28,7 @@ import SecretForum from "./pages/SecretForum";
 import ForumSettings from "./pages/ForumSettings";
 import ForumCategory from "./pages/ForumCategory";
 import ForumTopic from "./pages/ForumTopic";
+import News from "./pages/News"; // <-- IMPORT THE NEW PAGE
 import PWAInstallBanner from "./components/PWAInstallBanner";
 import "./App.css";
 
@@ -66,6 +67,7 @@ function App() {
                 <Route path="/forum/settings" element={<ForumSettings />} />
                 <Route path="/forum/category/:slug" element={<ForumCategory />} />
                 <Route path="/forum/topic/:id" element={<ForumTopic />} />
+                <Route path="/news" element={<News />} /> // <-- ADD THE NEW ROUTE
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <PWAInstallBanner />
