@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Sparkles } from "lucide-react";
+import { Menu, X, BookOpen, Users, Calendar, FileText, Image, Wrench, Clock, User, Sparkles, Newspaper } from "lucide-react"; // <-- IMPORT Newspaper
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,6 +16,7 @@ const Navbar = () => {
     { name: "People", href: "/people", icon: Users },
     { name: "Events", href: "/events", icon: Calendar },
     { name: "Blog", href: "/blog", icon: FileText },
+    { name: "News", href: "/news", icon: Newspaper }, // <-- ADD NEW ITEM HERE
     { name: "Gallery", href: "/gallery", icon: Image },
     { name: "Tools", href: "/tools", icon: Wrench },
     { name: "Timetable", href: "/timetable", icon: Clock },
