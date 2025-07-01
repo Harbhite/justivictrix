@@ -7,6 +7,8 @@ export interface BlogPost {
   slug: string;
   image_url: string;
   author_id: string;
+  author_name?: string;
+  references?: string;
   created_at: string;
   updated_at: string;
   published_at: string | null;
