@@ -338,14 +338,20 @@ const BlogPostPage = () => {
               </div>
             )}
 
-            {/* Content */}
-            <div className="prose max-w-none prose-lg">
-              {post.content && (
+            {/* Content - Fixed HTML rendering */}
+            <div className="prose prose-lg max-w-none">
+              {post.content ? (
                 <div
+                  className="break-words"
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(post.content),
+                    __html: DOMPurify.sanitize(post.content, {
+                      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'code', 'pre'],
+                      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel']
+                    }),
                   }}
                 />
+              ) : (
+                <p className="text-gray-500 italic">No content available</p>
               )}
             </div>
 
