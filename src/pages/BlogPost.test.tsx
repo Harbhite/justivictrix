@@ -2,7 +2,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom";
-import BlogPostPage from "./BlogPost"; // Adjust path as necessary
+import BlogPostPage from "./BlogPost";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,7 +48,6 @@ vi.mock("@/components/blog/BlogComments", () => ({
   default: () => <div data-testid="blog-comments">Mocked BlogComments</div>,
 }));
 
-
 describe("BlogPostPage", () => {
   beforeEach(() => {
     // Reset mocks before each test
@@ -62,7 +61,7 @@ describe("BlogPostPage", () => {
 
     // Default mock for supabase queries
     const mockMaybeSingle = vi.fn();
-    mockMaybeSingle.mockResolvedValueOnce({ // For fetchPost
+    mockMaybeSingle.mockResolvedValueOnce({
       data: {
         id: 1,
         title: "Test Post Title",
@@ -71,6 +70,8 @@ describe("BlogPostPage", () => {
         slug: "test-post-title",
         image_url: "https://example.com/image.jpg",
         author_id: "user-123",
+        author_name: "Custom Author",
+        references: "Test references",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         published_at: new Date().toISOString(),
@@ -88,7 +89,7 @@ describe("BlogPostPage", () => {
         },
       },
       error: null,
-    }).mockResolvedValueOnce({ // For author details in fetchPost
+    }).mockResolvedValueOnce({
       data: {
           username: "testuser",
           full_name: "Test User",
@@ -129,7 +130,7 @@ describe("BlogPostPage", () => {
   it("should handle empty content", async () => {
     // Override supabase mock for this specific test to return empty content
     const mockEmptyMaybeSingle = vi.fn();
-    mockEmptyMaybeSingle.mockResolvedValueOnce({ // For fetchPost
+    mockEmptyMaybeSingle.mockResolvedValueOnce({
       data: {
         id: 1,
         title: "Test Post With Empty Content",
@@ -138,6 +139,8 @@ describe("BlogPostPage", () => {
         slug: "test-post-empty",
         image_url: "https://example.com/image.jpg",
         author_id: "user-123",
+        author_name: null,
+        references: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         published_at: new Date().toISOString(),
@@ -155,7 +158,7 @@ describe("BlogPostPage", () => {
         },
       },
       error: null,
-    }).mockResolvedValueOnce({ // For author details in fetchPost
+    }).mockResolvedValueOnce({
       data: {
           username: "testuser",
           full_name: "Test User",
@@ -175,15 +178,14 @@ describe("BlogPostPage", () => {
         neq: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         update: mockUpdateEmpty,
-        maybeSingle: mockEmptyMaybeSingle, // Use the specific mock for this test
+        maybeSingle: mockEmptyMaybeSingle,
     }));
-
 
     render(<BlogPostPage />);
 
     // Check that the main content area is present but doesn't contain the specific HTML from other tests
     // The "prose" div should be there
-    const contentArea = await screen.findByRole('article'); // The article surrounds the content
+    const contentArea = await screen.findByRole('article');
     expect(contentArea).toBeInTheDocument();
 
     // Ensure no h1 or p from the other test is rendered

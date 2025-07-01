@@ -12,6 +12,7 @@ export type Database = {
       blog_posts: {
         Row: {
           author_id: string
+          author_name: string | null
           category: string
           content: string
           created_at: string
@@ -21,6 +22,7 @@ export type Database = {
           is_anonymous: boolean | null
           is_featured: boolean
           published_at: string | null
+          references: string | null
           slug: string | null
           status: string
           tags: string[] | null
@@ -30,6 +32,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          author_name?: string | null
           category: string
           content: string
           created_at?: string
@@ -39,6 +42,7 @@ export type Database = {
           is_anonymous?: boolean | null
           is_featured?: boolean
           published_at?: string | null
+          references?: string | null
           slug?: string | null
           status?: string
           tags?: string[] | null
@@ -48,6 +52,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          author_name?: string | null
           category?: string
           content?: string
           created_at?: string
@@ -57,6 +62,7 @@ export type Database = {
           is_anonymous?: boolean | null
           is_featured?: boolean
           published_at?: string | null
+          references?: string | null
           slug?: string | null
           status?: string
           tags?: string[] | null
