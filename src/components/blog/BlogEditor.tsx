@@ -33,6 +33,8 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
   const [excerpt, setExcerpt] = useState("");
   const [category, setCategory] = useState(BLOG_CATEGORIES[0]);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [authorName, setAuthorName] = useState("");
+  const [references, setReferences] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [isFeatured, setIsFeatured] = useState(false);
@@ -70,6 +72,8 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         setExcerpt(data.excerpt || "");
         setCategory(data.category || BLOG_CATEGORIES[0]);
         setIsAnonymous(data.is_anonymous || false);
+        setAuthorName(data.author_name || "");
+        setReferences(data.references || "");
         setImageUrl(data.image_url || "");
         setStatus((data.status as 'draft' | 'published') || 'draft');
         setIsFeatured(data.is_featured || false);
@@ -190,8 +194,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       const slug = generateSlug(title);
       const now = new Date().toISOString();
 
-      // Compose the postData object with correct types for insert/update
-      // (Using only the exact fields required by the Supabase types)
       const postData = {
         title: title.trim(),
         slug: slug,
@@ -199,6 +201,8 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         excerpt: excerpt.trim() || content.substring(0, 150) + "...",
         author_id: user.id,
         is_anonymous: isAnonymous,
+        author_name: authorName.trim() || null,
+        references: references.trim() || null,
         category,
         image_url: finalImageUrl,
         tags,
@@ -215,7 +219,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
       };
 
       if (postId) {
-        // For update, remove keys that shouldn't be updated if postId exists
         const { created_at, ...updateData } = postData;
         const { error } = await supabase
           .from("blog_posts")
@@ -225,8 +228,6 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
         if (error) throw error;
         toast.success(`Blog post ${publishStatus === 'published' ? 'published' : 'saved'} successfully`);
       } else {
-        // For insert, remove keys that are not part of Insert type if needed
-        // Insert expects an array of valid post objects
         const { error } = await supabase
           .from("blog_posts")
           .insert([postData]);
@@ -303,6 +304,21 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
               className="text-lg font-medium"
               required
             />
+          </div>
+
+          {/* Author Name */}
+          <div className="space-y-2">
+            <Label htmlFor="author-name">Author Name (optional)</Label>
+            <Input
+              id="author-name"
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              placeholder="Custom author name for crediting"
+              disabled={isAnonymous}
+            />
+            <p className="text-xs text-gray-500">
+              Leave empty to use your profile name. Disabled when posting anonymously.
+            </p>
           </div>
 
           {/* Meta Settings */}
@@ -436,13 +452,32 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
             />
           </div>
 
+          {/* References & Citations */}
+          <div className="space-y-2">
+            <Label htmlFor="references">References & Citations</Label>
+            <Textarea
+              id="references"
+              value={references}
+              onChange={(e) => setReferences(e.target.value)}
+              placeholder="Add your references, citations, and sources here..."
+              rows={4}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500">
+              Add references, citations, case law, statutes, or any sources used in your blog post.
+            </p>
+          </div>
+
           {/* Settings */}
           <div className="flex flex-wrap items-center gap-6 pt-4 border-t">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="anonymous"
                 checked={isAnonymous}
-                onCheckedChange={(checked) => setIsAnonymous(checked === true)}
+                onCheckedChange={(checked) => {
+                  setIsAnonymous(checked === true);
+                  if (checked) setAuthorName("");
+                }}
               />
               <Label htmlFor="anonymous" className="cursor-pointer">
                 Publish anonymously
@@ -472,7 +507,11 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
                 <Calendar size={14} />
                 <span>{new Date().toLocaleDateString()}</span>
               </div>
-              <span>By {isAnonymous ? "Anonymous" : (user?.user_metadata?.full_name || user?.email)}</span>
+              <span>By {
+                isAnonymous 
+                  ? "Anonymous" 
+                  : authorName || (user?.user_metadata?.full_name || user?.email)
+              }</span>
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
@@ -491,7 +530,16 @@ const BlogEditor = ({ postId }: { postId?: number }) => {
             />
           )}
           
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-500 italic'>Your content will appear here...</p>" }} />
+          <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-500 italic'>Your content will appear here...</p>" }} />
+          
+          {references && (
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-3">References & Citations</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <pre className="whitespace-pre-wrap text-sm font-mono">{references}</pre>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
