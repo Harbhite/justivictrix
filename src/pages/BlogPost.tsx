@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, User, ArrowLeft, Edit, Trash, AlertCircle, Eye, Share2, Bookmark, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,17 @@ const BlogPostPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+
+  // Dynamic meta tags for blog post
+  useMetaTags({
+    title: post ? `${post.title} - LLB28 Hub` : "Blog Post - LLB28 Hub",
+    description: post?.excerpt || "Read this interesting blog post on LLB28 Hub",
+    image: post?.image_url || "/og-image.png",
+    type: "article",
+    author: post?.is_anonymous ? undefined : (post?.author?.full_name || post?.author?.username),
+    publishedTime: post?.published_at || post?.created_at,
+    tags: post?.tags
+  });
 
   useEffect(() => {
     if (id) {

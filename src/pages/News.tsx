@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { useMetaTags } from '@/hooks/useMetaTags';
 import NewsBentoGrid, { NewsItem } from '@/components/NewsBentoGrid';
 
 const mockNewsData: NewsItem[] = [
@@ -48,6 +50,13 @@ const mockNewsData: NewsItem[] = [
 ];
 
 const News = () => {
+  useMetaTags({
+    title: "Latest News & Updates - LLB28 Hub",
+    description: "Stay updated with the latest legal news, reforms, webinars, and university updates relevant to law students.",
+    image: "/og-image.png",
+    type: "website"
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1

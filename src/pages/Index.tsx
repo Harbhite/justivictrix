@@ -1,8 +1,16 @@
+import { useMetaTags } from '@/hooks/useMetaTags';
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowDown, UsersRound, BookOpen, Calendar, ClipboardList, Lightbulb, Users, Trophy, Scale, Brain, Gavel, GraduationCap, Clock, Target, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
+  useMetaTags({
+    title: "LLB28 Hub - Your Complete Law Student Portal",
+    description: "Join the ultimate law student community. Access resources, tools, study materials, connect with peers, and excel in your legal studies.",
+    image: "/og-image.png",
+    type: "website"
+  });
+
   const stats = [
     { number: "157", label: "Class Members", icon: Users },
     { number: "15+", label: "Core Subjects", icon: BookOpen },
