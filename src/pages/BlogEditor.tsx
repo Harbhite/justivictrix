@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import BlogEditorComponent from "@/components/blog/BlogEditor";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -10,6 +11,16 @@ const BlogEditorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, requireAuth } = useAuth();
+
+  const postId = id ? parseInt(id) : undefined;
+  const isEditing = !!postId;
+
+  useMetaTags({
+    title: `${isEditing ? "Edit" : "Create"} Blog Post - LLB28 Hub`,
+    description: `${isEditing ? "Edit an existing" : "Create a new"} blog post with rich text editing, image uploads, and publishing options.`,
+    image: "/og-image.png",
+    type: "website"
+  });
   
   // Check if the user is authenticated
   useEffect(() => {
@@ -22,8 +33,6 @@ const BlogEditorPage = () => {
     return null;
   }
 
-  const postId = id ? parseInt(id) : undefined;
-  const isEditing = !!postId;
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">

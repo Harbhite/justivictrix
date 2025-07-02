@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { FileText, BookOpen, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -69,6 +70,13 @@ const Courses = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useMetaTags({
+    title: "Course Catalog - LLB28 Hub",
+    description: "Browse all Law courses in the LLB program. View course details, outlines, and lecturer information.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     async function fetchCourses() {

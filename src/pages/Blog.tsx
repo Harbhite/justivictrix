@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Grid, List, Filter } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMetaTags } from '@/hooks/useMetaTags';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -17,6 +18,13 @@ import type { BlogPost, BlogCategory, BlogTag } from '@/types/blog';
 const Blog = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useMetaTags({
+    title: "Law Student Blog - LLB28 Hub",
+    description: "Read insightful articles, case analyses, and academic discussions from law students. Share your legal knowledge and perspectives.",
+    image: "/og-image.png",
+    type: "website"
+  });
   
   // State management
   const [searchTerm, setSearchTerm] = useState('');

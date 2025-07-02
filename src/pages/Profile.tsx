@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileEditor from "@/components/profile/ProfileEditor";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,13 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
+
+  useMetaTags({
+    title: "Profile Settings - LLB28 Hub",
+    description: "Manage your profile information, account settings, and preferences. Update your details and customize your experience.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {

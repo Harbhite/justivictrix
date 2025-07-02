@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, Loader2, Trash2, ChevronLeft, ChevronRight, Camera, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Button } from "@/components/ui/button";
 import AdminUploadForm from "@/components/AdminUploadForm";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +32,13 @@ const Gallery = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const { user } = useAuth();
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  useMetaTags({
+    title: "Class Gallery - LLB28 Hub",
+    description: "Browse and share photos capturing memories and moments from our law school journey. View class events and special occasions.",
+    image: "/og-image.png",
+    type: "website"
+  });
   
   const fetchGalleryImages = async () => {
     try {

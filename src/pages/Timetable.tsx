@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import TimetableForm from "@/components/timetable/TimetableForm";
 import TimetableGrid from "@/components/timetable/TimetableGrid";
 import TimetableExport from "@/components/timetable/TimetableExport";
@@ -17,6 +18,13 @@ const Timetable = () => {
   const isAdmin = user?.email === "swisssunny1@gmail.com";
   const timetableRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+
+  useMetaTags({
+    title: "Class Timetable - LLB28 Hub",
+    description: "View and manage the class timetable with course schedules, times, locations, and lecturer information. Export to PDF or calendar.",
+    image: "/og-image.png",
+    type: "website"
+  });
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);

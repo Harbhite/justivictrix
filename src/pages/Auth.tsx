@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, Key, Mail, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,13 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+
+  useMetaTags({
+    title: "Sign In / Sign Up - LLB28 Hub",
+    description: "Access your LLB28 Hub account. Sign in to view resources, join discussions, and connect with fellow law students.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     // Check if user is already logged in

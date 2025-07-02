@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import MindMapGenerator from "@/components/tools/MindMapGenerator";
 import NotesGenerator from "@/components/tools/NotesGenerator";
 import LegalDictionary from "@/components/tools/LegalDictionary";
@@ -24,6 +25,13 @@ const Tools = () => {
   const [courses, setCourses] = useState([{ grade: "", units: "" }]);
   const [gradeScale, setGradeScale] = useState<"4.0" | "5.0">("4.0");
   const isMobile = useIsMobile();
+
+  useMetaTags({
+    title: "Legal Tools & CGPA Calculator - LLB28 Hub",
+    description: "Access powerful legal tools including CGPA calculator, case generators, legal dictionaries, and AI-powered legal research assistants.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   const addCourse = () => {
     setCourses([...courses, { grade: "", units: "" }]);

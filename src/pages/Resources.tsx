@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import ResourceManagement from "@/components/ResourceManagement";
 
 const Resources = () => {
@@ -15,6 +16,13 @@ const Resources = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const { user } = useAuth();
   const isAdmin = user?.email === "swisssunny1@gmail.com";
+
+  useMetaTags({
+    title: "Academic Resources - LLB28 Hub",
+    description: "Access lecture notes, past questions, textbooks, assignments, and other academic materials for law students.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   const { data: resources, isLoading, error } = useQuery({
     queryKey: ["resources", searchQuery, categoryFilter, sortOrder],

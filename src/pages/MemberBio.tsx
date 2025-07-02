@@ -5,11 +5,19 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Settings, ExternalLink, Activity, BarChart3, Route, Clock, Dumbbell, Book, Home, Users, Calendar, User } from "lucide-react";
 import { toast } from "sonner";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const MemberBio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  useMetaTags({
+    title: "Member Profile - LLB28 Hub",
+    description: "View detailed member profiles including courses, academic records, and professional information of law students.",
+    image: "/og-image.png",
+    type: "website"
+  });
   
   const { data: member, isLoading } = useQuery({
     queryKey: ["member", id],

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -28,6 +29,13 @@ const NoteTaker = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [savedNotes, setSavedNotes] = useState<Array<{id: string; title: string; content: string}>>([]);
   const [selectionRange, setSelectionRange] = useState<Range | null>(null);
+
+  useMetaTags({
+    title: "Note Taker - LLB28 Hub",
+    description: "Create, edit, and manage your study notes with a rich text editor. Export notes as HTML, Markdown, PDF, or DOCX.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   // Load saved notes from local storage on component mount
   useEffect(() => {

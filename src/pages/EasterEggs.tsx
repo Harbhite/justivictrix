@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import AIMotivator from "@/components/easter-eggs/AIMotivator";
 import FortuneCookie from "@/components/easter-eggs/FortuneCookie";
 import QuoteGenerator from "@/components/easter-eggs/QuoteGenerator";
@@ -12,6 +13,13 @@ import LegalJokeGenerator from "@/components/easter-eggs/LegalJokeGenerator";
 
 const EasterEggs = () => {
   const isMobile = useIsMobile();
+
+  useMetaTags({
+    title: "Interactive Tools & Fun Features - LLB28 Hub",
+    description: "Discover fun and interactive tools including AI motivator, legal fortune cookies, word games, study timers, and more.",
+    image: "/og-image.png",
+    type: "website"
+  });
   
   return (
     <div className="container mx-auto px-4 py-8">

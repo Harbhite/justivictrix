@@ -6,11 +6,19 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const People = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  useMetaTags({
+    title: "LLB28 Members - Law Student Community",
+    description: "Connect and network with fellow LLB28 law students. Browse member profiles and build professional relationships.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   const placeholderAvatars = [
     "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1",
