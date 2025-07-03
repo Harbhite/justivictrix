@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -16,6 +17,13 @@ const ForumCategory = () => {
   const [category, setCategory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  useMetaTags({
+    title: `${category?.name || "Forum Category"} - LLB28 Hub`,
+    description: `Explore ${category?.name || "forum category"} discussions and topics. ${category?.description || "Join the conversation with fellow law students."}`,
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {

@@ -5,6 +5,7 @@ import { ArrowLeft, Settings, ExternalLink, Activity, BarChart3, Route, Clock, D
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const FullProfile = () => {
@@ -32,6 +33,13 @@ const FullProfile = () => {
 
       return data;
     },
+  });
+
+  useMetaTags({
+    title: `${member?.name || "Member"} - Full Profile | LLB28 Hub`,
+    description: `Explore the complete profile of ${member?.name || "law student"} with academic records, courses, and achievements.`,
+    image: member?.avatar_url || "/og-image.png",
+    type: "website"
   });
 
   if (isLoading) {

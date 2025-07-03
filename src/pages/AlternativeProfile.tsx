@@ -5,6 +5,7 @@ import { ArrowLeft, Star, Heart, ThumbsUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const AlternativeProfile = () => {
@@ -32,6 +33,13 @@ const AlternativeProfile = () => {
 
       return data;
     },
+  });
+
+  useMetaTags({
+    title: `${member?.name || "Member"} Profile - LLB28 Hub`,
+    description: `View the detailed profile of ${member?.name || "law student"} including their position, bio, and academic information at LLB28 Hub.`,
+    image: member?.avatar_url || "/og-image.png",
+    type: "website"
   });
 
   // Mock data for connections (in a real app, this would come from the database)

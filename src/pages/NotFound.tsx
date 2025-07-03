@@ -1,8 +1,16 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useMetaTags } from "@/hooks/useMetaTags";
 
 const NotFound = () => {
   const location = useLocation();
+
+  useMetaTags({
+    title: "Page Not Found - LLB28 Hub",
+    description: "Sorry, the page you're looking for doesn't exist. Return to LLB28 Hub to explore our legal education resources and community.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     console.error(

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -25,6 +26,13 @@ const ForumTopic = () => {
   const [topic, setTopic] = useState<any>(null);
   const [category, setCategory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  useMetaTags({
+    title: `${topic?.title || "Forum Topic"} - LLB28 Hub`,
+    description: `Join the discussion on ${topic?.title || "this forum topic"}. View posts and contribute to the conversation with law students.`,
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {

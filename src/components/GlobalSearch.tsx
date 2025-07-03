@@ -1,208 +1,308 @@
-
-import { useState, useEffect } from 'react';
-import { Search, FileText, Users, Calendar, BookOpen, X } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React, { useState, useRef, useEffect } from "react";
+import { Search, FileText, Users, BookOpen, Calendar, X, Clock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 interface SearchResult {
   id: string;
   title: string;
-  type: 'resource' | 'member' | 'event' | 'course' | 'blog';
-  description?: string;
+  description: string;
+  type: "blog" | "resource" | "member" | "course" | "event";
   url: string;
+  image?: string;
+  category?: string;
 }
 
-const GlobalSearch = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+interface GlobalSearchProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
+  const [query, setQuery] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['globalSearch', searchQuery],
+  const { data: results = [], isLoading } = useQuery({
+    queryKey: ["global-search", query],
     queryFn: async () => {
-      if (!searchQuery || searchQuery.length < 2) return [];
+      if (!query || query.length < 2) return [];
 
-      const results: SearchResult[] = [];
+      const searchResults: SearchResult[] = [];
+      const searchTerm = `%${query}%`;
+
+      // Search blog posts
+      const { data: blogPosts } = await supabase
+        .from("blog_posts")
+        .select("id, title, excerpt, category, image_url")
+        .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm},content.ilike.${searchTerm}`)
+        .eq("status", "published")
+        .limit(5);
+
+      if (blogPosts) {
+        blogPosts.forEach((post) => {
+          searchResults.push({
+            id: `blog-${post.id}`,
+            title: post.title,
+            description: post.excerpt || "Blog post",
+            type: "blog",
+            url: `/blog/${post.id}`,
+            image: post.image_url,
+            category: post.category,
+          });
+        });
+      }
 
       // Search resources
       const { data: resources } = await supabase
-        .from('resources')
-        .select('id, title, description')
-        .ilike('title', `%${searchQuery}%`)
-        .limit(3);
+        .from("resources")
+        .select("id, title, description, category, type")
+        .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
+        .limit(5);
 
       if (resources) {
-        results.push(...resources.map(r => ({
-          id: `resource-${r.id}`,
-          title: r.title,
-          type: 'resource' as const,
-          description: r.description,
-          url: '/resources'
-        })));
+        resources.forEach((resource) => {
+          searchResults.push({
+            id: `resource-${resource.id}`,
+            title: resource.title,
+            description: resource.description || "Resource",
+            type: "resource",
+            url: "/resources",
+            category: resource.category,
+          });
+        });
       }
 
       // Search members
       const { data: members } = await supabase
-        .from('members')
-        .select('id, name, post_held')
-        .ilike('name', `%${searchQuery}%`)
-        .limit(3);
+        .from("members")
+        .select("id, name, bio, post_held, avatar_url")
+        .or(`name.ilike.${searchTerm},bio.ilike.${searchTerm},post_held.ilike.${searchTerm}`)
+        .limit(5);
 
       if (members) {
-        results.push(...members.map(m => ({
-          id: `member-${m.id}`,
-          title: m.name,
-          type: 'member' as const,
-          description: m.post_held,
-          url: `/people/${m.id}`
-        })));
-      }
-
-      // Search events
-      const { data: events } = await supabase
-        .from('events')
-        .select('id, title, description, date')
-        .ilike('title', `%${searchQuery}%`)
-        .limit(3);
-
-      if (events) {
-        results.push(...events.map(e => ({
-          id: `event-${e.id}`,
-          title: e.title,
-          type: 'event' as const,
-          description: e.description,
-          url: '/events'
-        })));
+        members.forEach((member) => {
+          searchResults.push({
+            id: `member-${member.id}`,
+            title: member.name,
+            description: member.post_held || member.bio || "Law Student",
+            type: "member",
+            url: `/people/bio/${member.id}`,
+            image: member.avatar_url,
+          });
+        });
       }
 
       // Search courses
       const { data: courses } = await supabase
-        .from('courses')
-        .select('id, title, code, description')
-        .or(`title.ilike.%${searchQuery}%,code.ilike.%${searchQuery}%`)
-        .limit(3);
+        .from("courses")
+        .select("id, title, description, code")
+        .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},code.ilike.${searchTerm}`)
+        .limit(5);
 
       if (courses) {
-        results.push(...courses.map(c => ({
-          id: `course-${c.id}`,
-          title: `${c.code} - ${c.title}`,
-          type: 'course' as const,
-          description: c.description,
-          url: '/courses'
-        })));
+        courses.forEach((course) => {
+          searchResults.push({
+            id: `course-${course.id}`,
+            title: course.title,
+            description: `${course.code} - ${course.description}`,
+            type: "course",
+            url: "/courses",
+            category: course.code,
+          });
+        });
       }
 
-      return results;
+      // Search events
+      const { data: events } = await supabase
+        .from("events")
+        .select("id, title, description, date, location")
+        .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
+        .limit(5);
+
+      if (events) {
+        events.forEach((event) => {
+          searchResults.push({
+            id: `event-${event.id}`,
+            title: event.title,
+            description: `${event.description} - ${event.location}`,
+            type: "event",
+            url: "/events",
+            category: new Date(event.date).toLocaleDateString(),
+          });
+        });
+      }
+
+      return searchResults.slice(0, 20);
     },
-    enabled: searchQuery.length >= 2
+    enabled: query.length >= 2,
   });
 
-  const getIcon = (type: SearchResult['type']) => {
-    switch (type) {
-      case 'resource': return <FileText className="h-4 w-4" />;
-      case 'member': return <Users className="h-4 w-4" />;
-      case 'event': return <Calendar className="h-4 w-4" />;
-      case 'course': return <BookOpen className="h-4 w-4" />;
-      case 'blog': return <FileText className="h-4 w-4" />;
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [results]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % results.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (results[selectedIndex]) {
+        handleSelect(results[selectedIndex]);
+      }
+    } else if (e.key === "Escape") {
+      onClose();
     }
   };
 
-  const handleResultClick = (url: string) => {
-    navigate(url);
-    setIsOpen(false);
-    setSearchQuery('');
+  const handleSelect = (result: SearchResult) => {
+    navigate(result.url);
+    onClose();
+    setQuery("");
   };
 
-  // Keyboard shortcut to open search
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsOpen(true);
-      }
-    };
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "blog": return <FileText size={16} className="text-blue-500" />;
+      case "resource": return <FileText size={16} className="text-green-500" />;
+      case "member": return <Users size={16} className="text-purple-500" />;
+      case "course": return <BookOpen size={16} className="text-orange-500" />;
+      case "event": return <Calendar size={16} className="text-red-500" />;
+      default: return <Search size={16} className="text-gray-500" />;
+    }
+  };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="relative h-9 w-40 justify-start text-sm text-muted-foreground">
-          <Search className="mr-2 h-4 w-4" />
-          Search...
-          <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-            <span className="text-xs">⌘</span>K
-          </kbd>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl p-0">
-        <div className="flex items-center border-b px-3">
-          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-          <Input
-            placeholder="Search resources, members, events, courses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => setIsOpen(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="max-h-[300px] overflow-y-auto p-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-6">
-              <div className="text-sm text-muted-foreground">Searching...</div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-20"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -20, opacity: 0 }}
+        className="w-full max-w-2xl mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex items-center px-4 py-3 border-b">
+              <Search size={20} className="text-gray-400 mr-3" />
+              <Input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search blog posts, resources, members, courses..."
+                className="border-none focus:ring-0 text-lg"
+              />
+              <button
+                onClick={onClose}
+                className="ml-2 p-1 hover:bg-gray-100 rounded"
+              >
+                <X size={16} className="text-gray-400" />
+              </button>
             </div>
-          ) : searchResults && searchResults.length > 0 ? (
-            <div className="space-y-2">
-              {searchResults.map((result) => (
-                <button
-                  key={result.id}
-                  onClick={() => handleResultClick(result.url)}
-                  className="w-full flex items-start gap-3 rounded-md p-3 text-left hover:bg-muted transition-colors"
-                >
-                  <div className="mt-0.5 text-muted-foreground">
-                    {getIcon(result.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{result.title}</div>
-                    {result.description && (
-                      <div className="text-xs text-muted-foreground line-clamp-1">
-                        {result.description}
+
+            <div className="max-h-96 overflow-y-auto">
+              {isLoading && query.length >= 2 && (
+                <div className="p-4 text-center text-gray-500">
+                  <Clock size={16} className="animate-spin mx-auto mb-2" />
+                  Searching...
+                </div>
+              )}
+
+              {!isLoading && query.length >= 2 && results.length === 0 && (
+                <div className="p-4 text-center text-gray-500">
+                  No results found for "{query}"
+                </div>
+              )}
+
+              {query.length < 2 && (
+                <div className="p-4 text-center text-gray-500">
+                  Type at least 2 characters to search
+                </div>
+              )}
+
+              <AnimatePresence>
+                {results.map((result, index) => (
+                  <motion.div
+                    key={result.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className={`p-4 cursor-pointer border-b last:border-b-0 ${
+                      index === selectedIndex ? "bg-blue-50" : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => handleSelect(result)}
+                  >
+                    <div className="flex items-start gap-3">
+                      {result.image ? (
+                        <img
+                          src={result.image}
+                          alt={result.title}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                          {getIcon(result.type)}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-gray-900 truncate">
+                            {result.title}
+                          </h3>
+                          <Badge variant="secondary" className="text-xs">
+                            {result.type}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {result.description}
+                        </p>
+                        {result.category && (
+                          <p className="text-xs text-gray-400 mt-1">
+                            {result.category}
+                          </p>
+                        )}
                       </div>
-                    )}
-                    <div className="text-xs text-muted-foreground capitalize mt-1">
-                      {result.type}
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
-          ) : searchQuery.length >= 2 ? (
-            <div className="flex items-center justify-center py-6">
-              <div className="text-sm text-muted-foreground">No results found</div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center py-6">
-              <div className="text-sm text-muted-foreground">
-                Type at least 2 characters to search
+
+            {results.length > 0 && (
+              <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500 flex justify-between">
+                <span>Use ↑↓ to navigate, Enter to select, Esc to close</span>
+                <span>{results.length} results</span>
               </div>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 

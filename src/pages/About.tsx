@@ -1,8 +1,16 @@
 
 import { motion } from "framer-motion";
 import { BookOpen, Users, Trophy, Scale, Brain, Gavel, GraduationCap, Clock, Target, Award } from "lucide-react";
+import { useMetaTags } from "@/hooks/useMetaTags";
 
 const About = () => {
+  useMetaTags({
+    title: "About Us - LLB28 Hub",
+    description: "Learn about LLB28 Hub - our mission, vision, history, and commitment to excellence in legal education. Discover how we foster collaborative academic excellence.",
+    image: "/og-image.png",
+    type: "website"
+  });
+
   const stats = [
     { number: "157", label: "Class Members", icon: Users },
     { number: "15+", label: "Core Subjects", icon: BookOpen },

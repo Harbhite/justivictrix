@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,13 @@ const ForumSettings = () => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [reputation, setReputation] = useState<any>(null);
+
+  useMetaTags({
+    title: "Forum Settings - LLB28 Hub",
+    description: "Manage your forum preferences, profile settings, badges, and anonymous posting options in the LLB28 Hub community forum.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {

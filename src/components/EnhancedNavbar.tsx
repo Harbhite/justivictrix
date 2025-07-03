@@ -1,16 +1,18 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import ThemeToggle from './ThemeToggle';
 import GlobalSearch from './GlobalSearch';
 import NotificationCenter from './NotificationCenter';
+import { useGlobalSearch } from '@/hooks/useGlobalSearch';
 
 const EnhancedNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isSearchOpen, openSearch, closeSearch } = useGlobalSearch();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -58,7 +60,15 @@ const EnhancedNavbar = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-2">
-            <GlobalSearch />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={openSearch}
+              className="relative"
+            >
+              <Search className="h-4 w-4" />
+              <span className="sr-only">Search</span>
+            </Button>
             <NotificationCenter />
             <ThemeToggle />
             
@@ -92,6 +102,8 @@ const EnhancedNavbar = () => {
           </div>
         </div>
       </div>
+      
+      <GlobalSearch isOpen={isSearchOpen} onClose={closeSearch} />
     </nav>
   );
 };

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useMetaTags } from "@/hooks/useMetaTags";
 import ForumHub from "@/components/forum/ForumHub";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,13 @@ const SecretForum = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const { user, isLoading } = useAuth();
+
+  useMetaTags({
+    title: "Secret Forum - LLB28 Hub",
+    description: "Access the exclusive LLB28 Hub community forum. Connect with fellow law students in private discussions and academic collaboration.",
+    image: "/og-image.png",
+    type: "website"
+  });
 
   useEffect(() => {
     // Don't check access until auth is loaded
