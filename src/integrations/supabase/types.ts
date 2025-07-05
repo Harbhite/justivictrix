@@ -476,6 +476,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          blog_updates: boolean | null
+          created_at: string | null
+          email_notifications: boolean | null
+          forum_mentions: boolean | null
+          id: string
+          push_notifications: boolean | null
+          study_group_updates: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blog_updates?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          forum_mentions?: boolean | null
+          id?: string
+          push_notifications?: boolean | null
+          study_group_updates?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blog_updates?: boolean | null
+          created_at?: string | null
+          email_notifications?: boolean | null
+          forum_mentions?: boolean | null
+          id?: string
+          push_notifications?: boolean | null
+          study_group_updates?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -545,6 +581,36 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      search_analytics: {
+        Row: {
+          clicked_result: boolean | null
+          created_at: string | null
+          id: string
+          results_count: number | null
+          search_category: string | null
+          search_query: string
+          user_id: string | null
+        }
+        Insert: {
+          clicked_result?: boolean | null
+          created_at?: string | null
+          id?: string
+          results_count?: number | null
+          search_category?: string | null
+          search_query: string
+          user_id?: string | null
+        }
+        Update: {
+          clicked_result?: boolean | null
+          created_at?: string | null
+          id?: string
+          results_count?: number | null
+          search_category?: string | null
+          search_query?: string
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -23,6 +23,7 @@ const EnhancedNavbar = () => {
     { name: 'Resources', href: '/resources' },
     { name: 'Tools', href: '/tools' },
     { name: 'Study Groups', href: '/study-groups' },
+    { name: 'Settings', href: '/settings' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'Blog', href: '/blog' },
   ];

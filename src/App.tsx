@@ -29,6 +29,8 @@ import ForumSettings from "./pages/ForumSettings";
 import ForumCategory from "./pages/ForumCategory";
 import ForumTopic from "./pages/ForumTopic";
 import News from "./pages/News";
+import StudyGroups from "./pages/StudyGroups";
+import Settings from "./pages/Settings";
 import PWAInstallBanner from "./components/PWAInstallBanner";
 import "./App.css";
 
@@ -68,6 +70,8 @@ function App() {
                 <Route path="/forum/category/:slug" element={<ForumCategory />} />
                 <Route path="/forum/topic/:id" element={<ForumTopic />} />
                 <Route path="/news" element={<News />} />
+                <Route path="/study-groups" element={<StudyGroups />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <PWAInstallBanner />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, BookOpen, Calendar, Wrench } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, Wrench, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MobileNavigation = () => {
@@ -10,7 +10,7 @@ const MobileNavigation = () => {
     { name: "People", href: "/people", icon: Users },
     { name: "Courses", href: "/courses", icon: BookOpen },
     { name: "Events", href: "/events", icon: Calendar },
-    { name: "Tools", href: "/tools", icon: Wrench },
+    { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   return (
