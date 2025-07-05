@@ -22,6 +22,7 @@ const EnhancedNavbar = () => {
     { name: 'Events', href: '/events' },
     { name: 'Resources', href: '/resources' },
     { name: 'Tools', href: '/tools' },
+    { name: 'Study Groups', href: '/study-groups' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'Blog', href: '/blog' },
   ];
