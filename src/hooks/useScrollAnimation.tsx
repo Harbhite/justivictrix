@@ -45,11 +45,19 @@ export const useParallax = () => {
   const [offset, setOffset] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      setOffset(window.pageYOffset);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setOffset(window.pageYOffset);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

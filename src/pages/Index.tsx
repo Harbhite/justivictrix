@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useMetaTags } from '@/hooks/useMetaTags';
-import { useScrollAnimation, useParallax } from '@/hooks/useScrollAnimation';
+import { HeroSection } from '@/components/homepage/HeroSection';
+import { StatisticsSection } from '@/components/homepage/StatisticsSection';
+import { FeaturesSection } from '@/components/homepage/FeaturesSection';
+import { AIToolsSection } from '@/components/homepage/AIToolsSection';
+import { MobileMenu } from '@/components/homepage/MobileMenu';
 
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  const parallaxOffset = useParallax();
 
   useMetaTags({
     title: "LLB28HUB - Your Legal Education Hub",
@@ -18,10 +21,17 @@ const Index = () => {
 
   // Scroll effect for navbar
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -37,80 +47,6 @@ const Index = () => {
     setIsInstallBannerVisible(false);
   };
 
-  const AnimatedSection = ({ children, className = "", animation = "fade-in-up", ...props }: { 
-    children: React.ReactNode, 
-    className?: string,
-    animation?: string,
-    [key: string]: any
-  }) => {
-    const { ref, isVisible } = useScrollAnimation();
-    return (
-      <div 
-        ref={ref} 
-        className={`${className} transition-all duration-700 ${
-          isVisible ? `animate-${animation}` : 'opacity-0 translate-y-8'
-        }`}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  };
-
-  const stats = [
-    { number: "157", label: "Class Members", icon: "group" },
-    { number: "15+", label: "Core Subjects", icon: "menu_book" },
-    { number: "25+", label: "Study Groups", icon: "psychology" },
-    { number: "3", label: "Academic Years", icon: "school" }
-  ];
-
-  const features = [
-    {
-      icon: "school",
-      title: "Expert-Led Content",
-      description: "Our resources are curated by legal experts and top-performing students, ensuring you get the most relevant and accurate information.",
-      color: "blue"
-    },
-    {
-      icon: "groups",
-      title: "Collaborative Learning",
-      description: "Join study groups, participate in forums, and collaborate on projects with your peers to enhance your understanding.",
-      color: "green"
-    },
-    {
-      icon: "auto_stories",
-      title: "Comprehensive Resources",
-      description: "From case summaries and lecture notes to mock exams and flashcards, we have everything you need to succeed.",
-      color: "purple"
-    },
-    {
-      icon: "timeline",
-      title: "Progress Tracking",
-      description: "Monitor your learning journey with detailed analytics and personalized study recommendations.",
-      color: "orange"
-    },
-    {
-      icon: "forum",
-      title: "Interactive Forums",
-      description: "Engage in meaningful discussions, ask questions, and share insights with your classmates.",
-      color: "indigo"
-    },
-    {
-      icon: "event",
-      title: "Event Management",
-      description: "Stay updated with class schedules, exam dates, and important academic events.",
-      color: "pink"
-    }
-  ];
-
-  const tools = [
-    { name: "AI Study Assistant", icon: "smart_toy", description: "Get personalized study help", link: "/tools" },
-    { name: "Case Brief Generator", icon: "gavel", description: "Generate professional case briefs", link: "/tools" },
-    { name: "Legal Citation Tool", icon: "format_quote", description: "Perfect your citations", link: "/tools" },
-    { name: "Flashcard Creator", icon: "style", description: "Create interactive flashcards", link: "/tools" },
-    { name: "Mind Map Builder", icon: "account_tree", description: "Visualize complex concepts", link: "/tools" },
-    { name: "Mock Exam Generator", icon: "quiz", description: "Practice with custom exams", link: "/tools" }
-  ];
 
   return (
     <div className="bg-gray-50" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -131,209 +67,27 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Enhanced Mobile Menu */}
-      <div className={`${isMobileMenuOpen ? '' : 'hidden'} fixed inset-0 bg-gray-800 bg-opacity-75 z-50 animate-fade-in`}>
-        <div className="bg-white w-64 h-full absolute right-0 shadow-lg p-6 animate-slide-in-right">
-          <div className="flex justify-end mb-8">
-            <button 
-              className="text-gray-600 hover:text-red-500 transition-colors transform hover:scale-110" 
-              onClick={handleCloseMobileMenu}
-            >
-              <span className="material-icons">close</span>
-            </button>
-          </div>
-          <nav className="flex flex-col space-y-6 text-lg">
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/" onClick={handleCloseMobileMenu}>Home</Link>
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/people" onClick={handleCloseMobileMenu}>People</Link>
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/courses" onClick={handleCloseMobileMenu}>Courses</Link>
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/tools" onClick={handleCloseMobileMenu}>Tools</Link>
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/resources" onClick={handleCloseMobileMenu}>Resources</Link>
-            <Link className="text-gray-700 hover:text-blue-600 transition-all hover:translate-x-2 transform" to="/blog" onClick={handleCloseMobileMenu}>Blog</Link>
-          </nav>
-        </div>
-      </div>
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={handleCloseMobileMenu} />
 
-      {/* Hero Section with Parallax */}
-      <main className="relative overflow-hidden pt-20" id="home">
-        <div 
-          className="bg-white pt-24 pb-20 px-4 sm:px-6 lg:pt-32 lg:pb-28 relative"
-          style={{ transform: `translateY(${parallaxOffset * 0.1}px)` }}
-        >
-          <div className="relative max-w-lg mx-auto lg:max-w-7xl">
-            <div className="text-center">
-              <div className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold py-1 px-4 rounded-full mb-4 animate-bounce-in">
-                Welcome to LLB28HUB
-              </div>
-              <h2 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl animate-fade-in-up">
-                Your Legal Education Hub
-              </h2>
-              <p className="mt-6 max-w-md mx-auto text-lg text-gray-500 sm:text-xl md:mt-8 md:max-w-3xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                Connect, learn, and excel with your fellow LLB28 classmates. Access resources, join study groups, and build your legal career together.
-              </p>
-              <div className="mt-10 max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                <Link 
-                  className="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 shadow-lg transition-all transform hover:scale-105 animate-pulse-glow" 
-                  to="/tools"
-                >
-                  Get Started
-                  <span className="material-icons ml-2">arrow_forward</span>
-                </Link>
-                <Link 
-                  className="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 shadow-md transition-all transform hover:scale-105" 
-                  to="/resources"
-                >
-                  Browse Resources
-                  <span className="material-icons ml-2">library_books</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Animated Background Elements */}
-        <div className="absolute top-0 right-0 -mr-48 mt-24 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" style={{animationDelay: '4s'}}></div>
-      </main>
+      <HeroSection />
+      <StatisticsSection />
 
-      {/* Statistics Section */}
-      <AnimatedSection className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 bg-white" id="about">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Our Community in Numbers</h2>
-            <p className="text-blue-100">Building the future of legal education together</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div 
-                key={index} 
-                className="text-center transform hover:scale-110 transition-all duration-300"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-center justify-center mb-4">
-                  <span className="material-icons text-4xl text-blue-200 animate-float">{stat.icon}</span>
-                </div>
-                <div className="text-3xl md:text-4xl font-bold mb-2 animate-bounce-in">
-                  {stat.number}
-                </div>
-                <p className="text-blue-100 font-medium">{stat.label}</p>
-              </div>
-            ))}
+            <h2 className="text-3xl font-bold text-gray-800">About LLB28HUB</h2>
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+              At LLB 28, we are committed to revolutionizing legal education through innovative, sustainable, and cost-effective learning solutions.
+            </p>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
-      {/* About Section */}
-      <AnimatedSection className="py-20 bg-white" id="about">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">About LLB28HUB</h2>
-              <div className="w-24 h-1 bg-blue-600 mx-auto mb-8"></div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  At LLB 28, we are committed to revolutionizing legal education through innovative, sustainable, and cost-effective learning solutions. With a proven track record of delivering exceptional academic results, we combine state-of-the-art study technology, refined expertise, and student-centric approaches to bring our learning objectives to life.
-                </p>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <span className="material-icons text-blue-600 mr-3">check_circle</span>
-                    <span className="text-gray-700">Innovative Learning Technology</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="material-icons text-blue-600 mr-3">check_circle</span>
-                    <span className="text-gray-700">Expert Legal Faculty</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="material-icons text-blue-600 mr-3">check_circle</span>
-                    <span className="text-gray-700">Student-Centric Approach</span>
-                  </div>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-8 rounded-lg transform hover:rotate-1 transition-transform duration-300">
-                  <div className="text-center">
-                    <span className="material-icons text-6xl text-blue-600 mb-4 animate-float">balance</span>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">Excellence in Legal Education</h3>
-                    <p className="text-gray-600">Shaping tomorrow's legal professionals</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AnimatedSection>
-
-      {/* Enhanced Features Section */}
-      <AnimatedSection className="py-20 bg-gray-50" id="features">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Us?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Discover the features that make our platform the best choice for your legal studies.</p>
-            <div className="w-24 h-1 bg-blue-600 mx-auto mt-6"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className={`flex items-center justify-center h-16 w-16 rounded-full bg-${feature.color}-100 text-${feature.color}-600 mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <span className="material-icons text-3xl">{feature.icon}</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </AnimatedSection>
-
-      {/* AI Tools Showcase */}
-      <AnimatedSection className="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">AI-Powered Study Tools</h2>
-            <p className="text-indigo-200 max-w-2xl mx-auto">Harness the power of artificial intelligence to supercharge your legal studies</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tools.map((tool, index) => (
-              <Link
-                key={index}
-                to={tool.link}
-                className="bg-white/10 backdrop-blur-sm p-6 rounded-lg hover:bg-white/20 transition-all duration-300 transform hover:scale-105 group border border-white/20"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-center mb-4">
-                  <span className="material-icons text-3xl text-indigo-300 group-hover:text-white transition-colors mr-3">
-                    {tool.icon}
-                  </span>
-                  <h3 className="font-semibold group-hover:text-white transition-colors">{tool.name}</h3>
-                </div>
-                <p className="text-indigo-200 text-sm group-hover:text-white/90 transition-colors">
-                  {tool.description}
-                </p>
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Link 
-              to="/tools" 
-              className="inline-flex items-center px-8 py-3 bg-white text-indigo-900 rounded-lg font-medium hover:bg-indigo-50 transition-all transform hover:scale-105"
-            >
-              Explore All Tools
-              <span className="material-icons ml-2">arrow_forward</span>
-            </Link>
-          </div>
-        </div>
-      </AnimatedSection>
+      <FeaturesSection />
+      <AIToolsSection />
 
       {/* Resources Section */}
-      <AnimatedSection className="py-20 bg-white" id="resources">
+      <section className="py-20 bg-white" id="resources">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Resources</h2>
@@ -351,7 +105,6 @@ const Index = () => {
                 key={index}
                 to={resource.link}
                 className={`bg-gray-100 p-6 rounded-lg text-center shadow-sm hover:bg-${resource.color}-50 transition-all duration-300 transform hover:scale-105 group`}
-                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <span className={`material-icons text-${resource.color}-500 text-4xl mb-4 block group-hover:animate-bounce`}>
                   {resource.icon}
@@ -370,10 +123,10 @@ const Index = () => {
             </Link>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
       {/* Interactive Study Groups */}
-      <AnimatedSection className="py-20 bg-gradient-to-r from-green-400 to-blue-500 text-white">
+      <section className="py-20 bg-gradient-to-r from-green-400 to-blue-500 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Join Study Groups</h2>
@@ -404,35 +157,33 @@ const Index = () => {
             </Link>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
       {/* CTA Section */}
-      <AnimatedSection>
-        <div className="bg-blue-600">
-          <div className="container mx-auto px-4 py-16 text-center">
-            <h2 className="text-3xl font-extrabold text-white sm:text-4xl mb-4">Ready to elevate your legal studies?</h2>
-            <p className="text-lg text-blue-100 mb-8">Join our community today and get instant access to all our resources.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link 
-                to="/auth" 
-                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-all transform hover:scale-105"
-              >
-                Sign Up Now
-              </Link>
-              <Link 
-                to="/blog" 
-                className="inline-flex items-center justify-center px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white/10 transition-all transform hover:scale-105"
-              >
-                Read Our Blog
-                <span className="material-icons ml-2">article</span>
-              </Link>
-            </div>
+      <section className="bg-blue-600">
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl mb-4">Ready to elevate your legal studies?</h2>
+          <p className="text-lg text-blue-100 mb-8">Join our community today and get instant access to all our resources.</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link 
+              to="/auth" 
+              className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-all transform hover:scale-105"
+            >
+              Sign Up Now
+            </Link>
+            <Link 
+              to="/blog" 
+              className="inline-flex items-center justify-center px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-white/10 transition-all transform hover:scale-105"
+            >
+              Read Our Blog
+              <span className="material-icons ml-2">article</span>
+            </Link>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
       {/* Contact Section */}
-      <AnimatedSection className="py-20 bg-gray-50" id="contact">
+      <section className="py-20 bg-gray-50" id="contact">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Get In Touch</h2>
@@ -485,7 +236,7 @@ const Index = () => {
             </form>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white">
