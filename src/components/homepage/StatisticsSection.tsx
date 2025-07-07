@@ -11,7 +11,7 @@ export const StatisticsSection = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section ref={ref} className={`py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white transition-all duration-700 ${
+    <section ref={ref} className={`py-20 bg-blue-600 text-white transition-all duration-700 ${
       isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'
     }`}>
       <div className="container mx-auto px-4">

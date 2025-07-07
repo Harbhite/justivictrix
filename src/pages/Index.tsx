@@ -1,16 +1,11 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useMetaTags } from '@/hooks/useMetaTags';
 import { HeroSection } from '@/components/homepage/HeroSection';
 import { StatisticsSection } from '@/components/homepage/StatisticsSection';
 import { FeaturesSection } from '@/components/homepage/FeaturesSection';
 import { AIToolsSection } from '@/components/homepage/AIToolsSection';
-import { MobileMenu } from '@/components/homepage/MobileMenu';
 
 const Index = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
 
   useMetaTags({
     title: "LLB28HUB - Your Legal Education Hub",
@@ -19,55 +14,11 @@ const Index = () => {
     type: "website"
   });
 
-  // Scroll effect for navbar
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 50);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleMobileMenuToggle = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleCloseMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const handleCloseBanner = () => {
-    setIsInstallBannerVisible(false);
-  };
 
 
   return (
-    <div className="bg-gray-50" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Enhanced Header */}
-      <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-sm'
-      }`}>
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
-            LLB28HUB
-          </h1>
-          <button 
-            className="text-gray-600 focus:outline-none hover:text-blue-600 transition-colors transform hover:scale-110" 
-            onClick={handleMobileMenuToggle}
-          >
-            <span className="material-icons">menu</span>
-          </button>
-        </div>
-      </header>
-
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={handleCloseMobileMenu} />
+    <div className="min-h-screen">
+      <div className="pt-16"> {/* Add padding to account for fixed navbar */}
 
       <HeroSection />
       <StatisticsSection />
@@ -126,7 +77,7 @@ const Index = () => {
       </section>
 
       {/* Interactive Study Groups */}
-      <section className="py-20 bg-gradient-to-r from-green-400 to-blue-500 text-white">
+      <section className="py-20 bg-green-600 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Join Study Groups</h2>
@@ -283,50 +234,7 @@ const Index = () => {
           </div>
         </div>
       </footer>
-
-      {/* Enhanced Install Banner */}
-      {isInstallBannerVisible && (
-        <div className="fixed bottom-0 inset-x-0 pb-2 sm:pb-5 z-40 animate-slide-in-right">
-          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-            <div className="p-2 rounded-lg bg-gray-900 shadow-lg sm:p-3 border-l-4 border-blue-500">
-              <div className="flex items-center justify-between flex-wrap">
-                <div className="w-0 flex-1 flex items-center">
-                  <span className="flex p-2 rounded-lg bg-blue-800 animate-pulse">
-                    <span className="material-icons text-white">system_update</span>
-                  </span>
-                  <p className="ml-3 font-medium text-white truncate">
-                    <span className="md:hidden">Get our app!</span>
-                    <span className="hidden md:inline">Install Law Portal: Get quick access to all your study resources with our app!</span>
-                  </p>
-                </div>
-                <div className="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto">
-                  <a className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 transition-all transform hover:scale-105" href="#">
-                    Install
-                  </a>
-                </div>
-                <div className="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto sm:ml-2">
-                  <button 
-                    className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray-700 transition-all"
-                    onClick={handleCloseBanner}
-                  >
-                    Later
-                  </button>
-                </div>
-                <div className="order-2 flex-shrink-0 sm:order-3 sm:ml-2">
-                  <button 
-                    className="-mr-1 flex p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white transition-all transform hover:rotate-90" 
-                    type="button"
-                    onClick={handleCloseBanner}
-                  >
-                    <span className="sr-only">Dismiss</span>
-                    <span className="material-icons text-white h-6 w-6">close</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

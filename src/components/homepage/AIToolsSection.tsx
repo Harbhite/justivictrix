@@ -14,7 +14,7 @@ export const AIToolsSection = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section ref={ref} className={`py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white transition-all duration-700 ${
+    <section ref={ref} className={`py-20 bg-indigo-900 text-white transition-all duration-700 ${
       isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'
     }`}>
       <div className="container mx-auto px-4">
