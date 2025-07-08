@@ -1,18 +1,22 @@
 
 import { Link } from "react-router-dom";
-import { Calendar, User, Eye, MessageCircle } from "lucide-react";
+import { Calendar, User, Eye, MessageCircle, Edit } from "lucide-react";
 import { BlogPost } from "@/types/blog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface FeaturedPostProps {
   post: BlogPost;
+  currentUserId?: string;
 }
 
-const FeaturedPost = ({ post }: FeaturedPostProps) => {
+const FeaturedPost = ({ post, currentUserId }: FeaturedPostProps) => {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
     target.src = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6";
   };
+
+  const canEdit = currentUserId && currentUserId === post.author_id;
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
@@ -81,12 +85,24 @@ const FeaturedPost = ({ post }: FeaturedPostProps) => {
             )}
           </div>
           
-          <Link
-            to={`/blog/${post.id}`}
-            className="inline-flex items-center justify-center bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
-          >
-            Read Full Article
-          </Link>
+          <div className="flex gap-3">
+            <Link
+              to={`/blog/${post.id}`}
+              className="flex-1 inline-flex items-center justify-center bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+            >
+              Read Full Article
+            </Link>
+            
+            {canEdit && (
+              <Link
+                to={`/blog/edit/${post.id}`}
+                className="inline-flex items-center justify-center bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                title="Edit Post"
+              >
+                <Edit size={18} />
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </div>

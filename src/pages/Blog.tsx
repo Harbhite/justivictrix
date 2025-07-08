@@ -261,7 +261,7 @@ const Blog = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Posts</h2>
             <div className="grid gap-8">
               {featuredPosts.slice(0, 2).map(post => (
-                <FeaturedPost key={post.id} post={post} />
+                <FeaturedPost key={post.id} post={post} currentUserId={user?.id} />
               ))}
             </div>
           </section>
