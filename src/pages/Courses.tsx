@@ -38,8 +38,8 @@ const Courses = () => {
   const [loading, setLoading] = useState(true);
 
   useMetaTags({
-    title: "Course Catalog - LLB28 Hub",
-    description: "Browse all Law courses in the LLB program. View course details, outlines, and lecturer information.",
+    title: "Law Course Catalog - Constitutional Law, Criminal Law, Civil Procedure & More | LLB28 Hub",
+    description: "Browse our complete law school curriculum featuring constitutional law, criminal law, civil procedure, contract law, tort law, and specialized legal courses with detailed syllabi and learning objectives.",
     image: "/og-image.png",
     type: "website"
   });

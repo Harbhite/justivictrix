@@ -34,8 +34,8 @@ const Gallery = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useMetaTags({
-    title: "Class Gallery - LLB28 Hub",
-    description: "Browse and share photos capturing memories and moments from our law school journey. View class events and special occasions.",
+    title: "Law School Photo Gallery - Campus Life, Events & Academic Moments | LLB28 Hub",
+    description: "Explore our vibrant photo collection featuring law school events, graduation ceremonies, moot court competitions, academic conferences, and memorable campus moments.",
     image: "/og-image.png",
     type: "website"
   });

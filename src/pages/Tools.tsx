@@ -27,8 +27,8 @@ const Tools = () => {
   const isMobile = useIsMobile();
 
   useMetaTags({
-    title: "Legal Tools & CGPA Calculator - LLB28 Hub",
-    description: "Access powerful legal tools including CGPA calculator, case generators, legal dictionaries, and AI-powered legal research assistants.",
+    title: "AI-Powered Legal Tools - Case Brief Generator, Contract Analyzer & Legal Research | LLB28 Hub",
+    description: "Supercharge your legal studies with advanced AI tools: automated case brief generation, contract analysis, legal memorandum creation, citation formatting, and intelligent legal research assistance.",
     image: "/og-image.png",
     type: "website"
   });

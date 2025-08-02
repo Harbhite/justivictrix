@@ -20,8 +20,8 @@ const Blog = () => {
   const navigate = useNavigate();
 
   useMetaTags({
-    title: "Law Student Blog - LLB28 Hub",
-    description: "Read insightful articles, case analyses, and academic discussions from law students. Share your legal knowledge and perspectives.",
+    title: "Legal Insights Blog - Expert Case Analysis & Law Student Articles | LLB28 Hub",
+    description: "Explore in-depth legal articles, case analyses, and academic insights from law students and legal professionals. Features constitutional law, criminal law, civil procedure, and contemporary legal issues.",
     image: "/og-image.png",
     type: "website"
   });

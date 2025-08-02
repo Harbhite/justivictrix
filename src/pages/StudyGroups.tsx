@@ -40,8 +40,8 @@ const StudyGroups = () => {
   });
 
   useMetaTags({
-    title: "Study Groups - LLB28 Hub",
-    description: "Join or create study groups with your fellow law students. Collaborate, share knowledge, and excel together in your legal studies.",
+    title: "Law Study Groups - Collaborative Learning & Academic Support | LLB28 Hub",
+    description: "Join active study groups for constitutional law, criminal law, contracts, and more. Collaborate with classmates, share notes, and enhance your legal education through peer learning.",
     image: "/og-image.png",
     type: "website"
   });

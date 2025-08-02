@@ -8,8 +8,8 @@ import { AIToolsSection } from '@/components/homepage/AIToolsSection';
 const Index = () => {
 
   useMetaTags({
-    title: "LLB28HUB - Your Legal Education Hub",
-    description: "Connect, learn, and excel with your fellow LLB28 classmates. Access resources, join study groups, and build your legal career together.",
+    title: "LLB28 Hub - Premier Law Student Portal & Legal Education Platform",
+    description: "Join LLB28 Hub, the ultimate law student portal with comprehensive study resources, AI-powered legal tools, interactive forums, and a vibrant community of future lawyers. Access case briefs, legal notes, and collaborative study materials.",
     image: "/og-image.png",
     type: "website"
   });

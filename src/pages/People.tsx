@@ -14,8 +14,8 @@ const People = () => {
   const navigate = useNavigate();
 
   useMetaTags({
-    title: "LLB28 Members - Law Student Community",
-    description: "Connect and network with fellow LLB28 law students. Browse member profiles and build professional relationships.",
+    title: "Law Student Directory - Connect with Classmates, Professors & Legal Professionals | LLB28 Hub",
+    description: "Network with law students, professors, attorneys, and legal professionals in our comprehensive member directory. Build connections, find study partners, and expand your legal network.",
     image: "/og-image.png",
     type: "website"
   });

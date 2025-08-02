@@ -52,8 +52,8 @@ const Events = () => {
   const isAdmin = user?.email === "swisssunny1@gmail.com";
 
   useMetaTags({
-    title: "Class Events & Calendar - LLB28 Hub",
-    description: "Stay updated with upcoming class events, lectures, and important academic activities. Add events to your calendar.",
+    title: "Legal Events & Workshops - Seminars, Networking & Professional Development | LLB28 Hub",
+    description: "Discover upcoming legal events, professional workshops, academic seminars, moot court competitions, and networking opportunities designed for law students and legal professionals.",
     image: "/og-image.png",
     type: "website"
   });

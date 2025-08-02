@@ -51,8 +51,8 @@ const mockNewsData: NewsItem[] = [
 
 const News = () => {
   useMetaTags({
-    title: "Latest News & Updates - LLB28 Hub",
-    description: "Stay updated with the latest legal news, reforms, webinars, and university updates relevant to law students.",
+    title: "Latest Legal News - Court Decisions, Legislation Updates & Legal Analysis | LLB28 Hub",
+    description: "Stay informed with breaking legal news, Supreme Court decisions, new legislation, landmark cases, and expert legal analysis. Essential updates for law students and legal professionals.",
     image: "/og-image.png",
     type: "website"
   });

@@ -18,8 +18,8 @@ const Resources = () => {
   const isAdmin = user?.email === "swisssunny1@gmail.com";
 
   useMetaTags({
-    title: "Academic Resources - LLB28 Hub",
-    description: "Access lecture notes, past questions, textbooks, assignments, and other academic materials for law students.",
+    title: "Comprehensive Legal Study Resources - Case Documents, Notes & Materials | LLB28 Hub",
+    description: "Access an extensive collection of legal study materials including case documents, lecture notes, constitutional law resources, criminal law cases, and academic papers. Perfect for law students and legal research.",
     image: "/og-image.png",
     type: "website"
   });

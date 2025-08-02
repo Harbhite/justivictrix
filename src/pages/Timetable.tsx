@@ -20,8 +20,8 @@ const Timetable = () => {
   const isMobile = useIsMobile();
 
   useMetaTags({
-    title: "Class Timetable - LLB28 Hub",
-    description: "View and manage the class timetable with course schedules, times, locations, and lecturer information. Export to PDF or calendar.",
+    title: "Law School Timetable - Class Schedules, Exam Dates & Academic Calendar | LLB28 Hub",
+    description: "Organize your law school life with our comprehensive timetable system. Track class schedules, assignment deadlines, exam dates, and important academic milestones.",
     image: "/og-image.png",
     type: "website"
   });
