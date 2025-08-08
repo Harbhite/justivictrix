@@ -7,6 +7,7 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 
 const PWAInstallBanner = () => {
   const [dismissed, setDismissed] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const { canInstall, installApp, isInstalled } = useServiceWorker();
 
   useEffect(() => {
@@ -14,7 +15,12 @@ const PWAInstallBanner = () => {
     if (stored === 'true') setDismissed(true);
   }, []);
 
-  if (!canInstall || dismissed || isInstalled) {
+  useEffect(() => {
+    const pref = localStorage.getItem('pwaBannerEnabled');
+    if (pref === 'false') setEnabled(false);
+  }, []);
+
+  if (!enabled || !canInstall || dismissed || isInstalled) {
     return null;
   }
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useMetaTags } from "@/hooks/useMetaTags";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,12 +7,18 @@ import NotificationManager from "@/components/NotificationManager";
 import ProfileEditor from "@/components/profile/ProfileEditor";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Settings = () => {
   const { user } = useAuth();
+  const [pwaBannerEnabled, setPwaBannerEnabled] = useState(true);
+  useEffect(() => {
+    const pref = localStorage.getItem('pwaBannerEnabled');
+    if (pref === 'false') setPwaBannerEnabled(false);
+  }, []);
 
   useMetaTags({
     title: "Settings - LLB28 Hub",
@@ -163,6 +170,21 @@ const Settings = () => {
                     }}>
                       Install App
                     </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium mb-1">Show PWA Install Banner</h3>
+                      <p className="text-sm text-muted-foreground">Control whether the install prompt appears.</p>
+                    </div>
+                    <Switch
+                      checked={pwaBannerEnabled}
+                      onCheckedChange={(checked) => {
+                        setPwaBannerEnabled(checked);
+                        localStorage.setItem('pwaBannerEnabled', checked ? 'true' : 'false');
+                        toast.success(`PWA banner ${checked ? 'enabled' : 'disabled'}`);
+                      }}
+                    />
                   </div>
 
                   <div>

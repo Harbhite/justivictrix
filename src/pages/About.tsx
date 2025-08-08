@@ -72,10 +72,10 @@ const About = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <motion.section 
-        className="relative py-20 bg-gradient-to-r from-law-primary to-law-secondary text-white overflow-hidden"
+        className="relative py-20 bg-primary text-primary-foreground overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -445,7 +445,7 @@ const About = () => {
 
       {/* Call to Action */}
       <motion.section 
-        className="py-16 bg-gradient-to-r from-law-primary to-law-secondary text-white"
+        className="py-16 bg-primary text-primary-foreground"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
