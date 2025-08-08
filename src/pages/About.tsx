@@ -75,7 +75,7 @@ const About = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <motion.section 
-        className="relative py-20 bg-primary text-primary-foreground overflow-hidden"
+        className="relative py-20 bg-gradient-primary text-primary-foreground overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}

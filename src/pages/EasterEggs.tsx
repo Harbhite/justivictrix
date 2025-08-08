@@ -22,12 +22,11 @@ const EasterEggs = () => {
   });
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-center mb-8">Interactive Tools & Fun Features</h1>
+    <div className="container mx-auto px-4 py-8 animate-fade-in-up">
+      <h1 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary animate-fade-in-up">Interactive Tools & Fun Features</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-        {/* AI Motivator Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#F97316] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Motivational Boost</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Get inspirational support when you need it most</p>
@@ -35,8 +34,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Fortune Cookie Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#D946EF] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Fortune Cookie</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Discover pearls of wisdom from virtual fortune cookies</p>
@@ -44,8 +42,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Word Scramble Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#8B5CF6] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Word Scramble</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Test your knowledge with scrambled legal terms</p>
@@ -53,8 +50,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Quote Generator Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#ea384c] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Inspiring Quotes</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Discover profound quotes about law and justice</p>
@@ -62,8 +58,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Legal Chatbot Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#22c55e] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Assistant</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Chat with an AI to get legal information and guidance</p>
@@ -71,8 +66,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Study Mood Tracker Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#3b82f6] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Study Mood Tracker</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Track your study mood and get personalized advice</p>
@@ -80,8 +74,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Pomodoro Timer Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#ef4444] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Pomodoro Study Timer</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Stay focused with the proven Pomodoro technique</p>
@@ -89,8 +82,7 @@ const EasterEggs = () => {
           </div>
         </div>
 
-        {/* Legal Joke Generator Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-[#fbbf24] hover:shadow-xl transition-all">
+        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 rounded-lg shadow-lg overflow-hidden border border-border hover:shadow-xl transition-all hover-animate-jelly">
           <div className="p-4 md:p-6">
             <h2 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Legal Joke Generator</h2>
             <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">Take a break with some legal humor and jokes</p>
