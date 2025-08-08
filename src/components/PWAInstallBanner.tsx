@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, X } from 'lucide-react';
@@ -7,9 +7,14 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 
 const PWAInstallBanner = () => {
   const [dismissed, setDismissed] = useState(false);
-  const { canInstall, installApp } = useServiceWorker();
+  const { canInstall, installApp, isInstalled } = useServiceWorker();
 
-  if (!canInstall || dismissed) {
+  useEffect(() => {
+    const stored = localStorage.getItem('pwaBannerDismissed');
+    if (stored === 'true') setDismissed(true);
+  }, []);
+
+  if (!canInstall || dismissed || isInstalled) {
     return null;
   }
 
@@ -34,7 +39,7 @@ const PWAInstallBanner = () => {
               <Button 
                 size="sm" 
                 variant="outline" 
-                onClick={() => setDismissed(true)}
+                onClick={() => { setDismissed(true); localStorage.setItem('pwaBannerDismissed', 'true'); }}
               >
                 Later
               </Button>
@@ -43,7 +48,7 @@ const PWAInstallBanner = () => {
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => setDismissed(true)}
+            onClick={() => { setDismissed(true); localStorage.setItem('pwaBannerDismissed', 'true'); }}
             className="p-1 h-auto"
           >
             <X className="w-4 h-4" />
