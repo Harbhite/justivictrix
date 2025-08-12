@@ -49,7 +49,7 @@ const SecretForum = () => {
 
   if (loading || checkingAccess) {
     return (
-      <div className="container max-w-7xl mx-auto px-4 py-8">
+      <div className="container max-w-7xl mx-auto px-4 py-8 min-h-screen bg-gradient-soft animate-fade-in-fast">
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900" />
         </div>
@@ -60,7 +60,7 @@ const SecretForum = () => {
   // If not logged in, tell user to sign in (Forum is private)
   if (!user) {
     return (
-      <div className="container max-w-2xl mx-auto px-4 py-16 flex flex-col items-center">
+      <div className="container max-w-2xl mx-auto px-4 py-16 flex flex-col items-center min-h-screen bg-gradient-soft animate-fade-in-fast">
         <h2 className="text-2xl font-bold mb-4">Forum Private</h2>
         <p className="mb-6 text-gray-600 text-center">
           You must be signed in to access the secret Community Forum.
@@ -78,7 +78,7 @@ const SecretForum = () => {
   // If no access, show access code entry
   if (!hasAccess) {
     return (
-      <div className="container max-w-md mx-auto px-4 py-16 flex flex-col items-center">
+      <div className="container max-w-md mx-auto px-4 py-16 flex flex-col items-center min-h-screen bg-gradient-soft animate-fade-in-fast">
         <h2 className="text-2xl font-bold mb-4">Get Forum Access</h2>
         <p className="mb-6 text-gray-600 text-center">
           The Community Forum is reserved for members only. Click below to get instant access.

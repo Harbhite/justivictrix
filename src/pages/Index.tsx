@@ -17,7 +17,7 @@ const Index = () => {
 
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-soft animate-fade-in-fast">
       <div className="pt-16"> {/* Add padding to account for fixed navbar */}
 
       <HeroSection />
@@ -77,7 +77,7 @@ const Index = () => {
       </section>
 
       {/* Interactive Study Groups */}
-      <section className="py-20 bg-green-600 text-white">
+      <section className="py-20 text-white bg-gradient-primary animate-gradient-xy">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Join Study Groups</h2>
@@ -111,7 +111,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-blue-600">
+      <section className="bg-gradient-primary animate-gradient-xy">
         <div className="container mx-auto px-4 py-16 text-center">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl mb-4">Ready to elevate your legal studies?</h2>
           <p className="text-lg text-blue-100 mb-8">Join our community today and get instant access to all our resources.</p>

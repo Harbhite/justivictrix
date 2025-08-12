@@ -87,7 +87,7 @@ const Resources = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 lg:py-12">
+    <div className="min-h-screen bg-gradient-soft animate-fade-in-fast py-6 sm:py-8 lg:py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -161,7 +161,7 @@ const Resources = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}
-                className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200 overflow-hidden group"
+                className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200 overflow-hidden group hover-animate-float"
               >
                 <div className="p-4 sm:p-5 space-y-3 sm:space-y-4">
                   {/* Resource Header */}

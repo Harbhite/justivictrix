@@ -58,7 +58,7 @@ const News = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 min-h-screen bg-gradient-soft animate-fade-in-fast">
       <h1
         className="text-3xl md:text-4xl font-black text-law-dark mb-8 text-center"
       >

@@ -41,7 +41,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
+    <div className="container max-w-4xl mx-auto px-4 py-8 min-h-screen bg-gradient-soft animate-fade-in-fast">
       <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
         <h1 className="text-3xl font-bold">Profile Settings</h1>
         <div className="flex gap-3">

@@ -35,7 +35,7 @@ const BlogEditorPage = () => {
 
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
+    <div className="container max-w-4xl mx-auto px-4 py-8 min-h-screen bg-gradient-soft animate-fade-in-fast">
       <button
         onClick={() => navigate('/blog')}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"

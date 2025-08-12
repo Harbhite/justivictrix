@@ -84,7 +84,7 @@ const AlternativeProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-green-800">
+    <div className="min-h-screen bg-green-800 animate-fade-in-fast">
       <div className="max-w-sm mx-auto bg-green-800 min-h-screen relative">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pt-12">

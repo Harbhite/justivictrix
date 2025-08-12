@@ -83,7 +83,7 @@ const FullProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-soft animate-fade-in-fast">
       <div className="max-w-sm mx-auto bg-white min-h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pt-12">

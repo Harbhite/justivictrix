@@ -107,7 +107,7 @@ const Timetable = () => {
   };
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-8 sm:py-16">
+    <div className="container mx-auto px-2 sm:px-4 py-8 sm:py-16 min-h-screen bg-gradient-soft animate-fade-in-fast">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

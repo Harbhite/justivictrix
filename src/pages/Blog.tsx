@@ -247,7 +247,7 @@ const Blog = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-soft animate-fade-in-fast">
       <BlogHeader 
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

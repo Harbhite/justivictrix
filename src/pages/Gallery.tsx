@@ -135,7 +135,7 @@ const Gallery = () => {
   }, [selectedImage, galleryImages.length]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 lg:py-16">
+    <div className="min-h-screen bg-gradient-soft py-6 sm:py-8 lg:py-16 animate-fade-in-fast">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
